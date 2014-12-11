@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES 
 
 #include <vector>
+#include <iostream>
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Position.h"

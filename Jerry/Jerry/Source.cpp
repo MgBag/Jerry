@@ -55,7 +55,7 @@ int main()
 		cout << "Failed to initiate event queue\n";
 		return -1;
 	}
-
+	al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -78,8 +78,8 @@ int main()
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 	world->push_back(new WorldBlock(0, 850, 1400, 900));
-	world->push_back(new WorldBlock(0, 0, 1400, 50));
-	world->push_back(new WorldBlock(0, 0, 50, 900));
+	//world->push_back(new WorldBlock(0, 0, 1400, 50));
+	//world->push_back(new WorldBlock(0, 0, 50, 900));
 
 	Entity* player = new Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 10, M_PI_2);
 

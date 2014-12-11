@@ -35,42 +35,46 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		yCol.push_back(-1);
 		isYCol.push_back(false);
 
-		if (offset->Y > 0)
+		if (((round(entB->Y) <= worA->Y) && (entB->Y + offset->Y > worA->Y) && ((entA->X + offset->X < worB->X) || (entB->X + offset->X > worA->X))) ||
+			((round(entA->Y) >= worB->Y) && (entA->Y + offset->Y < worB->Y) && ((entA->X + offset->X < worB->X) || (entB->X + offset->X > worA->X))) ||
+			((round(entB->X) <= worA->X) && (entB->X + offset->X > worA->X) && ((entA->Y + offset->Y < worB->Y) || (entB->Y + offset->Y > worA->Y))) ||
+			((round(entA->X) >= worB->X) && (entA->X + offset->X < worB->X) && ((entA->Y + offset->Y < worB->Y) || (entB->Y + offset->Y > worA->Y))))
 		{
-			if (worA->Y < entB->Y + offset->Y && worB->Y > entB->Y) // in range
+			if (offset->Y > 0)
 			{
-				if (round(entB->Y) >= worA->Y)
+				if ()
 				{
-					yCol[yCol.size() - 1] = entA->Y;
+					if (round(entB->Y) >= worA->Y)
+					{
+						yCol[yCol.size() - 1] = entA->Y;
 
-					if (round(entB->Y) == worA->Y)
-					{
-						isYCol[isYCol.size() - 1] = true;
-					}
-				}
-				else
-				{
-					for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
-					{
-						if (round(entB->Y + y) >= worA->Y)
+						if (round(entB->Y) == worA->Y)
 						{
-							yCol[yCol.size() - 1] = entA->Y + y;
-
-							if (round(entB->Y + y) == worA->Y)
+							isYCol[isYCol.size() - 1] = true;
+						}
+					}
+					else
+					{
+						for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
+						{
+							if (round(entB->Y + y) >= worA->Y)
 							{
-								isYCol[isYCol.size() - 1] = true;
-							}
+								yCol[yCol.size() - 1] = entA->Y + y;
 
-							break;
+								if (round(entB->Y + y) == worA->Y)
+								{
+									isYCol[isYCol.size() - 1] = true;
+								}
+
+								break;
+							}
 						}
 					}
 				}
 			}
-		}
-		else
-		{
-			if (worB->Y > entA->Y + offset->Y && worA->Y  < entA->Y) // in range
+			else
 			{
+
 				if (worB->Y >= round(entA->Y))
 				{
 					yCol[yCol.size() - 1] = entA->Y;
@@ -98,11 +102,8 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 					}
 				}
 			}
-		}
 
-		if (offset->X > 0)
-		{
-			if (worA->X < entB->X + offset->X && worB->X > entB->X) // in range
+			if (offset->X > 0)
 			{
 				if (round(entB->Y) >= worA->X)
 				{
@@ -121,10 +122,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 					}
 				}
 			}
-		}
-		else
-		{
-			if (worB->X > entA->X + offset->X && worA->X < entA->X) // in range
+			else
 			{
 				if (worB->X >= round(entA->X))
 				{
@@ -142,6 +140,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 						}
 					}
 				}
+
 			}
 		}
 	}
