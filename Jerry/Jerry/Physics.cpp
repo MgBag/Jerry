@@ -22,8 +22,9 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 	const Position* entA = ent->GetPosition();
 	Position* entB = new Position(entA->X + ent->GetWidth(), entA->Y + ent->GetHeight());
 
-	vector<int> xCol;
-	vector<int> yCol;
+	vector<float> xCol;
+	vector<float> yCol;
+	vector<bool> isXCol;
 	vector<bool> isYCol;
 
 	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
@@ -34,36 +35,99 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		xCol.push_back(-1);
 		yCol.push_back(-1);
 		isYCol.push_back(false);
+		isXCol.push_back(false);
 
-		if (((round(entB->Y) <= worA->Y) && (entB->Y + offset->Y > worA->Y) && ((entA->X + offset->X < worB->X) || (entB->X + offset->X > worA->X))) ||
-			((round(entA->Y) >= worB->Y) && (entA->Y + offset->Y < worB->Y) && ((entA->X + offset->X < worB->X) || (entB->X + offset->X > worA->X))) ||
-			((round(entB->X) <= worA->X) && (entB->X + offset->X > worA->X) && ((entA->Y + offset->Y < worB->Y) || (entB->Y + offset->Y > worA->Y))) ||
-			((round(entA->X) >= worB->X) && (entA->X + offset->X < worB->X) && ((entA->Y + offset->Y < worB->Y) || (entB->Y + offset->Y > worA->Y))))
+		if (offset->Y >= 0.0)
 		{
-			if (offset->Y > 0)
+			if ((entB->Y + offset->Y > worA->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
 			{
-				if ()
+				if (ceil(entB->Y) >= worA->Y)
 				{
-					if (round(entB->Y) >= worA->Y)
-					{
-						yCol[yCol.size() - 1] = entA->Y;
+					yCol[yCol.size() - 1] = entA->Y;
 
-						if (round(entB->Y) == worA->Y)
+					if (ceil(entB->Y) == worA->Y)
+					{
+						isYCol[isYCol.size() - 1] = true;
+					}
+				}
+				else
+				{
+					for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
+					{
+						if (ceil(entB->Y + y) >= worA->Y)
 						{
-							isYCol[isYCol.size() - 1] = true;
+							yCol[yCol.size() - 1] = entA->Y + y;
+
+							if (ceil(entB->Y + y) == worA->Y)
+							{
+								isYCol[isYCol.size() - 1] = true;
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if ((entA->Y + offset->Y < worB->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
+			{
+				if (ceil(entA->Y) <= worB->Y)
+				{
+					yCol[yCol.size() - 1] = entA->Y;
+
+					if (ceil(entA->Y) == worB->Y)
+					{
+						isYCol[isYCol.size() - 1] = true;
+					}
+				}
+				else
+				{
+					for (float y = fmod(offset->Y, 1.0); y >= offset->Y; --y)
+					{
+						if (ceil(entA->Y + y) <= worB->Y)
+						{
+							yCol[yCol.size() - 1] = entA->Y + y;
+
+							if (ceil(entA->Y + y) == worB->Y)
+							{
+								isYCol[isYCol.size() - 1] = true;
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (!isYCol[isYCol.size() - 1])
+		{
+			if (offset->X >= 0.0)
+			{
+				if ((entB->X + offset->X > worA->X) && (offset->Y >= 0.0 ? (entB->Y + offset->Y > worA->Y) : (entA->Y + offset->Y < worB->Y)))
+				{
+					if (ceil(entB->X) == worA->X)
+					{
+						xCol[xCol.size() - 1] = entA->X;
+
+						if (ceil(entB->X) == worA->X)
+						{
+							isXCol[isXCol.size() - 1] = true;
 						}
 					}
 					else
 					{
-						for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
+						for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
 						{
-							if (round(entB->Y + y) >= worA->Y)
+							if (ceil(entB->X + x) >= worA->X)
 							{
-								yCol[yCol.size() - 1] = entA->Y + y;
-
-								if (round(entB->Y + y) == worA->Y)
+								xCol[xCol.size() - 1] = entA->X + x;
+								
+								if (ceil(entB->X + x) == worA->X)
 								{
-									isYCol[isYCol.size() - 1] = true;
+									isXCol[isXCol.size() - 1] = true;
 								}
 
 								break;
@@ -74,94 +138,65 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 			}
 			else
 			{
-
-				if (worB->Y >= round(entA->Y))
+				if ((entA->X + offset->X < worB->X) && (offset->Y >= 0.0 ? (entB->Y + offset->Y > worA->Y) : (entA->Y + offset->Y < worB->Y)))
 				{
-					yCol[yCol.size() - 1] = entA->Y;
+					if (ceil(entA->X) == worB->X)
+					{
+						xCol[xCol.size() - 1] = entA->X;
 
-					if (worB->Y == round(entA->Y))
-					{
-						isYCol[isYCol.size() - 1] = true;
-					}
-				}
-				else
-				{
-					for (float y = fmod(offset->Y, 1.0); y >= offset->Y; --y)
-					{
-						if (worB->Y >= round(entA->Y + y))
+						if (ceil(entA->X) == worB->X)
 						{
-							yCol[yCol.size() - 1] = entA->Y + y;
-
-							if (worB->Y == round(entA->Y + y))
+							isXCol[isXCol.size() - 1] = true;
+						}
+					}
+					else
+					{
+						for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
+						{
+							if (worB->X >= ceil(entA->X + x))
 							{
-								isYCol[isYCol.size() - 1] = true;
+								xCol[xCol.size() - 1] = entA->X + x;
+
+								if (ceil(entA->X + x) == worB->X)
+								{
+									isXCol[isXCol.size() - 1] = true;
+								}
+
+								break;
 							}
-
-							break;
 						}
 					}
 				}
 			}
+		}
+	}
 
-			if (offset->X > 0)
+	for (int i = 0; i < xCol.size(); ++i) //move this to the inside 
+	{
+		if ((yCol[i] != -1 && isYCol[i]) || (xCol[i] != -1 && isXCol[i]))
+		{
+			if (isYCol[i])
 			{
-				if (round(entB->Y) >= worA->X)
-				{
-					xCol[xCol.size() - 1] = entA->X;
-				}
-				else
-				{
-					for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
-					{
-						if (round(entB->Y + x) >= worA->X)
-						{
-							xCol[xCol.size() - 1] = entA->X + x;
+				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), yCol[i]);
 
-							break;
-						}
-					}
-				}
+				ent->SetVectorByOffset(ent->GetOffset()->X * FRICTION, 0.0);
 			}
-			else
+			else if (isXCol[i])
 			{
-				if (worB->X >= round(entA->X))
-				{
-					xCol[xCol.size() - 1] = entA->X;
-				}
-				else
-				{
-					for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
-					{
-						if (worB->X >= round(entA->X + x))
-						{
-							xCol[xCol.size() - 1] = entA->X + x;
+				ent->SetPosition(xCol[i], entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
 
-							break;
-						}
-					}
-				}
-
+				ent->SetVectorByOffset(0.0, ent->GetOffset()->Y * FRICTION);
 			}
+
+			delete offset;
+			delete entB;
+
+			return true;
 		}
 	}
 
 	delete offset;
 	delete entB;
-
-	for (int i = 0; i < xCol.size(); ++i)
-	{
-		if (xCol[i] != -1 && yCol[i] != -1)
-		{
-			ent->SetPosition(xCol[i], yCol[i]);
-
-			if (isYCol[i])
-				ent->SetVectorByOffset(ent->GetOffset()->X * FRICTION, 0.0);
-			else
-				ent->SetVectorByOffset(0.0, ent->GetOffset()->Y * FRICTION);
-
-			return true;
-		}
-	}
 
 	return false;
 }
@@ -170,9 +205,9 @@ void Physics::ApplyGravity(Entity* ent)
 {
 	Position* offset = ent->GetOffset();
 
-	ent->SetVectorByOffset(offset->X, offset->Y + GRAVITY);
-
 	ent->MoveToOffset();
+
+	ent->SetVectorByOffset(offset->X, offset->Y + GRAVITY);
 
 	delete offset;
 }

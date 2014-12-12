@@ -7,7 +7,7 @@ Entity::Entity(float x, float y, float width, float height, ALLEGRO_COLOR color,
 	m_Height = height;
 	m_Color = color;
 	m_Velocity = velocity;
-	SetDirection(direction);
+	m_Direction = direction;
 }
 
 Entity::~Entity()
@@ -85,7 +85,27 @@ Position* Entity::GetOffset()
 {
 	Position *offset = new Position();
 
-	if (m_Direction > (3 * M_PI_2))
+	if (m_Direction == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = m_Velocity * -1;
+	}
+	else if (fmod(m_Direction, M_PI_2) == 0.0)
+	{
+		offset->X = m_Velocity * -1;
+		offset->Y = 0.0;
+	}
+	else if (fmod(m_Direction, M_PI) == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = m_Velocity;
+	}
+	else if (fmod(m_Direction, 3 * M_PI_2) == 0.0)
+	{
+		offset->X = m_Velocity;
+		offset->Y = 0.0;
+	}
+	else if (m_Direction > (3 * M_PI_2))
 	{
 		offset->X = cos(m_Direction - (3 * M_PI_2)) * m_Velocity;
 		offset->Y = sin(m_Direction - (3 * M_PI_2)) * m_Velocity * -1;
@@ -132,5 +152,17 @@ void Entity::SetVectorByOffset(float x, float y)
 	else if (x == 0.0 && y > 0.0)
 	{
 		m_Direction = M_PI;
+	}
+	else if (x == 0.0 && y < 0.0)
+	{
+		m_Direction = 0.0;
+	}
+	else if (x > 0.0 && y == 0.0)
+	{
+		m_Direction = 3 * M_PI_2;
+	}
+	else if (x < 0.0 && y == 0.0)
+	{
+		m_Direction = M_PI_2;
 	}
 }
