@@ -16,29 +16,29 @@ private:
 	float m_Velocity;
 	float m_Direction;
 public:
-	Entity(float x1, float y1, float width, float height, ALLEGRO_COLOR color, float velocity, float direction);
+	Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float direction);
 	~Entity();
 
-	Position* getPosition();
+	Position* GetPosition();
 
-	void setPosition(float x, float y);
+	void SetPosition(float x, float y);
 
-	ALLEGRO_COLOR getColor();
-	void setColor(ALLEGRO_COLOR color);
+	ALLEGRO_COLOR GetColor();
+	void SetColor(ALLEGRO_COLOR color);
 
-	float getVelocity();
-	void setVelocity(float velocity);
+	float GetVelocity();
+	void SetVelocity(float velocity);
 
-	float getDirection();
-	void setDirection(float direction);
+	float GetDirection();
+	void SetDirection(float direction);
 
-	void moveToOffset(float x, float y);
-	void moveToOffset();
+	void MoveToOffset(float x, float y);
+	void MoveToOffset();
 
-	float getWidth();
-	float getHeight();
+	float GetWidth();
+	float GetHeight();
 
-	Position* getOffset();
+	Position* GetOffset();
 
-	void setVectorByOffset(float x, float y);
+	void SetVectorByOffset(float x, float y);
 };
