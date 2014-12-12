@@ -82,7 +82,7 @@ int main()
 	world->push_back(new WorldBlock(0, 0, 50, 900));
 	world->push_back(new WorldBlock(1350, 0, 1400, 900));
 
-	Entity* player = new Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 15, -0.75);
+	Entity* player = new Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 15.0, 0.5);
 
 	entities->push_back(player);
 

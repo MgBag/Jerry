@@ -90,35 +90,35 @@ Position* Entity::GetOffset()
 		offset->X = 0.0;
 		offset->Y = m_Velocity * -1;
 	}
-	else if (fmod(m_Direction, M_PI_2) == 0.0)
-	{
-		offset->X = m_Velocity * -1;
-		offset->Y = 0.0;
-	}
-	else if (fmod(m_Direction, M_PI) == 0.0)
-	{
-		offset->X = 0.0;
-		offset->Y = m_Velocity;
-	}
-	else if (fmod(m_Direction, 3 * M_PI_2) == 0.0)
+	else if (fmod(m_Direction, FM_3_PI_2) == 0.0)
 	{
 		offset->X = m_Velocity;
 		offset->Y = 0.0;
 	}
-	else if (m_Direction > (3 * M_PI_2))
+	else if (fmod(m_Direction, FM_PI) == 0.0)
 	{
-		offset->X = cos(m_Direction - (3 * M_PI_2)) * m_Velocity;
-		offset->Y = sin(m_Direction - (3 * M_PI_2)) * m_Velocity * -1;
+		offset->X = 0.0;
+		offset->Y = m_Velocity;
 	}
-	else if (m_Direction > M_PI)
+	else if (fmod(m_Direction, FM_PI_2) == 0.0)
 	{
-		offset->X = sin(m_Direction - M_PI) * m_Velocity;
-		offset->Y = cos(m_Direction - M_PI) * m_Velocity;
+		offset->X = m_Velocity * -1;
+		offset->Y = 0.0;
 	}
-	else if (m_Direction > M_PI_2)
+	else if (m_Direction > FM_3_PI_2)
 	{
-		offset->X = cos(m_Direction - M_PI_2) * m_Velocity * -1;
-		offset->Y = sin(m_Direction - M_PI_2) * m_Velocity;
+		offset->X = cos(m_Direction - FM_3_PI_2) * m_Velocity;
+		offset->Y = sin(m_Direction - FM_3_PI_2) * m_Velocity * -1;
+	}
+	else if (m_Direction > FM_PI)
+	{
+		offset->X = sin(m_Direction - FM_PI) * m_Velocity;
+		offset->Y = cos(m_Direction - FM_PI) * m_Velocity;
+	}
+	else if (m_Direction > FM_PI_2)
+	{
+		offset->X = cos(m_Direction - FM_PI_2) * m_Velocity * -1;
+		offset->Y = sin(m_Direction - FM_PI_2) * m_Velocity;
 	}
 	else
 	{
@@ -133,25 +133,9 @@ void Entity::SetVectorByOffset(float x, float y)
 {
 	m_Velocity = sqrt(x * x + y * y);
 
-	if (x < 0.0 && y < 0.0)
+	if (x == 0.0 && y > 0.0)
 	{
-		m_Direction = atan((x * -1.0) / (y * -1.0));
-	}
-	else if (x < 0.0 && y > 0.0)
-	{
-		m_Direction = atan(y / (x * -1.0)) + M_PI_2;
-	}
-	else if (x > 0.0 && y > 0.0)
-	{
-		m_Direction = atan(x / y) + M_PI;
-	}
-	else if (x > 0.0 && y < 0.0)
-	{
-		m_Direction = atan((y * -1.0) / x) + 3 * M_PI_2;
-	}
-	else if (x == 0.0 && y > 0.0)
-	{
-		m_Direction = M_PI;
+		m_Direction = FM_PI;
 	}
 	else if (x == 0.0 && y < 0.0)
 	{
@@ -159,10 +143,26 @@ void Entity::SetVectorByOffset(float x, float y)
 	}
 	else if (x > 0.0 && y == 0.0)
 	{
-		m_Direction = 3 * M_PI_2;
+		m_Direction = FM_3_PI_2;
 	}
 	else if (x < 0.0 && y == 0.0)
 	{
-		m_Direction = M_PI_2;
+		m_Direction = FM_PI_2;
+	}
+	else if(x < 0.0 && y < 0.0)
+	{
+		m_Direction = atan((x * -1.0) / (y * -1.0));
+	}
+	else if (x < 0.0 && y > 0.0)
+	{
+		m_Direction = atan(y / (x * -1.0)) + FM_PI_2;
+	}
+	else if (x > 0.0 && y > 0.0)
+	{
+		m_Direction = atan(x / y) + FM_PI;
+	}
+	else if (x > 0.0 && y < 0.0)
+	{
+		m_Direction = atan((y * -1.0) / x) + FM_3_PI_2;
 	}
 }

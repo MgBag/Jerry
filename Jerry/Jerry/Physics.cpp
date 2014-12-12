@@ -37,7 +37,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		isYCol.push_back(false);
 		isXCol.push_back(false);
 
-		if (offset->Y >= 0.0)
+		if (offset->Y > 0.0)
 		{
 			if ((entB->Y + offset->Y > worA->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
 			{
@@ -69,7 +69,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 				}
 			}
 		}
-		else
+		else if (offset->Y < 0.0)
 		{
 			if ((entA->Y + offset->Y < worB->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
 			{
@@ -177,15 +177,15 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		{
 			if (isYCol[i])
 			{
-				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), yCol[i]);
+				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
 
-				ent->SetVectorByOffset(ent->GetOffset()->X * FRICTION, 0.0);
+				ent->SetVectorByOffset(offset->X * FRICTION, 0.0);
 			}
 			else if (isXCol[i])
 			{
-				ent->SetPosition(xCol[i], entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
+				ent->SetPosition(ceil(xCol[i]), entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
 
-				ent->SetVectorByOffset(0.0, ent->GetOffset()->Y * FRICTION);
+				ent->SetVectorByOffset(0.0, offset->Y * FRICTION);
 			}
 
 			delete offset;
