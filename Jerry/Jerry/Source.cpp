@@ -14,10 +14,11 @@
 using namespace std;
 
 void draw(vector<Entity*> *ent, vector<WorldBlock*> *world);
+void move(Entity* player, bool keys[4]);
 
 enum UDLR
 {
-	UP, DOWN, LEFT, RIGHT
+	RIGHT, UP, LEFT, DOWN
 };
 
 int main()
@@ -28,6 +29,7 @@ int main()
 	vector<WorldBlock*>* world = new vector<WorldBlock*>();
 	vector<Entity*>* entities = new vector<Entity*>();
 	Physics phys;
+	bool keys[4] = { false, false, false, false };
 
 	bool quit = false;
 
@@ -78,7 +80,10 @@ int main()
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 	world->push_back(new WorldBlock(0, 850, 1400, 900));
+	world->push_back(new WorldBlock(650, 650, 700, 750));
+	world->push_back(new WorldBlock(0, 0, 50, 900));
 	world->push_back(new WorldBlock(0, 0, 1400, 50));
+	world->push_back(new WorldBlock(1350, 0, 1400, 900));
 
 	Entity* player = new Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 15.0, 0.0);
 
@@ -98,11 +103,59 @@ int main()
 			phys.ApplyPhysics(entities, world);
 
 			draw(entities, world);
+
+			move(player, keys);
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_DOWN)
 		{
+			switch (e.keyboard.keycode)
+			{
+			case ALLEGRO_KEY_D:
+			case ALLEGRO_KEY_RIGHT:
+				keys[RIGHT] = true;
+				break;
 
-			player->SetVectorByOffset(player->GetOffset()->X - 1, player->GetOffset()->Y);
+			case ALLEGRO_KEY_A:
+			case ALLEGRO_KEY_LEFT:
+				keys[LEFT] = true;
+				break;
+
+			case ALLEGRO_KEY_W:
+			case ALLEGRO_KEY_UP:
+				keys[UP] = true;
+				break;
+
+			case ALLEGRO_KEY_S:
+			case ALLEGRO_KEY_DOWN:
+				keys[DOWN] = true;
+				break;
+			}
+		}
+		else if (e.type == ALLEGRO_EVENT_KEY_UP)
+		{
+			switch (e.keyboard.keycode)
+			{
+			case ALLEGRO_KEY_D:
+			case ALLEGRO_KEY_RIGHT:
+				keys[RIGHT] = false;
+				break;
+
+			case ALLEGRO_KEY_SPACE:
+			case ALLEGRO_KEY_W:
+			case ALLEGRO_KEY_UP:
+				keys[UP] = false;
+				break;
+
+			case ALLEGRO_KEY_A:
+			case ALLEGRO_KEY_LEFT:
+				keys[LEFT] = false;
+				break;
+
+			case ALLEGRO_KEY_S:
+			case ALLEGRO_KEY_DOWN:
+				keys[DOWN] = false;
+				break;
+			}
 		}
 		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
@@ -132,4 +185,29 @@ void draw(vector<Entity*> *entities, vector<WorldBlock*> *world)
 	al_flip_display();
 }
 
+void move(Entity* player, bool keys[4])
+{
+	Position* offset = player->GetOffset();
+
+	if (keys[RIGHT])
+	{
+		offset->X += 1;
+	}
+	if (keys[UP])
+	{
+		offset->Y -= 1;
+	}
+	if (keys[LEFT])
+	{
+		offset->X -= 1;
+	}
+	if (keys[DOWN])
+	{
+		offset->Y += 1;
+	}
+
+	player->SetVectorByOffset(offset->X, offset->Y);
+
+	delete offset;
+}
 

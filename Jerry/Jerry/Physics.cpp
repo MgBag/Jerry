@@ -14,7 +14,7 @@ void Physics::ApplyPhysics(vector<Entity*> *entities, vector<WorldBlock*> *world
 // TODO: Rounding?
 // TODO: Maybe undo rounding? It might be causing the stutter
 // TODO: Remove the rounding, it needs not to be included in the actual move, only for the calculations Allegro will make it pixel perfect.
-
+// TODO: Theoretical collision glitch due to array order. Needs more work and testing, movement first though
 bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 {
 	Position* offset = ent->GetOffset();
