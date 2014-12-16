@@ -39,7 +39,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 
 		if (offset->Y > 0.0)
 		{
-			if ((entB->Y + offset->Y > worA->Y) && (entB->Y <= worA->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
+			if ((entB->Y + offset->Y > worA->Y) && (entB->Y <= worA->Y) && (entB->X + offset->X > worA->X) & (entA->X + offset->X < worB->X))
 			{
 				if (ceil(entB->Y) >= worA->Y)
 				{
@@ -71,7 +71,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		}
 		else if (offset->Y < 0.0)
 		{
-			if ((entA->Y + offset->Y < worB->Y) && (entA->Y >= worB->Y) && (offset->X >= 0.0 ? (entB->X + offset->X > worA->X) : (entA->X + offset->X < worB->X)))
+			if ((entA->Y + offset->Y < worB->Y) && (entA->Y >= worB->Y) && (entB->X + offset->X > worA->X) && (entA->X + offset->X < worB->X))
 			{
 				if (ceil(entA->Y) <= worB->Y)
 				{
@@ -106,7 +106,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		{
 			if (offset->X >= 0.0)
 			{
-				if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (offset->Y >= 0.0 ? (entB->Y + offset->Y > worA->Y) : (entA->Y + offset->Y < worB->Y)))
+				if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
 				{
 					if (ceil(entB->X) == worA->X)
 					{
@@ -138,7 +138,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 			}
 			else
 			{
-				if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (offset->Y >= 0.0 ? (entB->Y + offset->Y > worA->Y) : (entA->Y + offset->Y < worB->Y)))
+				if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
 				{
 					if (ceil(entA->X) == worB->X)
 					{
@@ -179,7 +179,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 			{
 				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
 
-				ent->SetVectorByOffset(offset->X * FRICTION, 0.0);
+				ent->SetVectorByOffset(offset->X * FRICTION, GRAVITY * 2 *-1);
 			}
 			else if (isXCol[i])
 			{
