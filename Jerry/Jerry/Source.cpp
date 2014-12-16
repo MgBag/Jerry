@@ -80,7 +80,11 @@ int main()
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 	world->push_back(new WorldBlock(0, 850, 1400, 900));
-	world->push_back(new WorldBlock(650, 650, 700, 750));
+	//world->push_back(new WorldBlock(650, 650, 700, 750));
+	world->push_back(new WorldBlock(650, 650, 655, 750));
+	world->push_back(new WorldBlock(660, 650, 665, 750));
+	world->push_back(new WorldBlock(670, 650, 675, 750));
+	world->push_back(new WorldBlock(680, 650, 685, 750));
 	world->push_back(new WorldBlock(0, 0, 50, 900));
 	world->push_back(new WorldBlock(0, 0, 1400, 50));
 	world->push_back(new WorldBlock(1350, 0, 1400, 900));

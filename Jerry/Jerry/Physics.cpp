@@ -179,13 +179,13 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 			{
 				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
 
-				ent->SetVectorByOffset(offset->X * FRICTION, GRAVITY * 2 *-1);
+				SetVectorByOffset(ent, offset->X * FRICTION, GRAVITY * 2 * -1);
 			}
 			else if (isXCol[i])
 			{
 				ent->SetPosition(ceil(xCol[i]), entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
 
-				ent->SetVectorByOffset(0.0, offset->Y * FRICTION);
+				SetVectorByOffset(ent, 0.0, offset->Y * FRICTION);
 			}
 
 			delete offset;
@@ -207,7 +207,45 @@ void Physics::ApplyGravity(Entity* ent)
 
 	ent->MoveToOffset();
 
-	ent->SetVectorByOffset(offset->X, offset->Y + GRAVITY);
+	SetVectorByOffset(ent, offset->X, offset->Y + GRAVITY);
 
 	delete offset;
+}
+
+void Physics::SetVectorByOffset(Entity* ent, float x, float y)
+{
+	ent->GetOffset(sqrt(x * x + y * y));
+
+	if (x == 0.0 && y > 0.0)
+	{
+		ent->SetDirection(FM_PI);
+	}
+	else if (x == 0.0 && y < 0.0)
+	{
+		ent->SetDirection(0.0);
+	}
+	else if (x > 0.0 && y == 0.0)
+	{
+		ent->SetDirection(FM_3_PI_2);
+	}
+	else if (x < 0.0 && y == 0.0)
+	{
+		ent->SetDirection(FM_PI_2);
+	}
+	else if (x < 0.0 && y < 0.0)
+	{
+		ent->SetDirection(atan((x * -1.0) / (y * -1.0)));
+	}
+	else if (x < 0.0 && y > 0.0)
+	{
+		ent->SetDirection(atan(y / (x * -1.0)) + FM_PI_2);
+	}
+	else if (x > 0.0 && y > 0.0)
+	{
+		ent->SetDirection(atan(x / y) + FM_PI);
+	}
+	else if (x > 0.0 && y < 0.0)
+	{
+		ent->SetDirection(atan((y * -1.0) / x) + FM_3_PI_2);
+	}
 }

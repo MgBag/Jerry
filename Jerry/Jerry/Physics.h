@@ -1,6 +1,7 @@
 #pragma once
 #define _USE_MATH_DEFINES 
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include "Entity.h"
@@ -16,6 +17,7 @@ private:
 	static void ApplyGravity(Entity* ent);
 	static inline void YCollide();
 	static inline void XCollide();
+	static void SetVectorByOffset(Entity* ent, float x, float y);
 public:
 	static void ApplyPhysics(vector<Entity*> *ent, vector<WorldBlock*> *world);
 };

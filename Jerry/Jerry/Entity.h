@@ -40,5 +40,4 @@ public:
 
 	Position* GetOffset();
 
-	void SetVectorByOffset(float x, float y);
 };
