@@ -178,18 +178,18 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 	{
 		if (isYCol[i])
 		{
-			if (pow(yCol[i] / offset->Y * offset->X + entA->X, 2) + pow(ceil(yCol[i] + entA->Y), 2) < distance)
+			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distance)
 			{
-				distance = pow(yCol[i] / offset->Y * offset->X + entA->X, 2) + pow(ceil(yCol[i] + entA->Y), 2);
+				distance = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
 				closest = i;
 			}
 		}
 		
 		if (isXCol[i])
 		{
-			if (pow(ceil(xCol[i] + entA->X), 2) + pow(xCol[i] / offset->X * offset->Y + entA->Y, 2))
+			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distance)
 			{
-				distance = pow(ceil(xCol[i] + entA->X), 2) + pow(xCol[i] / offset->X * offset->Y + entA->Y, 2);
+				distance = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
 				closest = i;
 			}
 		}
