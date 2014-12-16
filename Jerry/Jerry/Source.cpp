@@ -85,10 +85,10 @@ int main()
 
 	world->push_back(new WorldBlock(0, 850, 1400, 900));
 	world->push_back(new WorldBlock(400, 400, 1000, 450));
-	world->push_back(new WorldBlock(650, 650, 655, 750));
-	world->push_back(new WorldBlock(660, 650, 665, 750));
-	world->push_back(new WorldBlock(670, 650, 675, 750));
-	world->push_back(new WorldBlock(680, 650, 685, 750));
+	world->push_back(new WorldBlock(650, 750, 655, 850));
+	world->push_back(new WorldBlock(660, 750, 665, 850));
+	world->push_back(new WorldBlock(670, 750, 675, 850));
+	world->push_back(new WorldBlock(680, 750, 685, 850));
 	world->push_back(new WorldBlock(0, 0, 50, 900));
 	world->push_back(new WorldBlock(0, 0, 1400, 50));
 	world->push_back(new WorldBlock(1350, 0, 1400, 900));
@@ -199,19 +199,19 @@ void move(Entity* ent, bool keys[4])
 
 	if (keys[RIGHT])
 	{
-		offset->X += 1;
+		offset->X += 2;
 	}
 	if (keys[UP])
 	{
-		offset->Y -= 1;
+		offset->Y -= 2;
 	}
 	if (keys[LEFT])
 	{
-		offset->X -= 1;
+		offset->X -= 2;
 	}
 	if (keys[DOWN])
 	{
-		offset->Y += 1;
+		offset->Y += 2;
 	}
 
 	ent->SetVelocityVector(phys.OffsetToVector(offset));

@@ -171,19 +171,43 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 		}
 	}
 
-	for (int i = 0; i < xCol.size(); ++i) //move this to the inside 
+	int closest = -1;
+	float distance = ent->GetVelocityVector()->Velocity;
+
+	for (int i = 0; i < xCol.size(); ++i)
 	{
-		if ((yCol[i] != -1 && isYCol[i]) || (xCol[i] != -1 && isXCol[i]))
+		if (isYCol[i])
 		{
-			if (isYCol[i])
+			if (pow(yCol[i] / offset->Y * offset->X + entA->X, 2) + pow(ceil(yCol[i] + entA->Y), 2) < distance)
 			{
-				ent->SetCoordinates(yCol[i] / offset->Y * offset->X + entA->X, ceil(yCol[i]  + entA->Y));
+				distance = pow(yCol[i] / offset->Y * offset->X + entA->X, 2) + pow(ceil(yCol[i] + entA->Y), 2);
+				closest = i;
+			}
+		}
+		
+		if (isXCol[i])
+		{
+			if (pow(ceil(xCol[i] + entA->X), 2) + pow(xCol[i] / offset->X * offset->Y + entA->Y, 2))
+			{
+				distance = pow(ceil(xCol[i] + entA->X), 2) + pow(xCol[i] / offset->X * offset->Y + entA->Y, 2);
+				closest = i;
+			}
+		}
+	}
+
+	if (closest != -1)
+	{
+		if (isYCol[closest] || isXCol[closest])
+		{
+			if (isYCol[closest])
+			{
+				ent->SetCoordinates(yCol[closest] / offset->Y * offset->X + entA->X, ceil(yCol[closest] + entA->Y));
 
 				ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
 			}
-			else if (isXCol[i])
+			else if (isXCol[closest])
 			{
-				ent->SetCoordinates(ceil(xCol[i] + entA->X), xCol[i] / offset->X * offset->Y + entA->Y);
+				ent->SetCoordinates(ceil(xCol[closest] + entA->X), xCol[closest] / offset->X * offset->Y + entA->Y);
 
 				ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
 			}
@@ -207,7 +231,7 @@ void Physics::ApplyGravity(Entity* ent)
 
 	ent->MoveToOffset(offset->X, offset->Y);
 
-	//ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
+	ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
 
 	delete offset;
 }
