@@ -4,18 +4,12 @@ void Physics::ApplyPhysics(vector<Entity*>* entities, vector<WorldBlock*>* world
 {
 	for (vector<Entity*>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		if (!WillCollide((*ent), world))
-		{
-			ApplyGravity((*ent));
-		}
+		Collide((*ent), world);
+		ApplyGravity((*ent));
 	}
 }
 
-// TODO: Rounding?
-// TODO: Maybe undo rounding? It might be causing the stutter
-// TODO: Remove the rounding, it needs not to be included in the actual move, only for the calculations Allegro will make it pixel perfect.
-// TODO: Theoretical collision glitch due to array order. Needs more work and testing, movement first though
-bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
+void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 {
 	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
@@ -102,68 +96,65 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 			}
 		}
 
-		if (!isYCol[isYCol.size() - 1])
+		if (offset->X >= 0.0)
 		{
-			if (offset->X >= 0.0)
+			if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
 			{
-				if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
+				if (ceil(entB->X) == worA->X)
 				{
+					xCol[xCol.size() - 1] = 0.0;
+
 					if (ceil(entB->X) == worA->X)
 					{
-						xCol[xCol.size() - 1] = 0.0;
-
-						if (ceil(entB->X) == worA->X)
-						{
-							isXCol[isXCol.size() - 1] = true;
-						}
+						isXCol[isXCol.size() - 1] = true;
 					}
-					else
+				}
+				else
+				{
+					for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
 					{
-						for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
+						if (ceil(entB->X + x) >= worA->X)
 						{
-							if (ceil(entB->X + x) >= worA->X)
-							{
-								xCol[xCol.size() - 1] = x;
+							xCol[xCol.size() - 1] = x;
 								
-								if (ceil(entB->X + x) == worA->X)
-								{
-									isXCol[isXCol.size() - 1] = true;
-								}
-
-								break;
+							if (ceil(entB->X + x) == worA->X)
+							{
+								isXCol[isXCol.size() - 1] = true;
 							}
+
+							break;
 						}
 					}
 				}
 			}
-			else
+		}
+		else
+		{
+			if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
 			{
-				if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
+				if (ceil(entA->X) == worB->X)
 				{
+					xCol[xCol.size() - 1] = 0.0;
+
 					if (ceil(entA->X) == worB->X)
 					{
-						xCol[xCol.size() - 1] = 0.0;
-
-						if (ceil(entA->X) == worB->X)
-						{
-							isXCol[isXCol.size() - 1] = true;
-						}
+						isXCol[isXCol.size() - 1] = true;
 					}
-					else
+				}
+				else
+				{
+					for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
 					{
-						for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
+						if (worB->X >= ceil(entA->X + x))
 						{
-							if (worB->X >= ceil(entA->X + x))
+							xCol[xCol.size() - 1] = x;
+
+							if (ceil(entA->X + x) == worB->X)
 							{
-								xCol[xCol.size() - 1] = x;
-
-								if (ceil(entA->X + x) == worB->X)
-								{
-									isXCol[isXCol.size() - 1] = true;
-								}
-
-								break;
+								isXCol[isXCol.size() - 1] = true;
 							}
+
+							break;
 						}
 					}
 				}
@@ -171,58 +162,53 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 		}
 	}
 
-	int closest = -1;
-	float distance = ent->GetVelocityVector()->Velocity;
+	int closestX = -1;
+	int closestY = -1;
+	float distanceX = ent->GetVelocityVector()->Velocity;
+	float distanceY = ent->GetVelocityVector()->Velocity;
 
 	for (int i = 0; i < xCol.size(); ++i)
 	{
 		if (isYCol[i])
 		{
-			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distance)
+			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distanceY)
 			{
-				distance = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
-				closest = i;
+				distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
+				closestY = i;
 			}
 		}
 		
 		if (isXCol[i])
 		{
-			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distance)
+			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distanceX)
 			{
-				distance = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
-				closest = i;
+				distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
+				closestX = i;
 			}
 		}
 	}
 
-	if (closest != -1)
+	if (closestX != -1 && closestY != -1)
 	{
-		if (isYCol[closest] || isXCol[closest])
-		{
-			if (isYCol[closest])
-			{
-				ent->SetCoordinates(yCol[closest] / offset->Y * offset->X + entA->X, ceil(yCol[closest] + entA->Y));
+		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), ceil(yCol[closestY] + entA->Y));
 
-				ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
-			}
-			else if (isXCol[closest])
-			{
-				ent->SetCoordinates(ceil(xCol[closest] + entA->X), xCol[closest] / offset->X * offset->Y + entA->Y);
-
-				ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
-			}
-
-			delete offset;
-			delete entB;
-
-			return true;
-		}
+		ent->SetVelocityVector(0.0, 0.0);
 	}
+	else if (closestY != -1)
+	{
+		ent->SetCoordinates(yCol[closestY] / offset->Y * offset->X + entA->X, ceil(yCol[closestY] + entA->Y));
 
+		ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
+	}
+	else if (closestX != -1)
+	{
+		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), xCol[closestX] / offset->X * offset->Y + entA->Y);
+
+		ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
+	}
+	
 	delete offset;
 	delete entB;
-
-	return false;
 }
 
 void Physics::ApplyGravity(Entity* ent)

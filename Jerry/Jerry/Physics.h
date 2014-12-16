@@ -14,7 +14,7 @@ using namespace std;
 class Physics
 {
 private:
-	static bool WillCollide(Entity* ent, vector<WorldBlock*> *world);
+	static void Collide(Entity* ent, vector<WorldBlock*> *world);
 	static void ApplyGravity(Entity* ent);
 public:
 	static VelocityVector* OffsetToVector(Coordinates* offset);

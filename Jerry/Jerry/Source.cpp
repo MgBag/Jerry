@@ -61,7 +61,7 @@ int main()
 		cout << "Failed to initiate event queue\n";
 		return -1;
 	}
-	al_set_new_display_adapter(1);
+	//al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
