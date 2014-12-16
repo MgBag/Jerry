@@ -16,6 +16,8 @@ using namespace std;
 void draw(vector<Entity*> *ent, vector<WorldBlock*> *world);
 void move(Entity* player, bool keys[4]);
 
+Physics phys;
+
 enum UDLR
 {
 	RIGHT, UP, LEFT, DOWN
@@ -28,7 +30,6 @@ int main()
 	ALLEGRO_TIMER* frame = 0;
 	vector<WorldBlock*>* world = new vector<WorldBlock*>();
 	vector<Entity*>* entities = new vector<Entity*>();
-	Physics phys;
 	bool keys[4] = { false, false, false, false };
 
 	bool quit = false;
@@ -181,7 +182,7 @@ void draw(vector<Entity*> *entities, vector<WorldBlock*> *world)
 
 	for (vector<Entity*>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		Position* pos = (*ent)->GetPosition();
+		Coordinates* pos = (*ent)->GetCoordinates();
 
 		al_draw_filled_rectangle(pos->X, pos->Y, pos->X + (*ent)->GetWidth(), pos->Y + (*ent)->GetHeight(), (*ent)->GetColor());
 	}
@@ -189,9 +190,9 @@ void draw(vector<Entity*> *entities, vector<WorldBlock*> *world)
 	al_flip_display();
 }
 
-void move(Entity* player, bool keys[4])
+void move(Entity* ent, bool keys[4])
 {
-	Position* offset = player->GetOffset();
+	Coordinates* offset = phys.GetOffset(ent);
 
 	if (keys[RIGHT])
 	{
@@ -210,7 +211,7 @@ void move(Entity* player, bool keys[4])
 		offset->Y += 1;
 	}
 
-	player->SetVectorByOffset(offset->X, offset->Y);
+	phys.SetVectorByOffset(ent, offset->X, offset->Y);
 
 	delete offset;
 }

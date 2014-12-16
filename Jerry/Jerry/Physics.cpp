@@ -17,10 +17,10 @@ void Physics::ApplyPhysics(vector<Entity*> *entities, vector<WorldBlock*> *world
 // TODO: Theoretical collision glitch due to array order. Needs more work and testing, movement first though
 bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 {
-	Position* offset = ent->GetOffset();
+	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
-	const Position* entA = ent->GetPosition();
-	Position* entB = new Position(entA->X + ent->GetWidth(), entA->Y + ent->GetHeight());
+	const Coordinates* entA = ent->GetCoordinates();
+	Coordinates* entB = new Coordinates(entA->X + ent->GetWidth(), entA->Y + ent->GetHeight());
 
 	vector<float> xCol;
 	vector<float> yCol;
@@ -29,8 +29,8 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 
 	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
-		const Position* worA = (*wBlock)->GetA();
-		const Position* worB = (*wBlock)->GetB();
+		const Coordinates* worA = (*wBlock)->GetA();
+		const Coordinates* worB = (*wBlock)->GetB();
 
 		xCol.push_back(-1);
 		yCol.push_back(-1);
@@ -177,15 +177,15 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 		{
 			if (isYCol[i])
 			{
-				ent->SetPosition(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
+				ent->SetCoordinates(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
 
-				SetVectorByOffset(ent, offset->X * FRICTION, GRAVITY * 2 * -1);
+				ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, GRAVITY * 2 * -1));
 			}
 			else if (isXCol[i])
 			{
-				ent->SetPosition(ceil(xCol[i]), entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
+				ent->SetCoordinates(ceil(xCol[i]), entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
 
-				SetVectorByOffset(ent, 0.0, offset->Y * FRICTION);
+				ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
 			}
 
 			delete offset;
@@ -203,49 +203,197 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*> *world)
 
 void Physics::ApplyGravity(Entity* ent)
 {
-	Position* offset = ent->GetOffset();
+	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
-	ent->MoveToOffset();
+	ent->MoveToOffset(offset->X, offset->Y);
 
-	SetVectorByOffset(ent, offset->X, offset->Y + GRAVITY);
+	ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
 
 	delete offset;
 }
 
-void Physics::SetVectorByOffset(Entity* ent, float x, float y)
+VelocityVector* Physics::OffsetToVector(float x, float y)
 {
-	ent->GetOffset(sqrt(x * x + y * y));
+	VelocityVector* vec = new VelocityVector();
+
+	vec->Velocity = sqrt(x * x + y * y);
 
 	if (x == 0.0 && y > 0.0)
 	{
-		ent->SetDirection(FM_PI);
+		vec->Angle = FM_PI;
 	}
 	else if (x == 0.0 && y < 0.0)
 	{
-		ent->SetDirection(0.0);
+		vec->Angle = 0.0;
 	}
 	else if (x > 0.0 && y == 0.0)
 	{
-		ent->SetDirection(FM_3_PI_2);
+		vec->Angle = FM_3_PI_2;
 	}
 	else if (x < 0.0 && y == 0.0)
 	{
-		ent->SetDirection(FM_PI_2);
+		vec->Angle = FM_PI_2;
 	}
 	else if (x < 0.0 && y < 0.0)
 	{
-		ent->SetDirection(atan((x * -1.0) / (y * -1.0)));
+		vec->Angle = atan((x * -1.0) / (y * -1.0));
 	}
 	else if (x < 0.0 && y > 0.0)
 	{
-		ent->SetDirection(atan(y / (x * -1.0)) + FM_PI_2);
+		vec->Angle = atan(y / (x * -1.0)) + FM_PI_2;
 	}
 	else if (x > 0.0 && y > 0.0)
 	{
-		ent->SetDirection(atan(x / y) + FM_PI);
+		vec->Angle = atan(x / y) + FM_PI;
 	}
 	else if (x > 0.0 && y < 0.0)
 	{
-		ent->SetDirection(atan((y * -1.0) / x) + FM_3_PI_2);
+		vec->Angle = atan((y * -1.0) / x) + FM_3_PI_2;
 	}
+
+	return vec;
+}
+
+VelocityVector* Physics::OffsetToVector(Coordinates* coordinates)
+{
+	float x = coordinates->X;
+	float y = coordinates->Y;
+
+	VelocityVector* vec = new VelocityVector();
+
+	vec->Velocity = sqrt(x * x + y * y);
+
+	if (x == 0.0 && y > 0.0)
+	{
+		vec->Angle = FM_PI;
+	}
+	else if (x == 0.0 && y < 0.0)
+	{
+		vec->Angle = 0.0;
+	}
+	else if (x > 0.0 && y == 0.0)
+	{
+		vec->Angle = FM_3_PI_2;
+	}
+	else if (x < 0.0 && y == 0.0)
+	{
+		vec->Angle = FM_PI_2;
+	}
+	else if (x < 0.0 && y < 0.0)
+	{
+		vec->Angle = atan((x * -1.0) / (y * -1.0));
+	}
+	else if (x < 0.0 && y > 0.0)
+	{
+		vec->Angle = atan(y / (x * -1.0)) + FM_PI_2;
+	}
+	else if (x > 0.0 && y > 0.0)
+	{
+		vec->Angle = atan(x / y) + FM_PI;
+	}
+	else if (x > 0.0 && y < 0.0)
+	{
+		vec->Angle = atan((y * -1.0) / x) + FM_3_PI_2;
+	}
+
+	return vec;
+}
+
+Coordinates* Physics::VectorToOffset(float velocity, float angle)
+{
+	Coordinates *offset = new Coordinates();
+
+	if (angle == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = velocity * -1;
+	}
+	else if (fmod(angle, FM_3_PI_2) == 0.0)
+	{
+		offset->X = velocity;
+		offset->Y = 0.0;
+	}
+	else if (fmod(angle, FM_PI) == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = velocity;
+	}
+	else if (fmod(angle, FM_PI_2) == 0.0)
+	{
+		offset->X = velocity * -1;
+		offset->Y = 0.0;
+	}
+	else if (angle > FM_3_PI_2)
+	{
+		offset->X = cos(angle - FM_3_PI_2) * velocity;
+		offset->Y = sin(angle - FM_3_PI_2) * velocity * -1;
+	}
+	else if (angle > FM_PI)
+	{
+		offset->X = sin(angle - FM_PI) * velocity;
+		offset->Y = cos(angle - FM_PI) * velocity;
+	}
+	else if (angle > FM_PI_2)
+	{
+		offset->X = cos(angle - FM_PI_2) * velocity * -1;
+		offset->Y = sin(angle - FM_PI_2) * velocity;
+	}
+	else
+	{
+		offset->X = sin(angle) * velocity * -1;
+		offset->Y = cos(angle) * velocity * -1;
+	}
+
+	return offset;
+}
+
+Coordinates* Physics::VectorToOffset(VelocityVector* vec)
+{
+	Coordinates *offset = new Coordinates();
+
+	float velocity = vec->Velocity;
+	float angle = vec->Angle;
+
+	if (angle == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = velocity * -1;
+	}
+	else if (fmod(angle, FM_3_PI_2) == 0.0)
+	{
+		offset->X = velocity;
+		offset->Y = 0.0;
+	}
+	else if (fmod(angle, FM_PI) == 0.0)
+	{
+		offset->X = 0.0;
+		offset->Y = velocity;
+	}
+	else if (fmod(angle, FM_PI_2) == 0.0)
+	{
+		offset->X = velocity * -1;
+		offset->Y = 0.0;
+	}
+	else if (angle > FM_3_PI_2)
+	{
+		offset->X = cos(angle - FM_3_PI_2) * velocity;
+		offset->Y = sin(angle - FM_3_PI_2) * velocity * -1;
+	}
+	else if (angle > FM_PI)
+	{
+		offset->X = sin(angle - FM_PI) * velocity;
+		offset->Y = cos(angle - FM_PI) * velocity;
+	}
+	else if (angle > FM_PI_2)
+	{
+		offset->X = cos(angle - FM_PI_2) * velocity * -1;
+		offset->Y = sin(angle - FM_PI_2) * velocity;
+	}
+	else
+	{
+		offset->X = sin(angle) * velocity * -1;
+		offset->Y = cos(angle) * velocity * -1;
+	}
+
+	return offset;
 }

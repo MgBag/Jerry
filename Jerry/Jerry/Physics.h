@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Entity.h"
 #include "WorldBlock.h"
-#include "Position.h"
+#include "Coordinates.h"
 
 using namespace std;
 
@@ -15,10 +15,12 @@ class Physics
 private:
 	static bool WillCollide(Entity* ent, vector<WorldBlock*> *world);
 	static void ApplyGravity(Entity* ent);
-	static inline void YCollide();
-	static inline void XCollide();
-	static void SetVectorByOffset(Entity* ent, float x, float y);
 public:
+	static VelocityVector* OffsetToVector(Coordinates* offset);
+	static VelocityVector* OffsetToVector(float x, float y);
+	static Coordinates* VectorToOffset(VelocityVector* vector);
+	static Coordinates* VectorToOffset(float velocity, float angle);
+	
 	static void ApplyPhysics(vector<Entity*> *ent, vector<WorldBlock*> *world);
 };
 

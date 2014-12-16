@@ -1,16 +1,16 @@
 #pragma once
-#include "Position.h"
+#include "Coordinates.h"
 
 class WorldBlock
 {
 private:
-	Position m_A;
-	Position m_B;
+	Coordinates m_A;
+	Coordinates m_B;
 public:
 	WorldBlock(float x1, float y1, float x2, float y2);
 	~WorldBlock();
 
-	Position* GetA();
-	Position* GetB();
+	Coordinates* GetA();
+	Coordinates* GetB();
 };
 

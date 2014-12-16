@@ -13,15 +13,17 @@
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Physics.cpp" />
-    <ClCompile Include="Position.cpp" />
+    <ClCompile Include="Coordinates.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="VelocityVector.cpp" />
     <ClCompile Include="WorldBlock.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="VelocityVector.h" />
     <ClInclude Include="Physics.h" />
-    <ClInclude Include="Position.h" />
+    <ClInclude Include="Coordinates.h" />
     <ClInclude Include="WorldBlock.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

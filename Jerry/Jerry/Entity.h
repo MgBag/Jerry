@@ -3,41 +3,37 @@
 
 #include <cmath>
 #include <allegro5/allegro.h>
-#include "Position.h"
+#include "Coordinates.h"
 #include "Constants.h"
+#include "Physics.h"
+#include "VelocityVector.h"
 
 class Entity
 {
 private:
-	Position m_Position;
+	Coordinates* m_Coordinates;
+	VelocityVector* m_VelocityVector;
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
-	float m_Velocity;
-	float m_Direction;
+	Physics phys;
 public:
-	Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float direction);
+	Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float angle);
 	~Entity();
 
-	Position* GetPosition();
+	Coordinates* GetCoordinates();
+	void SetCoordinates(float x, float y);
+	void SetCoordinates(Coordinates* coordinates);
+	void MoveToOffset(float x, float y);
+	void MoveToOffset();
 
-	void SetPosition(float x, float y);
+	VelocityVector* GetVelocityVector();
+	void SetVelocityVector(float velocity, float angle);
+	void SetVelocityVector(VelocityVector* velocityVector);
 
 	ALLEGRO_COLOR GetColor();
 	void SetColor(ALLEGRO_COLOR color);
 
-	float GetVelocity();
-	void SetVelocity(float velocity);
-
-	float GetDirection();
-	void SetDirection(float direction);
-
-	void MoveToOffset(float x, float y);
-	void MoveToOffset();
-
 	float GetWidth();
 	float GetHeight();
-
-	Position* GetOffset();
-
 };
