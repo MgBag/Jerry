@@ -55,14 +55,10 @@ void Entity::MoveToOffset(float x, float y)
 	m_Coordinates->Y += y;
 }
 
-void Entity::MoveToOffset(float x, float y)
+void Entity::MoveToOffset(Coordinates* offset)
 {
-	Coordinates* offset = phys.VectorToOffset(m_VelocityVector);
-
 	m_Coordinates->X += offset->X;
 	m_Coordinates->Y += offset->Y;
-
-	delete offset;
 }
 
 VelocityVector* Entity::GetVelocityVector()

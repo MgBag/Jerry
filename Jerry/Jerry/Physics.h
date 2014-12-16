@@ -7,6 +7,7 @@
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Coordinates.h"
+#include "VelocityVector.h"
 
 using namespace std;
 

@@ -5,7 +5,6 @@
 #include <allegro5/allegro.h>
 #include "Coordinates.h"
 #include "Constants.h"
-#include "Physics.h"
 #include "VelocityVector.h"
 
 class Entity
@@ -16,7 +15,6 @@ private:
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
-	Physics phys;
 public:
 	Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float angle);
 	~Entity();
@@ -25,7 +23,7 @@ public:
 	void SetCoordinates(float x, float y);
 	void SetCoordinates(Coordinates* coordinates);
 	void MoveToOffset(float x, float y);
-	void MoveToOffset();
+	void MoveToOffset(Coordinates* offset);
 
 	VelocityVector* GetVelocityVector();
 	void SetVelocityVector(float velocity, float angle);

@@ -1,9 +1,12 @@
+//TODO: CHECK MEMORY LEAKS
+
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
 
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <string>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include "Entity.h"
@@ -192,7 +195,7 @@ void draw(vector<Entity*> *entities, vector<WorldBlock*> *world)
 
 void move(Entity* ent, bool keys[4])
 {
-	Coordinates* offset = phys.GetOffset(ent);
+	Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
 
 	if (keys[RIGHT])
 	{
@@ -211,7 +214,7 @@ void move(Entity* ent, bool keys[4])
 		offset->Y += 1;
 	}
 
-	phys.SetVectorByOffset(ent, offset->X, offset->Y);
+	ent->SetVelocityVector(phys.OffsetToVector(offset));
 
 	delete offset;
 }
