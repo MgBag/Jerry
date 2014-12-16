@@ -43,7 +43,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 			{
 				if (ceil(entB->Y) >= worA->Y)
 				{
-					yCol[yCol.size() - 1] = entA->Y;
+					yCol[yCol.size() - 1] = 0.0;
 
 					if (ceil(entB->Y) == worA->Y)
 					{
@@ -56,7 +56,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (ceil(entB->Y + y) >= worA->Y)
 						{
-							yCol[yCol.size() - 1] = entA->Y + y;
+							yCol[yCol.size() - 1] = y;
 
 							if (ceil(entB->Y + y) == worA->Y)
 							{
@@ -75,7 +75,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 			{
 				if (ceil(entA->Y) <= worB->Y)
 				{
-					yCol[yCol.size() - 1] = entA->Y;
+					yCol[yCol.size() - 1] = 0.0;
 
 					if (ceil(entA->Y) == worB->Y)
 					{
@@ -88,7 +88,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (ceil(entA->Y + y) <= worB->Y)
 						{
-							yCol[yCol.size() - 1] = entA->Y + y;
+							yCol[yCol.size() - 1] = y;
 
 							if (ceil(entA->Y + y) == worB->Y)
 							{
@@ -110,7 +110,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 				{
 					if (ceil(entB->X) == worA->X)
 					{
-						xCol[xCol.size() - 1] = entA->X;
+						xCol[xCol.size() - 1] = 0.0;
 
 						if (ceil(entB->X) == worA->X)
 						{
@@ -123,7 +123,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 						{
 							if (ceil(entB->X + x) >= worA->X)
 							{
-								xCol[xCol.size() - 1] = entA->X + x;
+								xCol[xCol.size() - 1] = x;
 								
 								if (ceil(entB->X + x) == worA->X)
 								{
@@ -142,7 +142,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 				{
 					if (ceil(entA->X) == worB->X)
 					{
-						xCol[xCol.size() - 1] = entA->X;
+						xCol[xCol.size() - 1] = 0.0;
 
 						if (ceil(entA->X) == worB->X)
 						{
@@ -155,7 +155,7 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 						{
 							if (worB->X >= ceil(entA->X + x))
 							{
-								xCol[xCol.size() - 1] = entA->X + x;
+								xCol[xCol.size() - 1] = x;
 
 								if (ceil(entA->X + x) == worB->X)
 								{
@@ -177,13 +177,13 @@ bool Physics::WillCollide(Entity* ent, vector<WorldBlock*>* world)
 		{
 			if (isYCol[i])
 			{
-				ent->SetCoordinates(entA->X + ((yCol[i] - entA->Y) / offset->Y * offset->X), ceil(yCol[i]));
+				ent->SetCoordinates(yCol[i] / offset->Y * offset->X + entA->X, ceil(yCol[i]  + entA->Y));
 
-				ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, GRAVITY * 2 * -1));
+				ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
 			}
 			else if (isXCol[i])
 			{
-				ent->SetCoordinates(ceil(xCol[i]), entA->Y + ((xCol[i] - entA->X) / offset->X * offset->Y));
+				ent->SetCoordinates(ceil(xCol[i] + entA->X), xCol[i] / offset->X * offset->Y + entA->Y);
 
 				ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
 			}
@@ -207,7 +207,7 @@ void Physics::ApplyGravity(Entity* ent)
 
 	ent->MoveToOffset(offset->X, offset->Y);
 
-	ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
+	//ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
 
 	delete offset;
 }
