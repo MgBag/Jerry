@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES 
 
 #include <cmath>
-#include <allegro5/allegro.h>
+#include <allegro5/color.h>
 #include "Coordinates.h"
 #include "Constants.h"
 #include "VelocityVector.h"

@@ -61,7 +61,8 @@ int main()
 		cout << "Failed to initiate event queue\n";
 		return -1;
 	}
-	//al_set_new_display_adapter(1);
+
+	al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -83,19 +84,49 @@ int main()
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
-	world->push_back(new WorldBlock(0, 850, 1400, 900));
-	world->push_back(new WorldBlock(400, 400, 1000, 450));
-	world->push_back(new WorldBlock(650, 750, 655, 850));
-	world->push_back(new WorldBlock(660, 750, 665, 850));
-	world->push_back(new WorldBlock(670, 750, 675, 850));
-	world->push_back(new WorldBlock(680, 750, 685, 850));
-	world->push_back(new WorldBlock(0, 0, 50, 900));
-	world->push_back(new WorldBlock(0, 0, 1400, 50));
-	world->push_back(new WorldBlock(1350, 0, 1400, 900));
-
-	Entity* player = new Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 0.0, 0.0);
+	Entity* player = new Entity(700, 650, 6, 6, al_map_rgb(220, 20, 20), 0.0, 0.0);
 
 	entities->push_back(player);
+
+	// world outlining
+	world->push_back(new WorldBlock(0, 850, 1400, 900, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(0, 0, 50, 900, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(0, 0, 1400, 50, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(1350, 0, 1400, 900, al_map_rgb(20, 20, 20)));
+	
+	//center bar
+	world->push_back(new WorldBlock(400, 400, 1000, 450, al_map_rgb(20, 20, 20)));
+
+	//center bar stripes
+	world->push_back(new WorldBlock(650, 350, 655, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(660, 350, 665, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(670, 350, 675, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(680, 350, 685, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(690, 350, 695, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(700, 350, 705, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(710, 350, 715, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(720, 350, 725, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(730, 350, 735, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(740, 350, 745, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(750, 350, 755, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(760, 350, 765, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(770, 350, 775, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(780, 350, 785, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(790, 350, 795, 500, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(800, 350, 805, 500, al_map_rgb(20, 20, 20)));
+
+	//top left stripes
+	//x
+	world->push_back(new WorldBlock(70, 50, 75, 70, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(80, 50, 85, 70, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(90, 50, 95, 70, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(100, 50, 105, 70, al_map_rgb(20, 20, 20)));
+
+	//y
+	world->push_back(new WorldBlock(50, 70, 70, 75, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(50, 80, 70, 85, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(50, 90, 70, 95, al_map_rgb(20, 20, 20)));
+	world->push_back(new WorldBlock(50, 100, 70, 105, al_map_rgb(20, 20, 20)));
 
 	al_start_timer(frame);
 
@@ -136,6 +167,10 @@ int main()
 			case ALLEGRO_KEY_S:
 			case ALLEGRO_KEY_DOWN:
 				keys[DOWN] = true;
+				break;
+
+			case ALLEGRO_KEY_R:
+				player->SetCoordinates(60, 80);
 				break;
 			}
 		}
@@ -180,7 +215,9 @@ void draw(vector<Entity*> *entities, vector<WorldBlock*> *world)
 
 	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
-		al_draw_filled_rectangle((*wBlock)->GetA()->X, (*wBlock)->GetA()->Y, (*wBlock)->GetB()->X, (*wBlock)->GetB()->Y, al_map_rgb(20, 20, 20));
+		al_draw_filled_rectangle((*wBlock)->GetA()->X, (*wBlock)->GetA()->Y, (*wBlock)->GetB()->X, (*wBlock)->GetB()->Y, (*wBlock)->GetColor());
+
+		(*wBlock)->SetColor(al_map_rgb(20, 20, 20));
 	}
 
 	for (vector<Entity*>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
@@ -199,19 +236,19 @@ void move(Entity* ent, bool keys[4])
 
 	if (keys[RIGHT])
 	{
-		offset->X += 2;
+		offset->X += 0.05;
 	}
 	if (keys[UP])
 	{
-		offset->Y -= 2;
+		offset->Y -= 0.05;
 	}
 	if (keys[LEFT])
 	{
-		offset->X -= 2;
+		offset->X -= 0.05;
 	}
 	if (keys[DOWN])
 	{
-		offset->Y += 2;
+		offset->Y += 0.05;
 	}
 
 	ent->SetVelocityVector(phys.OffsetToVector(offset));

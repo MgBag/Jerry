@@ -9,8 +9,11 @@ void Physics::ApplyPhysics(vector<Entity*>* entities, vector<WorldBlock*>* world
 	}
 }
 
+
+//TODO: Check if it's inside of the item
 void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 {
+	int worldItems = world->size();
 	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
 	const Coordinates* entA = ent->GetCoordinates();
@@ -18,8 +21,6 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 
 	vector<float> xCol;
 	vector<float> yCol;
-	vector<bool> isXCol;
-	vector<bool> isYCol;
 
 	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
@@ -28,21 +29,15 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 
 		xCol.push_back(-1);
 		yCol.push_back(-1);
-		isYCol.push_back(false);
-		isXCol.push_back(false);
 
 		if (offset->Y > 0.0)
 		{
 			if ((entB->Y + offset->Y > worA->Y) && (entB->Y <= worA->Y) && (entB->X + offset->X > worA->X) & (entA->X + offset->X < worB->X))
 			{
-				if (ceil(entB->Y) >= worA->Y)
+				if (ceil(entB->Y) == worA->Y)
 				{
 					yCol[yCol.size() - 1] = 0.0;
-
-					if (ceil(entB->Y) == worA->Y)
-					{
-						isYCol[isYCol.size() - 1] = true;
-					}
+					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
 				}
 				else
 				{
@@ -50,31 +45,25 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (ceil(entB->Y + y) >= worA->Y)
 						{
-							yCol[yCol.size() - 1] = y;
-
 							if (ceil(entB->Y + y) == worA->Y)
 							{
-								isYCol[isYCol.size() - 1] = true;
+								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+								yCol[yCol.size() - 1] = y;
+								break;
 							}
-
-							break;
 						}
 					}
 				}
 			}
 		}
-		else if (offset->Y < 0.0)
+		else
 		{
 			if ((entA->Y + offset->Y < worB->Y) && (entA->Y >= worB->Y) && (entB->X + offset->X > worA->X) && (entA->X + offset->X < worB->X))
 			{
-				if (ceil(entA->Y) <= worB->Y)
+				if (ceil(entA->Y) == worB->Y)
 				{
+					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
 					yCol[yCol.size() - 1] = 0.0;
-
-					if (ceil(entA->Y) == worB->Y)
-					{
-						isYCol[isYCol.size() - 1] = true;
-					}
 				}
 				else
 				{
@@ -82,14 +71,12 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (ceil(entA->Y + y) <= worB->Y)
 						{
-							yCol[yCol.size() - 1] = y;
-
 							if (ceil(entA->Y + y) == worB->Y)
 							{
-								isYCol[isYCol.size() - 1] = true;
+								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+								yCol[yCol.size() - 1] = y;
+								break;
 							}
-
-							break;
 						}
 					}
 				}
@@ -102,12 +89,8 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 			{
 				if (ceil(entB->X) == worA->X)
 				{
+					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
 					xCol[xCol.size() - 1] = 0.0;
-
-					if (ceil(entB->X) == worA->X)
-					{
-						isXCol[isXCol.size() - 1] = true;
-					}
 				}
 				else
 				{
@@ -115,14 +98,12 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (ceil(entB->X + x) >= worA->X)
 						{
-							xCol[xCol.size() - 1] = x;
-								
 							if (ceil(entB->X + x) == worA->X)
 							{
-								isXCol[isXCol.size() - 1] = true;
+								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+								xCol[xCol.size() - 1] = x;
+								break;
 							}
-
-							break;
 						}
 					}
 				}
@@ -134,12 +115,8 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 			{
 				if (ceil(entA->X) == worB->X)
 				{
+					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
 					xCol[xCol.size() - 1] = 0.0;
-
-					if (ceil(entA->X) == worB->X)
-					{
-						isXCol[isXCol.size() - 1] = true;
-					}
 				}
 				else
 				{
@@ -147,14 +124,12 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 					{
 						if (worB->X >= ceil(entA->X + x))
 						{
-							xCol[xCol.size() - 1] = x;
-
 							if (ceil(entA->X + x) == worB->X)
 							{
-								isXCol[isXCol.size() - 1] = true;
+								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+								xCol[xCol.size() - 1] = x;
+								break;
 							}
-
-							break;
 						}
 					}
 				}
@@ -167,9 +142,32 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 	float distanceX = ent->GetVelocityVector()->Velocity;
 	float distanceY = ent->GetVelocityVector()->Velocity;
 
-	for (int i = 0; i < xCol.size(); ++i)
+	for (int i = 0; i < worldItems; ++i)
 	{
-		if (isYCol[i])
+		if (yCol[i] != -1 && xCol[i] != -1)
+		{
+			//Hiero is dat problemo yo
+			if (count(yCol.begin(), yCol.end(), 0.0) > 0)
+			{
+				distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
+				closestY = i;
+				closestX = -1;
+
+				break;
+			}
+			else if (count(xCol.begin(), xCol.end(), 0.0) > 0)
+			{
+				distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
+				closestX = i;
+				closestY = -1;
+
+				break;
+			}
+
+			cout << "wut, bork?";
+		}
+
+		if (yCol[i] != -1)
 		{
 			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distanceY)
 			{
@@ -177,8 +175,8 @@ void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
 				closestY = i;
 			}
 		}
-		
-		if (isXCol[i])
+
+		if (xCol[i] != -1)
 		{
 			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distanceX)
 			{
@@ -222,6 +220,7 @@ void Physics::ApplyGravity(Entity* ent)
 	delete offset;
 }
 
+//TODO: M8, I think there is a bug in here
 VelocityVector* Physics::OffsetToVector(float x, float y)
 {
 	VelocityVector* vec = new VelocityVector();
