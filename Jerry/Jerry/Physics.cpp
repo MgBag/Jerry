@@ -4,9 +4,9 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 {
 	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		//ApplyGravity(&(*ent));
+		ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
-		//MoveEntity(&(*ent));
+		MoveEntity(&(*ent));
 	}
 }
 
@@ -426,6 +426,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	Coordinates* entACo = ent->GetCoordinates();
 	Coordinates* entBCo = new Coordinates(entACo->X + ent->GetWidth(), entACo->Y + ent->GetHeight());
 	Coordinates* entOff = VectorToOffset(ent->GetVelocityVector()); // TODO: Add entity offset conlone function;
+	float entVel = ent->GetVelocityVector()->Velocity;
 
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
@@ -435,8 +436,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 		Coordinates* min = new Coordinates();
 		Coordinates* max = new Coordinates();
-		vector<Coordinates*> minOffset;
-		vector<Coordinates*> maxOffset;
+
 
 		// X
 		if (worACo->X < entACo->X)
@@ -469,41 +469,62 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		}
 
 
-		for (float x = fmod(entOff->X, 1.0); x != entOff->X; --x)
+		// TODO: Straigt line shit testing
+		if (entVel)
 		{
-			// X with Offset
-			if (worACo->X < entACo->X + x)
+			vector<float> minOffsetX(ceil(entVel) + 1);
+			vector<float> minOffsetY(ceil(entVel) + 1);
+			vector<float> maxOffsetX(ceil(entVel) + 1);
+			vector<float> maxOffsetY(ceil(entVel) + 1);
+
+			// TODO: What to do if the step is 0?
+			float xStep = entOff->X / entVel;
+			float yStep = entOff->Y / entVel;
+
+			if (xStep != 0.0)
 			{
-				minOffset->X = entACo->X + x;
-				maxOffset->X = worBCo->X;
-			}
-			else
-			{
-				minOffset->X = worACo->X;
-				maxOffset->X = entBCo->X + x;
+				for (float x = 0, i = 0; xStep < 0.0 ? x > entOff->X : x < entOff->X; x += xStep , ++i)
+				{
+					// X with Offset
+					if (worACo->X < entACo->X + x)
+					{
+						minOffsetX[i] = entACo->X + x;
+						maxOffsetX[i] = worBCo->X;
+					}
+					else
+					{
+						minOffsetX[i] = worACo->X;
+						maxOffsetX[i] = entBCo->X + x;
+					}
+				}
 			}
 
-		}
-		for (float y = fmod(entOff->Y, 1.0); y != entOff->Y; --y)
-		{
-			//Y	with offset
-			if (worACo->Y < entACo->Y + y)
+			if (yStep != 0.0)
 			{
-				minOffset->Y = entACo->Y + y;
-				maxOffset->Y = worBCo->Y;
-			}
-			else
-			{
-				minOffset->Y = worACo->Y;
-				maxOffset->Y = entBCo->Y + y;
+				for (float y = 0, i = 0; yStep < 0.0 ? y > entOff->Y : y < entOff->Y; y += yStep, ++i)
+				{
+					//Y	with offset
+					if (worACo->Y < entACo->Y + y)
+					{
+						minOffsetY[i] = entACo->Y + y;
+						maxOffsetY[i] = worBCo->Y;
+					}
+					else
+					{
+						minOffsetY[i] = worACo->Y;
+						maxOffsetY[i] = entBCo->Y + y;
+					}
+				}
 			}
 
-		}
-		
-		// Will Collide
-		if (maxOffset->X > minOffset->X && maxOffset->Y > minOffset->Y)
-		{
-			wor->SetColor(al_map_rgb(20, 220, 20));
+			for (int i = 0; i <= entVel; ++i)
+			{
+				// Will Collide
+				if (maxOffsetX[i] > minOffsetX[i] && maxOffsetY[i] > minOffsetY[i])
+				{
+					wor->SetColor(al_map_rgb(20, 220, 20));
+				}
+			}
 		}
 	}
 }

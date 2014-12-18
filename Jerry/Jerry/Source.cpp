@@ -63,7 +63,7 @@ int main()
 		return -1;
 	}
 
-	al_set_new_display_adapter(1);
+	//al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -245,19 +245,19 @@ void move(Entity* ent, bool keys[4])
 
 	if (keys[RIGHT])
 	{
-		offset->X += 10.0;
+		offset->X += 1.0;
 	}
 	if (keys[UP])
 	{
-		offset->Y -= 10.0;
+		offset->Y -= 1.0;
 	}
 	if (keys[LEFT])
 	{
-		offset->X -= 10.0;
+		offset->X -= 1.0;
 	}
 	if (keys[DOWN])
 	{
-		offset->Y += 10.0;
+		offset->Y += 1.0;
 	}
 
 	ent->SetVelocityVector(phys.OffsetToVector(offset));
