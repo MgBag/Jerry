@@ -6,7 +6,7 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 	{
 		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
-		//MoveEntity(&(*ent));
+		MoveEntity(&(*ent));
 	}
 }
 
@@ -231,43 +231,41 @@ void Physics::MoveEntity(Entity* ent)
 	delete offset;
 }
 
-//TODO: M8, I think there is a bug in here
-// I don't think so m79
 VelocityVector* Physics::OffsetToVector(float x, float y)
 {
 	VelocityVector* vec = new VelocityVector();
 
 	vec->Velocity = sqrt(x * x + y * y);
 
-	if (x == 0.0 && y > 0.0) // Correct
+	if (x == 0.0 && y > 0.0) 
 	{
 		vec->Angle = FM_PI;
 	}
-	else if (x == 0.0 && y < 0.0) // Correct
+	else if (x == 0.0 && y < 0.0) 
 	{
 		vec->Angle = 0.0;
 	}
-	else if (x > 0.0 && y == 0.0) // Correct
+	else if (x > 0.0 && y == 0.0)
 	{
 		vec->Angle = FM_3_PI_2;
 	}
-	else if (x < 0.0 && y == 0.0) // Correct
+	else if (x < 0.0 && y == 0.0) 
 	{
 		vec->Angle = FM_PI_2;
 	}
-	else if (x < 0.0 && y < 0.0) // Correct
+	else if (x < 0.0 && y < 0.0) 
 	{
 		vec->Angle = atan((x * -1.0) / (y * -1.0));
 	}
-	else if (x < 0.0 && y > 0.0) // Correct
+	else if (x < 0.0 && y > 0.0)
 	{
 		vec->Angle = atan(y / (x * -1.0)) + FM_PI_2;
 	}
-	else if (x > 0.0 && y > 0.0) // Correct
+	else if (x > 0.0 && y > 0.0)
 	{
 		vec->Angle = atan(x / y) + FM_PI;
 	}
-	else if (x > 0.0 && y < 0.0) // Correct
+	else if (x > 0.0 && y < 0.0)
 	{
 		vec->Angle = atan((y * -1.0) / x) + FM_3_PI_2;
 	}
@@ -320,8 +318,6 @@ VelocityVector* Physics::OffsetToVector(Coordinates* coordinates)
 	return vec;
 }
 
-
-// TODO: Then you must be the case of this evil!
 Coordinates* Physics::VectorToOffset(float velocity, float angle)
 {
 	Coordinates *offset = new Coordinates();
@@ -423,10 +419,12 @@ Coordinates* Physics::VectorToOffset(VelocityVector* vec)
 
 void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 {
+	// TODO: Only run for those in range
 	Coordinates* entACo = ent->GetCoordinates();
 	Coordinates* entBCo = new Coordinates(entACo->X + ent->GetWidth(), entACo->Y + ent->GetHeight());
 	Coordinates* entOff = VectorToOffset(ent->GetVelocityVector()); // TODO: Add entity offset conlone function;
 	float entVel = ent->GetVelocityVector()->Velocity;
+	vector<Coordinates> collisions;
 
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
@@ -465,66 +463,88 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		if (max->X > min->X && max->Y > min->Y)
 		{
 			wor->SetColor(al_map_rgb(20, 220, 20));
-		}
 
+			collisions.push_back(Coordinates(0.0, 0.0));
+		}
 
 		// TODO: Straigt line shit testing
 		if (entVel)
 		{
-			vector<float> minOffsetX(ceil(entVel) + 1);
-			vector<float> minOffsetY(ceil(entVel) + 1);
-			vector<float> maxOffsetX(ceil(entVel) + 1);
-			vector<float> maxOffsetY(ceil(entVel) + 1);
+			float minOffsetX;
+			float minOffsetY;
+			float maxOffsetX;
+			float maxOffsetY;
+			bool minXIsEnt = false;
+			bool minYIsEnt = false;
+			bool maxXIsEnt = false;
+			bool maxYIsEnt = false;
 
 			// TODO: What to do if the step is 0?
 			float xStep = entOff->X / entVel;
 			float yStep = entOff->Y / entVel;
 
-			if (xStep != 0.0)
+			for (float x = 0, y = 0, i = 0; (xStep == 0.0 ? true : xStep < 0.0 ? x > entOff->X : x < entOff->X) && (yStep == 0.0 ? true : yStep < 0.0 ? y > entOff->Y : y < entOff->Y) && (i < ceil(entVel)); x += xStep, y += yStep, ++i)
 			{
-				for (float x = 0, i = 0; xStep < 0.0 ? x > entOff->X : x < entOff->X; x += xStep , ++i)
+				// X with Offset
+				if (worACo->X < entACo->X + x)
 				{
-					// X with Offset
-					if (worACo->X < entACo->X + x)
-					{
-						minOffsetX[i] = entACo->X + x;
-						maxOffsetX[i] = worBCo->X;
-					}
-					else
-					{
-						minOffsetX[i] = worACo->X;
-						maxOffsetX[i] = entBCo->X + x;
-					}
-				}
-			}
+					minOffsetX = entACo->X + x;
+					minXIsEnt = true;
 
-			if (yStep != 0.0)
-			{
-				for (float y = 0, i = 0; yStep < 0.0 ? y > entOff->Y : y < entOff->Y; y += yStep, ++i)
+					maxOffsetX = worBCo->X;
+				}
+				else
 				{
-					//Y	with offset
-					if (worACo->Y < entACo->Y + y)
-					{
-						minOffsetY[i] = entACo->Y + y;
-						maxOffsetY[i] = worBCo->Y;
-					}
-					else
-					{
-						minOffsetY[i] = worACo->Y;
-						maxOffsetY[i] = entBCo->Y + y;
-					}
-				}
-			}
+					minOffsetX = worACo->X;
 
-			for (int i = 0; i <= entVel; ++i)
-			{
+					maxOffsetX = entBCo->X + x;
+					maxXIsEnt = true;
+				}
+
+				//Y	with offset
+				if (worACo->Y < entACo->Y + y)
+				{
+					minOffsetY = entACo->Y + y;
+					minYIsEnt = true;
+					
+					maxOffsetY = worBCo->Y;
+				}
+				else
+				{
+					minOffsetY = worACo->Y;
+
+					maxOffsetY = entBCo->Y + y;
+					maxYIsEnt = true;
+				}
+
 				// Will Collide
-				if (maxOffsetX[i] > minOffsetX[i] && maxOffsetY[i] > minOffsetY[i])
+				if (maxOffsetX > minOffsetX && maxOffsetY > minOffsetY)
 				{
 					wor->SetColor(al_map_rgb(20, 220, 20));
+
+					collisions.push_back(Coordinates(x, y));
+
+					break;
 				}
 			}
 		}
+	}
+
+	if (collisions.size())
+	{
+		Coordinates* small = &collisions[0];
+
+		for (int i = 0; i < collisions.size(); ++i)
+		{
+			if (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(small->X, 2) + pow(small->Y, 2)))
+			{
+				small = &collisions[i];
+			}
+		}
+
+		ent->SetCoordinates(entACo->X + small->X, entACo->Y + small->Y);
+
+		ent->SetVelocityVector(0.0, 0.0);
 	}
 }
 

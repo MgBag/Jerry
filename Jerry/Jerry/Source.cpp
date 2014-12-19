@@ -171,7 +171,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_R:
-				player->SetCoordinates(60, 80);
+				player->SetCoordinates(700, 650);
 				break;
 			}
 		}
