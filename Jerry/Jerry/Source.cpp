@@ -86,7 +86,7 @@ int main()
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 
-	entities->push_back(Entity(700, 650, 6, 6, al_map_rgb(220, 20, 20), 0.0, 0.0));
+	entities->push_back(Entity(700, 650, 20, 20, al_map_rgb(220, 20, 20), 0.0, 0.0));
 	Entity* player = &(*entities)[0];
 
 	// world outlining
@@ -241,27 +241,30 @@ void draw(vector<Entity> *entities, list<WorldBlock> *world)
 
 void move(Entity* ent, bool keys[4])
 {
-	Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
+	if (keys[RIGHT] || keys[UP] || keys[LEFT] || keys[DOWN])
+	{
+		Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
 
-	if (keys[RIGHT])
-	{
-		offset->X += 1.0;
-	}
-	if (keys[UP])
-	{
-		offset->Y -= 1.0;
-	}
-	if (keys[LEFT])
-	{
-		offset->X -= 1.0;
-	}
-	if (keys[DOWN])
-	{
-		offset->Y += 1.0;
-	}
+		if (keys[RIGHT])
+		{
+			offset->X += 10.0;
+		}
+		if (keys[UP])
+		{
+			offset->Y -= 10.0;
+		}
+		if (keys[LEFT])
+		{
+			offset->X -= 10.0;
+		}
+		if (keys[DOWN])
+		{
+			offset->Y += 10.0;
+		}
 
-	ent->SetVelocityVector(phys.OffsetToVector(offset));
+		ent->SetVelocityVector(phys.OffsetToVector(offset));
 
-	delete offset;
+		delete offset;
+	}
 }
 

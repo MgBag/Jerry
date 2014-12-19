@@ -19,7 +19,6 @@ private:
 	static void ApplyGravity(Entity* ent);
 	static void MoveEntity(Entity* ent);
 	static void setMinMax(Coordinates* min, Coordinates* max, Coordinates* minOffset, Coordinates* maxOffset, Coordinates* entACo, Coordinates* entBCo, Coordinates* entOff, Coordinates* worACo, Coordinates* worBCo);
-
 public:
 	static VelocityVector* OffsetToVector(Coordinates* offset);
 	static VelocityVector* OffsetToVector(float x, float y);

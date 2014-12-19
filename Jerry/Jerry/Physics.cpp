@@ -4,9 +4,9 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 {
 	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		ApplyGravity(&(*ent));
+		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
-		MoveEntity(&(*ent));
+		//MoveEntity(&(*ent));
 	}
 }
 
@@ -331,17 +331,17 @@ Coordinates* Physics::VectorToOffset(float velocity, float angle)
 		offset->X = 0.0;
 		offset->Y = velocity * -1;
 	}
-	else if (fmod(angle, FM_3_PI_2) == 0.0)
+	else if (angle == FM_3_PI_2)
 	{
 		offset->X = velocity;
 		offset->Y = 0.0;
 	}
-	else if (fmod(angle, FM_PI) == 0.0)
+	else if (angle == FM_PI)
 	{
 		offset->X = 0.0;
-		offset->Y = velocity;
+		offset->Y = velocity * -1;
 	}
-	else if (fmod(angle, FM_PI_2) == 0.0)
+	else if (angle == FM_PI_2)
 	{
 		offset->X = velocity * -1;
 		offset->Y = 0.0;
@@ -382,17 +382,17 @@ Coordinates* Physics::VectorToOffset(VelocityVector* vec)
 		offset->X = 0.0;
 		offset->Y = velocity * -1;
 	}
-	else if (fmod(angle, FM_3_PI_2) == 0.0)
+	else if (angle == FM_3_PI_2)
 	{
 		offset->X = velocity;
 		offset->Y = 0.0;
 	}
-	else if (fmod(angle, FM_PI) == 0.0)
+	else if (angle == FM_PI)
 	{
 		offset->X = 0.0;
 		offset->Y = velocity;
 	}
-	else if (fmod(angle, FM_PI_2) == 0.0)
+	else if (angle == FM_PI_2)
 	{
 		offset->X = velocity * -1;
 		offset->Y = 0.0;
@@ -436,7 +436,6 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 		Coordinates* min = new Coordinates();
 		Coordinates* max = new Coordinates();
-
 
 		// X
 		if (worACo->X < entACo->X)
