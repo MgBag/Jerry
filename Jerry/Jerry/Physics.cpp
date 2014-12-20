@@ -6,7 +6,7 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 	{
 		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
-		MoveEntity(&(*ent));
+		//MoveEntity(&(*ent));
 	}
 }
 
@@ -432,40 +432,40 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		Coordinates* worACo = wor->GetA();
 		Coordinates* worBCo = wor->GetB();
 
-		Coordinates* min = new Coordinates();
-		Coordinates* max = new Coordinates();
+		//Coordinates* min = new Coordinates();
+		//Coordinates* max = new Coordinates();
 
-		// X
-		if (worACo->X < entACo->X)
-		{
-			min->X = entACo->X;
-			max->X = worBCo->X;
-		}
-		else
-		{
-			min->X = worACo->X;
-			max->X = entBCo->X;
-		}
+		//// X
+		//if (worACo->X < entACo->X)
+		//{
+		//	min->X = entACo->X;
+		//	max->X = worBCo->X;
+		//}
+		//else
+		//{
+		//	min->X = worACo->X;
+		//	max->X = entBCo->X;
+		//}
 
-		//Y	
-		if (worACo->Y < entACo->Y)
-		{
-			min->Y = entACo->Y;
-			max->Y = worBCo->Y;
-		}
-		else
-		{
-			min->Y = worACo->Y;
-			max->Y = entBCo->Y;
-		}
+		////Y	
+		//if (worACo->Y < entACo->Y)
+		//{
+		//	min->Y = entACo->Y;
+		//	max->Y = worBCo->Y;
+		//}
+		//else
+		//{
+		//	min->Y = worACo->Y;
+		//	max->Y = entBCo->Y;
+		//}
 
-		// Already colliding
-		if (max->X > min->X && max->Y > min->Y)
-		{
-			wor->SetColor(al_map_rgb(20, 220, 20));
+		//// Already colliding
+		//if (max->X > min->X && max->Y > min->Y)
+		//{
+		//	wor->SetColor(al_map_rgb(20, 220, 20));
 
-			collisions.push_back(Coordinates(0.0, 0.0));
-		}
+		//	collisions.push_back(Coordinates(0.0, 0.0));
+		//}
 
 		// TODO: Straigt line shit testing
 		if (entVel)
@@ -476,8 +476,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			float maxOffsetY;
 			bool minXIsEnt = false;
 			bool minYIsEnt = false;
-			bool maxXIsEnt = false;
-			bool maxYIsEnt = false;
+			//bool maxXIsEnt = false;
+			//bool maxYIsEnt = false;
 
 			// TODO: What to do if the step is 0?
 			float xStep = entOff->X / entVel;
@@ -498,7 +498,6 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 					minOffsetX = worACo->X;
 
 					maxOffsetX = entBCo->X + x;
-					maxXIsEnt = true;
 				}
 
 				//Y	with offset
@@ -514,7 +513,6 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 					minOffsetY = worACo->Y;
 
 					maxOffsetY = entBCo->Y + y;
-					maxYIsEnt = true;
 				}
 
 				// Will Collide
@@ -522,7 +520,34 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				{
 					wor->SetColor(al_map_rgb(20, 220, 20));
 
-					collisions.push_back(Coordinates(x, y));
+					if (!(maxOffsetX - (minXIsEnt ? 0.0 : xStep) > minOffsetX - (minOffsetX ? xStep : 0.0)))
+					{
+						if (minXIsEnt)
+						{
+							cout << "Right Y\n";
+						}
+						else
+						{
+							cout << "Left Y\n";
+						}
+					}
+					else if (!(maxOffsetY - (minYIsEnt ? 0.0 : yStep) > minOffsetY - (minYIsEnt ? yStep : 0.0)))
+					{
+						if (minYIsEnt)
+						{
+							cout << "Lower X\n";
+						}
+						else
+						{
+							cout << "Upper X\n";
+						}
+					}
+					else
+					{
+					}
+
+
+					//collisions.push_back(Coordinates(x, y));
 
 					break;
 				}
