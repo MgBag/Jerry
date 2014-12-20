@@ -8,3 +8,4 @@ const float FRICTION = 0.9;
 const float FM_3_PI_2 = 3 * M_PI_2;
 const float FM_PI = 2 * M_PI_2;
 const float FM_PI_2 = M_PI_2;
+const float PLAYER_SPEED = 1.0;

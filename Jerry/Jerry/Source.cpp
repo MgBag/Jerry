@@ -172,7 +172,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_R:
-				player->SetCoordinates(700, 650);
+				player->SetCoordinates(200, 200);
 				break;
 			}
 		}
@@ -248,19 +248,19 @@ void move(Entity* ent, bool keys[4])
 
 		if (keys[RIGHT])
 		{
-			offset->X += 10.0;
+			offset->X += PLAYER_SPEED;
 		}
 		if (keys[UP])
 		{
-			offset->Y -= 10.0;
+			offset->Y -= PLAYER_SPEED;
 		}
 		if (keys[LEFT])
 		{
-			offset->X -= 10.0;
+			offset->X -= PLAYER_SPEED;
 		}
 		if (keys[DOWN])
 		{
-			offset->Y += 10.0;
+			offset->Y += PLAYER_SPEED;
 		}
 
 		ent->SetVelocityVector(phys.OffsetToVector(offset));
@@ -268,4 +268,3 @@ void move(Entity* ent, bool keys[4])
 		delete offset;
 	}
 }
-

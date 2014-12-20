@@ -6,7 +6,7 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 	{
 		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
-		//MoveEntity(&(*ent));
+		MoveEntity(&(*ent));
 	}
 }
 
@@ -425,7 +425,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	Coordinates* entOff = VectorToOffset(ent->GetVelocityVector()); // TODO: Add entity offset conlone function;
 	float entVel = ent->GetVelocityVector()->Velocity;
 	vector<Coordinates> collisions;
-
+	vector<Coordinates> possitions;
+	
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
 		// TODO: Add only if in range statement
@@ -520,34 +521,42 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				{
 					wor->SetColor(al_map_rgb(20, 220, 20));
 
-					if (!(maxOffsetX - (minXIsEnt ? 0.0 : xStep) > minOffsetX - (minOffsetX ? xStep : 0.0)))
+					if (!(maxOffsetX - (minXIsEnt ? 0.0 : xStep) > minOffsetX - (minXIsEnt ? xStep : 0.0)))
 					{
 						if (minXIsEnt)
 						{
-							cout << "Right Y\n";
+							collisions.push_back(Coordinates(x, y));
+							possitions.push_back(Coordinates(worBCo->X, minYIsEnt ? minOffsetY : maxOffsetY));
+							cout << "Right X\n";
 						}
 						else
 						{
-							cout << "Left Y\n";
+							collisions.push_back(Coordinates(x, y));
+							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), minYIsEnt ? minOffsetY : maxOffsetY));
+							cout << "Left X\n";
 						}
 					}
 					else if (!(maxOffsetY - (minYIsEnt ? 0.0 : yStep) > minOffsetY - (minYIsEnt ? yStep : 0.0)))
 					{
 						if (minYIsEnt)
 						{
-							cout << "Lower X\n";
+							collisions.push_back(Coordinates(x, y));
+							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worBCo->Y));
+							cout << "Lower Y\n";
 						}
 						else
 						{
-							cout << "Upper X\n";
+							collisions.push_back(Coordinates(x, y));
+							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worACo->Y - ent->GetHeight()));
+							cout << "Upper Y\n";
 						}
 					}
 					else
 					{
+						collisions.push_back(Coordinates(x, y));
+						possitions.push_back(Coordinates(200.0, 200.0));
 					}
 
-
-					//collisions.push_back(Coordinates(x, y));
 
 					break;
 				}
@@ -557,17 +566,17 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 	if (collisions.size())
 	{
-		Coordinates* small = &collisions[0];
+		int small = 0;
 
 		for (int i = 0; i < collisions.size(); ++i)
 		{
-			if (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(small->X, 2) + pow(small->Y, 2)))
+			if (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[small].X, 2) + pow(collisions[small].Y, 2)))
 			{
-				small = &collisions[i];
+				small = i;
 			}
 		}
 
-		ent->SetCoordinates(entACo->X + small->X, entACo->Y + small->Y);
+		ent->SetCoordinates(possitions[small].X, possitions[small].Y);
 
 		ent->SetVelocityVector(0.0, 0.0);
 	}
