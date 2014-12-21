@@ -484,7 +484,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			float xStep = entOff->X / entVel;
 			float yStep = entOff->Y / entVel;
 
-			for (float x = 0, y = 0, i = 0; (xStep == 0.0 ? true : xStep < 0.0 ? x > entOff->X : x < entOff->X) && (yStep == 0.0 ? true : yStep < 0.0 ? y > entOff->Y : y < entOff->Y) && (i < ceil(entVel)); x += xStep, y += yStep, ++i)
+			for (float x = 0, y = 0, i = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y) && (i <= ceil(entVel)); x += xStep, y += yStep, ++i)
 			{
 				// X with Offset
 				if (worACo->X < entACo->X + x)
