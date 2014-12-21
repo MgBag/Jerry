@@ -4,214 +4,12 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 {
 	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		//ApplyGravity(&(*ent));
+		ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
 		MoveEntity(&(*ent));
 	}
 }
 
-//
-////TODO: Check if it's inside of the item
-////TODO: This part is doing the evil. It looks like it is. 
-//void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
-//{
-//	int worldItems = world->size();
-//	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
-//
-//	const Coordinates* entA = ent->GetCoordinates();
-//	Coordinates* entB = new Coordinates(entA->X + ent->GetWidth(), entA->Y + ent->GetHeight());
-//
-//	vector<float> xCol;
-//	vector<float> yCol;
-//
-//	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
-//	{
-//		const Coordinates* worA = (*wBlock)->GetA();
-//		const Coordinates* worB = (*wBlock)->GetB();
-//
-//		xCol.push_back(-1);
-//		yCol.push_back(-1);
-//
-//		if (offset->Y > 0.0)
-//		{
-//			if ((entB->Y + offset->Y > worA->Y) && (entB->Y <= worA->Y) && (entB->X + offset->X > worA->X) & (entA->X + offset->X < worB->X))
-//			{
-//				if (ceil(entB->Y) == worA->Y)
-//				{
-//					yCol[yCol.size() - 1] = 0.0;
-//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//				}
-//				else
-//				{
-//					for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
-//					{
-//						if (ceil(entB->Y + y) >= worA->Y)
-//						{
-//							if (ceil(entB->Y + y) == worA->Y)
-//							{
-//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//								yCol[yCol.size() - 1] = y;
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		else
-//		{
-//			if ((entA->Y + offset->Y < worB->Y) && (entA->Y >= worB->Y) && (entB->X + offset->X > worA->X) && (entA->X + offset->X < worB->X))
-//			{
-//				if (ceil(entA->Y) == worB->Y)
-//				{
-//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//					yCol[yCol.size() - 1] = 0.0;
-//				}
-//				else
-//				{
-//					for (float y = fmod(offset->Y, 1.0); y >= offset->Y; --y)
-//					{
-//						if (ceil(entA->Y + y) <= worB->Y)
-//						{
-//							if (ceil(entA->Y + y) == worB->Y)
-//							{
-//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//								yCol[yCol.size() - 1] = y;
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//
-//		if (offset->X >= 0.0)
-//		{
-//			if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
-//			{
-//				if (ceil(entB->X) == worA->X)
-//				{
-//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//					xCol[xCol.size() - 1] = 0.0;
-//				}
-//				else
-//				{
-//					for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
-//					{
-//						if (ceil(entB->X + x) >= worA->X)
-//						{
-//							if (ceil(entB->X + x) == worA->X)
-//							{
-//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//								xCol[xCol.size() - 1] = x;
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//		else
-//		{
-//			if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
-//			{
-//				if (ceil(entA->X) == worB->X)
-//				{
-//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//					xCol[xCol.size() - 1] = 0.0;
-//				}
-//				else
-//				{
-//					for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
-//					{
-//						if (worB->X >= ceil(entA->X + x))
-//						{
-//							if (ceil(entA->X + x) == worB->X)
-//							{
-//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
-//								xCol[xCol.size() - 1] = x;
-//								break;
-//							}
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	int closestX = -1;
-//	int closestY = -1;
-//	float distanceX = ent->GetVelocityVector()->Velocity;
-//	float distanceY = ent->GetVelocityVector()->Velocity;
-//
-//	for (int i = 0; i < worldItems; ++i)
-//	{
-//		if (yCol[i] != -1 && xCol[i] != -1)
-//		{
-//			////Hiero is dat problemo yo
-//			//// Fixi?
-//			//// Het is de volgorde waarin dit word getriggerd. 
-//
-//
-//			//if (count(yCol.begin(), yCol.end(), 0.0) > 0)
-//			//{
-//			//	distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
-//			//	closestY = i;
-//			//	closestX = -1;
-//
-//			//}
-//			//
-//			//if (count(xCol.begin(), xCol.end(), 0.0) > 0)
-//			//{
-//			//	distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
-//			//	closestX = i;
-//			//	closestY = -1;
-//
-//			//}
-//
-//			//// Gekke collide is ook zonder trigger van dit
-//			cout << "wut, bork?";
-//		}
-//		else if (yCol[i] != -1)
-//		{
-//			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distanceY)
-//			{
-//				distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
-//				closestY = i;
-//			}
-//		}
-//		else if (xCol[i] != -1)
-//		{
-//			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distanceX)
-//			{
-//				distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
-//				closestX = i;
-//			}
-//		}
-//	}
-//
-//	if (closestX != -1 && closestY != -1)
-//	{
-//		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), ceil(yCol[closestY] + entA->Y));
-//
-//		ent->SetVelocityVector(0.0, 0.0);
-//	}
-//	else if (closestY != -1)
-//	{
-//		ent->SetCoordinates(yCol[closestY] / offset->Y * offset->X + entA->X, ceil(yCol[closestY] + entA->Y));
-//
-//		ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
-//	}
-//	else if (closestX != -1)
-//	{
-//		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), xCol[closestX] / offset->X * offset->Y + entA->Y);
-//
-//		ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
-//	}
-//
-//	delete offset;
-//	delete entB;
-//}
 
 void Physics::ApplyGravity(Entity* ent)
 {
@@ -426,6 +224,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	float entVel = ent->GetVelocityVector()->Velocity;
 	vector<Coordinates> collisions;
 	vector<Coordinates> possitions;
+	vector<bool> isXCollision;
 	
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
@@ -433,41 +232,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		Coordinates* worACo = wor->GetA();
 		Coordinates* worBCo = wor->GetB();
 
-		//Coordinates* min = new Coordinates();
-		//Coordinates* max = new Coordinates();
-
-		//// X
-		//if (worACo->X < entACo->X)
-		//{
-		//	min->X = entACo->X;
-		//	max->X = worBCo->X;
-		//}
-		//else
-		//{
-		//	min->X = worACo->X;
-		//	max->X = entBCo->X;
-		//}
-
-		////Y	
-		//if (worACo->Y < entACo->Y)
-		//{
-		//	min->Y = entACo->Y;
-		//	max->Y = worBCo->Y;
-		//}
-		//else
-		//{
-		//	min->Y = worACo->Y;
-		//	max->Y = entBCo->Y;
-		//}
-
-		//// Already colliding
-		//if (max->X > min->X && max->Y > min->Y)
-		//{
-		//	wor->SetColor(al_map_rgb(20, 220, 20));
-
-		//	collisions.push_back(Coordinates(0.0, 0.0));
-		//}
-
+		
 		// TODO: Straigt line shit testing
 		if (entVel)
 		{
@@ -484,7 +249,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			float xStep = entOff->X / entVel;
 			float yStep = entOff->Y / entVel;
 
-			for (float x = 0, y = 0, i = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y) && (i <= ceil(entVel)); x += xStep, y += yStep, ++i)
+			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 			{
 				// X with Offset
 				if (worACo->X < entACo->X + x)
@@ -521,42 +286,38 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				{
 					wor->SetColor(al_map_rgb(20, 220, 20));
 
-					if (!(maxOffsetX - (minXIsEnt ? 0.0 : xStep) > minOffsetX - (minXIsEnt ? xStep : 0.0)))
+					if (!(maxOffsetX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minOffsetX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)))
 					{
 						if (minXIsEnt)
 						{
-							collisions.push_back(Coordinates(x, y));
 							possitions.push_back(Coordinates(worBCo->X, minYIsEnt ? minOffsetY : maxOffsetY));
-							cout << "Right X\n";
 						}
 						else
 						{
-							collisions.push_back(Coordinates(x, y));
 							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), minYIsEnt ? minOffsetY : maxOffsetY));
-							cout << "Left X\n";
 						}
+						
+						isXCollision.push_back(true);
 					}
-					else if (!(maxOffsetY - (minYIsEnt ? 0.0 : yStep) > minOffsetY - (minYIsEnt ? yStep : 0.0)))
+					else if (!(maxOffsetY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minOffsetY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
 					{
 						if (minYIsEnt)
 						{
-							collisions.push_back(Coordinates(x, y));
 							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worBCo->Y));
-							cout << "Lower Y\n";
 						}
 						else
 						{
-							collisions.push_back(Coordinates(x, y));
 							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worACo->Y - ent->GetHeight()));
-							cout << "Upper Y\n";
 						}
+
+						isXCollision.push_back(false);
 					}
 					else
 					{
-						collisions.push_back(Coordinates(x, y));
-						possitions.push_back(Coordinates(200.0, 200.0));
+						possitions.push_back(Coordinates(entACo->X, entACo->Y));
 					}
 
+					collisions.push_back(Coordinates(x, y));
 
 					break;
 				}
@@ -566,19 +327,43 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 	if (collisions.size())
 	{
-		int small = 0;
+		int closestX = -1;
+		int closestY = -1;
 
 		for (int i = 0; i < collisions.size(); ++i)
 		{
-			if (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[small].X, 2) + pow(collisions[small].Y, 2)))
+			if (isXCollision[i])
 			{
-				small = i;
+				if (closestX == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestX].X, 2) + pow(collisions[closestX].Y, 2))))
+				{
+					closestX = i;
+				}
+			}
+			else if (closestY == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestY].X, 2) + pow(collisions[closestY].Y, 2))))
+			{
+				closestY = i;
 			}
 		}
 
-		ent->SetCoordinates(possitions[small].X, possitions[small].Y);
 
-		ent->SetVelocityVector(0.0, 0.0);
+		if (closestX != -1 && closestY != -1)
+		{
+			ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
+
+			ent->SetVelocityVector(0.0, 0.0);
+		}
+		else if (closestY != -1)
+		{
+			ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
+
+			ent->SetVelocityVector(0.0, 0.0);
+		}
+		else if (closestX != -1)
+		{
+			ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
+
+			ent->SetVelocityVector(0.0, 0.0);
+		}
 	}
 }
 
@@ -633,4 +418,243 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 //		min->Y = worACo->Y;
 //		max->Y = entBCo->Y + entOff->Y;
 //	}
+//}
+
+
+//
+////TODO: Check if it's inside of the item
+////TODO: This part is doing the evil. It looks like it is. 
+//void Physics::Collide(Entity* ent, vector<WorldBlock*>* world)
+//{
+//	int worldItems = world->size();
+//	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
+//
+//	const Coordinates* entA = ent->GetCoordinates();
+//	Coordinates* entB = new Coordinates(entA->X + ent->GetWidth(), entA->Y + ent->GetHeight());
+//
+//	vector<float> xCol;
+//	vector<float> yCol;
+//
+//	for (vector<WorldBlock*>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
+//	{
+//		const Coordinates* worA = (*wBlock)->GetA();
+//		const Coordinates* worB = (*wBlock)->GetB();
+//
+//		xCol.push_back(-1);
+//		yCol.push_back(-1);
+//
+//		if (offset->Y > 0.0)
+//		{
+//			if ((entB->Y + offset->Y > worA->Y) && (entB->Y <= worA->Y) && (entB->X + offset->X > worA->X) & (entA->X + offset->X < worB->X))
+//			{
+//				if (ceil(entB->Y) == worA->Y)
+//				{
+//					yCol[yCol.size() - 1] = 0.0;
+//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//				}
+//				else
+//				{
+//					for (float y = fmod(offset->Y, 1.0); y <= offset->Y; ++y)
+//					{
+//						if (ceil(entB->Y + y) >= worA->Y)
+//						{
+//							if (ceil(entB->Y + y) == worA->Y)
+//							{
+//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//								yCol[yCol.size() - 1] = y;
+//								break;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		else
+//		{
+//			if ((entA->Y + offset->Y < worB->Y) && (entA->Y >= worB->Y) && (entB->X + offset->X > worA->X) && (entA->X + offset->X < worB->X))
+//			{
+//				if (ceil(entA->Y) == worB->Y)
+//				{
+//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//					yCol[yCol.size() - 1] = 0.0;
+//				}
+//				else
+//				{
+//					for (float y = fmod(offset->Y, 1.0); y >= offset->Y; --y)
+//					{
+//						if (ceil(entA->Y + y) <= worB->Y)
+//						{
+//							if (ceil(entA->Y + y) == worB->Y)
+//							{
+//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//								yCol[yCol.size() - 1] = y;
+//								break;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		if (offset->X >= 0.0)
+//		{
+//			if ((entB->X + offset->X > worA->X) && (entB->X <= worA->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
+//			{
+//				if (ceil(entB->X) == worA->X)
+//				{
+//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//					xCol[xCol.size() - 1] = 0.0;
+//				}
+//				else
+//				{
+//					for (float x = fmod(offset->X, 1.0); x <= offset->X; ++x)
+//					{
+//						if (ceil(entB->X + x) >= worA->X)
+//						{
+//							if (ceil(entB->X + x) == worA->X)
+//							{
+//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//								xCol[xCol.size() - 1] = x;
+//								break;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		else
+//		{
+//			if ((entA->X + offset->X < worB->X) && (entA->X >= worB->X) && (entB->Y + offset->Y > worA->Y) && (entA->Y + offset->Y < worB->Y))
+//			{
+//				if (ceil(entA->X) == worB->X)
+//				{
+//					(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//					xCol[xCol.size() - 1] = 0.0;
+//				}
+//				else
+//				{
+//					for (float x = fmod(offset->X, 1.0); x >= offset->X; --x)
+//					{
+//						if (worB->X >= ceil(entA->X + x))
+//						{
+//							if (ceil(entA->X + x) == worB->X)
+//							{
+//								(*wBlock)->SetColor(al_map_rgb(20, 220, 20));
+//								xCol[xCol.size() - 1] = x;
+//								break;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	int closestX = -1;
+//	int closestY = -1;
+//	float distanceX = ent->GetVelocityVector()->Velocity;
+//	float distanceY = ent->GetVelocityVector()->Velocity;
+//
+//	for (int i = 0; i < worldItems; ++i)
+//	{
+//		if (yCol[i] != -1 && xCol[i] != -1)
+//		{
+//			////Hiero is dat problemo yo
+//			//// Fixi?
+//			//// Het is de volgorde waarin dit word getriggerd. 
+//
+//
+//			//if (count(yCol.begin(), yCol.end(), 0.0) > 0)
+//			//{
+//			//	distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
+//			//	closestY = i;
+//			//	closestX = -1;
+//
+//			//}
+//			//
+//			//if (count(xCol.begin(), xCol.end(), 0.0) > 0)
+//			//{
+//			//	distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
+//			//	closestX = i;
+//			//	closestY = -1;
+//
+//			//}
+//
+//			//// Gekke collide is ook zonder trigger van dit
+//			cout << "wut, bork?";
+//		}
+//		else if (yCol[i] != -1)
+//		{
+//			if (sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2)) < distanceY)
+//			{
+//				distanceY = sqrt(pow(yCol[i] / offset->Y * offset->X, 2) + pow(ceil(yCol[i]), 2));
+//				closestY = i;
+//			}
+//		}
+//		else if (xCol[i] != -1)
+//		{
+//			if (sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2)) < distanceX)
+//			{
+//				distanceX = sqrt(pow(ceil(xCol[i]), 2) + pow(xCol[i] / offset->X * offset->Y, 2));
+//				closestX = i;
+//			}
+//		}
+//	}
+//
+//	if (closestX != -1 && closestY != -1)
+//	{
+//		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), ceil(yCol[closestY] + entA->Y));
+//
+//		ent->SetVelocityVector(0.0, 0.0);
+//	}
+//	else if (closestY != -1)
+//	{
+//		ent->SetCoordinates(yCol[closestY] / offset->Y * offset->X + entA->X, ceil(yCol[closestY] + entA->Y));
+//
+//		ent->SetVelocityVector(OffsetToVector(offset->X * FRICTION, 0.0));
+//	}
+//	else if (closestX != -1)
+//	{
+//		ent->SetCoordinates(ceil(xCol[closestX] + entA->X), xCol[closestX] / offset->X * offset->Y + entA->Y);
+//
+//		ent->SetVelocityVector(OffsetToVector(0.0, offset->Y * FRICTION));
+//	}
+//
+//	delete offset;
+//	delete entB;
+//}
+
+//Coordinates* min = new Coordinates();
+//Coordinates* max = new Coordinates();
+
+//// X
+//if (worACo->X < entACo->X)
+//{
+//	min->X = entACo->X;
+//	max->X = worBCo->X;
+//}
+//else
+//{
+//	min->X = worACo->X;
+//	max->X = entBCo->X;
+//}
+
+////Y	
+//if (worACo->Y < entACo->Y)
+//{
+//	min->Y = entACo->Y;
+//	max->Y = worBCo->Y;
+//}
+//else
+//{
+//	min->Y = worACo->Y;
+//	max->Y = entBCo->Y;
+//}
+
+//// Already colliding
+//if (max->X > min->X && max->Y > min->Y)
+//{
+//	wor->SetColor(al_map_rgb(20, 220, 20));
+
+//	collisions.push_back(Coordinates(0.0, 0.0));
 //}

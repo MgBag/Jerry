@@ -93,42 +93,42 @@ int main()
 	//center bar
 	world->push_back(WorldBlock(300, 300, 900, 310, al_map_rgb(20, 20, 20)));
 
-	//// world outlining
-	//world->push_back(WorldBlock(0, 590, 1280, 600, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
+	// world outlining
+	world->push_back(WorldBlock(0, 590, 1280, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
 
-	////center bar stripes
-	//world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(660, 280, 665, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(670, 280, 675, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(680, 280, 685, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(690, 280, 695, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(700, 280, 705, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(710, 280, 715, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(720, 280, 725, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(730, 280, 735, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(740, 280, 745, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(750, 280, 755, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(760, 280, 765, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(770, 280, 775, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(780, 280, 785, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
+	//center bar stripes
+	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(660, 280, 665, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(670, 280, 675, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(680, 280, 685, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(690, 280, 695, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(700, 280, 705, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(710, 280, 715, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(720, 280, 725, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(730, 280, 735, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(740, 280, 745, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(750, 280, 755, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(760, 280, 765, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(770, 280, 775, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(780, 280, 785, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
 
-	////top left stripes
-	////x
-	//world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
+	//top left stripes
+	//x
+	world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
 
-	////y
-	//world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
+	//y
+	world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
 
 	al_start_timer(frame);
 
