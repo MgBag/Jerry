@@ -4,7 +4,7 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 {
 	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		ApplyGravity(&(*ent));
+		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
 		MoveEntity(&(*ent));
 	}
@@ -247,8 +247,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			//bool maxYIsEnt = false;
 
 			// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
-			float xStep = entOff->Y == 0 ? entOff->X / 1.0 : entOff->X / entVel;
-			float yStep = entOff->X == 0 ? entOff->Y / 1.0 : entOff->Y / entVel;
+			float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / entVel;
+			float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / entVel;
 
 			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 			{
@@ -315,8 +315,12 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 					}
 					else
 					{
-						possitions.push_back(Coordinates(entACo->X, entACo->Y));
-						collisionType.push_back(XY);
+						if (minYIsEnt && minXIsEnt) cout << "1\n";
+						if (!minYIsEnt && minXIsEnt) cout << "2\n"; // rechts?
+						if (!minYIsEnt && !minXIsEnt) cout << "3\n"; // links boven? boven
+						if (minYIsEnt && !minXIsEnt) cout << "4\n"; // Recht onder?
+
+						cout << "Ok, wtf is this shit man";
 					}
 
 					collisionBlock.push_back(&(*wor));
@@ -332,6 +336,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	{
 		int closestX = -1;
 		int closestY = -1;
+		int closestXY = -1;
 
 		for (int i = 0; i < collisions.size(); ++i)
 		{
@@ -352,10 +357,19 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			else
 			{
 				// TODO: Corner on collision, stop on point
-				cout << "TODO: Corner on collision, stop on point\n";
+
+				if (closestXY == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestXY].X, 2) + pow(collisions[closestXY].Y, 2))))
+				{
+					closestXY = i;
+				}
+
 			}
 		}
 
+		if (closestXY != -1)
+		{
+			cout << "Blablabla";
+		}
 		if (closestX != -1 && closestY != -1)
 		{
 			if (entBCo->Y == collisionBlock[closestX]->GetA()->Y)
@@ -371,6 +385,25 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
 			}
+			
+			if (entBCo->X == collisionBlock[closestY]->GetA()->X)
+			{
+				ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
+
+				// fix this
+				//ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+				ent->SetVelocityVector(0.0, 0.0);
+
+			}
+			else if (entACo->X == collisionBlock[closestY]->GetB()->X)
+			{
+				ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
+
+				//ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+				ent->SetVelocityVector(0.0, 0.0);
+
+			}
+			
 			else
 			{
 				ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
