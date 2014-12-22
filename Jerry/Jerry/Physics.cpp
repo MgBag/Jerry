@@ -224,7 +224,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	float entVel = ent->GetVelocityVector()->Velocity;
 	vector<Coordinates> collisions;
 	vector<Coordinates> possitions;
-	vector<bool> isXCollision;
+	vector<int> collisionType;
+	vector<WorldBlock*> collisionBlock;
 	
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
@@ -245,9 +246,9 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			//bool maxXIsEnt = false;
 			//bool maxYIsEnt = false;
 
-			// TODO: What to do if the step is 0?
-			float xStep = entOff->X / entVel;
-			float yStep = entOff->Y / entVel;
+			// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
+			float xStep = entOff->Y == 0 ? entOff->X / 1.0 : entOff->X / entVel;
+			float yStep = entOff->X == 0 ? entOff->Y / 1.0 : entOff->Y / entVel;
 
 			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 			{
@@ -286,37 +287,39 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				{
 					wor->SetColor(al_map_rgb(20, 220, 20));
 
-					if (!(maxOffsetX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minOffsetX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)))
+					if (!(maxOffsetX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minOffsetX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxOffsetY > minOffsetY)
 					{
 						if (minXIsEnt)
 						{
-							possitions.push_back(Coordinates(worBCo->X, minYIsEnt ? minOffsetY : maxOffsetY));
+							possitions.push_back(Coordinates(worBCo->X, entACo->Y + y));
 						}
 						else
 						{
-							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), minYIsEnt ? minOffsetY : maxOffsetY));
+							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), entACo->Y + y));
 						}
 						
-						isXCollision.push_back(true);
+						collisionType.push_back(X);
 					}
-					else if (!(maxOffsetY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minOffsetY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+					else if (maxOffsetX > minOffsetX && !(maxOffsetY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minOffsetY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
 					{
 						if (minYIsEnt)
 						{
-							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worBCo->Y));
+							possitions.push_back(Coordinates(entACo->X + x, worBCo->Y));
 						}
 						else
 						{
-							possitions.push_back(Coordinates(minXIsEnt ? minOffsetX : maxOffsetX, worACo->Y - ent->GetHeight()));
+							possitions.push_back(Coordinates(entACo->X + x, worACo->Y - ent->GetHeight()));
 						}
 
-						isXCollision.push_back(false);
+						collisionType.push_back(Y);
 					}
 					else
 					{
 						possitions.push_back(Coordinates(entACo->X, entACo->Y));
+						collisionType.push_back(XY);
 					}
 
+					collisionBlock.push_back(&(*wor));
 					collisions.push_back(Coordinates(x, y));
 
 					break;
@@ -332,37 +335,60 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 		for (int i = 0; i < collisions.size(); ++i)
 		{
-			if (isXCollision[i])
+			if (collisionType[i] == X)
 			{
 				if (closestX == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestX].X, 2) + pow(collisions[closestX].Y, 2))))
 				{
 					closestX = i;
 				}
 			}
-			else if (closestY == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestY].X, 2) + pow(collisions[closestY].Y, 2))))
+			else if (collisionType[i] == Y)
 			{
-				closestY = i;
+				if (closestY == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestY].X, 2) + pow(collisions[closestY].Y, 2))))
+				{
+					closestY = i;
+				}
+			}
+			else
+			{
+				// TODO: Corner on collision, stop on point
+				cout << "TODO: Corner on collision, stop on point\n";
 			}
 		}
 
-
 		if (closestX != -1 && closestY != -1)
 		{
-			ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
+			if (entBCo->Y == collisionBlock[closestX]->GetA()->Y)
+			{
+				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
+				
+				// Stop the entity if the movement gets below the FRICTION_STOP
+				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+			}
+			else if (entACo->Y == collisionBlock[closestX]->GetB()->Y)
+			{
+				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
-			ent->SetVelocityVector(0.0, 0.0);
+				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+			}
+			else
+			{
+				ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
+
+				ent->SetVelocityVector(0.0, 0.0);
+			}
 		}
 		else if (closestY != -1)
 		{
 			ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
-			ent->SetVelocityVector(0.0, 0.0);
+			ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
 		}
 		else if (closestX != -1)
 		{
 			ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
 
-			ent->SetVelocityVector(0.0, 0.0);
+			ent->SetVelocityVector(OffsetToVector(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION));
 		}
 	}
 }

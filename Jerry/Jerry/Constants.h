@@ -10,3 +10,13 @@ const float FM_PI = 2 * M_PI_2;
 const float FM_PI_2 = M_PI_2;
 const float PLAYER_SPEED = 1.0;
 const float PRECISION = 0.001;
+const float FRICTION_STOP = 0.1;
+
+enum CollType {
+	X, Y, XY
+};
+
+enum UDLR
+{
+	RIGHT, UP, LEFT, DOWN
+};

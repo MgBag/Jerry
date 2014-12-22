@@ -22,10 +22,7 @@ void move(Entity* player, bool keys[4]);
 
 Physics phys;
 
-enum UDLR
-{
-	RIGHT, UP, LEFT, DOWN
-};
+
 
 int main()
 {
@@ -63,7 +60,7 @@ int main()
 		return -1;
 	}
 
-	//al_set_new_display_adapter(1);
+	al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -84,8 +81,6 @@ int main()
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
-
-
 
 	entities->push_back(Entity(200, 200, 20, 20, al_map_rgb(220, 20, 20), 0.0, 0.0));
 	Entity* player = &(*entities)[0];
@@ -117,14 +112,26 @@ int main()
 	world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
 
+	world->push_back(WorldBlock(340, 280, 345, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(365, 280, 370, 330, al_map_rgb(20, 20, 20)));
+
+
 	//top left stripes
 	//x
+	world->push_back(WorldBlock(30, 10, 35, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(40, 10, 45, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(50, 10, 55, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(60, 10, 65, 30, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
 
 	//y
+	world->push_back(WorldBlock(10, 30, 30, 35, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 40, 30, 45, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 50, 30, 55, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 60, 30, 65, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
