@@ -82,7 +82,7 @@ int main()
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
-	entities->push_back(Entity(200, 200, 20, 20, al_map_rgb(220, 20, 20), 0.0, 0.0 ));
+	entities->push_back(Entity(105, 10, 20, 20, al_map_rgb(220, 20, 20), 50.0, 4.9 * FM_PI / 4));
 	Entity* player = &(*entities)[0];
 
 	//center bar
@@ -179,7 +179,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_R:
-				player->SetCoordinates(200, 200);
+				player->SetCoordinates(105, 10);
 				break;
 			}
 		}
