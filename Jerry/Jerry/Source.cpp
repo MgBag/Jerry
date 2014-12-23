@@ -60,7 +60,7 @@ int main()
 		return -1;
 	}
 
-	//al_set_new_display_adapter(1);
+	al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -82,7 +82,7 @@ int main()
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
-	entities->push_back(Entity(105, 10, 20, 20, al_map_rgb(220, 20, 20), 50.0, 4.9 * FM_PI / 4));
+	entities->push_back(Entity(105, 10, 20, 20, al_map_rgb(220, 20, 20), 50.0, 0.0));
 	Entity* player = &(*entities)[0];
 
 	//center bar

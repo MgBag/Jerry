@@ -251,8 +251,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			bool minYIsEnt = false;
 
 			// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
-			float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / entVel;
-			float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / entVel;
+			float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / ceil(entVel);
+			float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / ceil(entVel);
 
 			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 			{
@@ -354,6 +354,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		{
 			if (entBCo->Y == collisionBlock[closestX]->GetA()->Y)
 			{
+				collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
+
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 				
 				// Stop the entity if the movement gets below the FRICTION_STOP
@@ -361,12 +363,17 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			}
 			else if (entACo->Y == collisionBlock[closestX]->GetB()->Y)
 			{
+				collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
+
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
 			}			
 			else
 			{
+				collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
+				collisionBlock[closestX]->SetColor(al_map_rgb(20, 20, 220));
+
 				ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
 
 				ent->SetVelocityVector(0.0, 0.0);
@@ -374,12 +381,16 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 		}
 		else if (closestY != -1)
 		{
+			collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
+
 			ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 			ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
 		}
 		else if (closestX != -1)
 		{
+			collisionBlock[closestX]->SetColor(al_map_rgb(20, 20, 220));
+
 			ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
 
 			ent->SetVelocityVector(OffsetToVector(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION));
@@ -405,33 +416,44 @@ bool Physics::WillCollide(Entity* entity, WorldBlock* block)
 	Coordinates* worBCo = block->GetB();
 	Coordinates* entOff = VectorToOffset(entity->GetVelocityVector());
 
-	// X with Offset
-	if (worACo->X < entACo->X)
-	{
-		minX = entACo->X + entOff->X;
-		maxX = worBCo->X;
-	}
-	else
-	{
-		minX = worACo->X;
-		maxX = entBCo->X + entOff->X;
-	}
+	// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
+	float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / ceil(entity->GetVelocityVector()->Velocity);
+	float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / ceil(entity->GetVelocityVector()->Velocity);
 
-	//Y	with offset
-	if (worACo->Y < entACo->Y)
+	for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 	{
-		minY = entACo->Y + entOff->Y;
-		maxY = worBCo->Y;
-	}
-	else
-	{
-		minY = worACo->Y;
-		maxY = entBCo->Y + entOff->Y;
-	}
+		// X with Offset
+		if (worACo->X < entACo->X + x)
+		{
+			minX = entACo->X + x;
 
-	if (maxX > minX && maxY > minY)
-	{
-		return true;
+			maxX = worBCo->X;
+		}
+		else
+		{
+			minX = worACo->X;
+
+			maxX = entBCo->X + x;
+		}
+
+		//Y	with offset
+		if (worACo->Y < entACo->Y + y)
+		{
+			minY = entACo->Y + y;
+
+			maxY = worBCo->Y;
+		}
+		else
+		{
+			minY = worACo->Y;
+
+			maxY = entBCo->Y + y;
+		}
+	
+		if (maxX > minX && maxY > minY)
+		{
+			return true;
+		}
 	}
 
 	return false;
