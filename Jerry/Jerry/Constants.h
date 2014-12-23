@@ -20,3 +20,7 @@ enum UDLR
 {
 	RIGHT, UP, LEFT, DOWN
 };
+
+enum EntityType {
+	PLAYER, PROJECTILE
+};

@@ -15,8 +15,9 @@ private:
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
+	EntityType m_Type;
 public:
-	Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float angle);
+	Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type);
 	~Entity();
 
 	Coordinates* GetCoordinates();
@@ -34,4 +35,6 @@ public:
 
 	float GetWidth();
 	float GetHeight();
+
+	EntityType getType();
 };

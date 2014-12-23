@@ -1,12 +1,13 @@
 #include "Entity.h"
 
-Entity::Entity(float x, float y, float width, float height, ALLEGRO_COLOR color, float velocity, float angle)
+Entity::Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type)
 {
 	m_Coordinates = new Coordinates(x, y);
 	m_Width = width;
 	m_Height = height;
-	m_Color = color;
 	m_VelocityVector = new VelocityVector(velocity, angle);
+	m_Color = color;
+	m_Type = type;
 }
 
 Entity::~Entity()
@@ -26,6 +27,7 @@ void Entity::SetCoordinates(float x, float y)
 
 void Entity::SetCoordinates(Coordinates* coordinates)
 {
+	delete m_Coordinates;
 	m_Coordinates = coordinates;
 }
 
@@ -74,5 +76,11 @@ void Entity::SetVelocityVector(float velocity, float angle)
 
 void Entity::SetVelocityVector(VelocityVector* velocityVector)
 {
+	delete m_VelocityVector;
 	m_VelocityVector = velocityVector;
+}
+
+EntityType Entity::getType()
+{
+	return m_Type;
 }

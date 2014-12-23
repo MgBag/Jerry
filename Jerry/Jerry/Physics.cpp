@@ -16,11 +16,14 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 
 void Physics::ApplyGravity(Entity* ent)
 {
-	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
+	if (ent->getType() == PLAYER)
+	{
+		Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
-	ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
+		ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
 
-	delete offset;
+		delete offset;
+	}
 }
 
 void Physics::MoveEntity(Entity* ent)
@@ -236,7 +239,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 	vector<Coordinates> possitions;
 	vector<int> collisionType;
 	vector<WorldBlock*> collisionBlock;
-	
+
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
 		if (WillCollide(ent, &(*wor)))
@@ -276,7 +279,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				{
 					minOffsetY = entACo->Y + y;
 					minYIsEnt = true;
-					
+
 					maxOffsetY = worBCo->Y;
 				}
 				else
@@ -301,7 +304,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 						{
 							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), entACo->Y + y));
 						}
-						
+
 						collisionType.push_back(X);
 					}
 					else if (maxOffsetX > minOffsetX && !(maxOffsetY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minOffsetY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
@@ -357,9 +360,16 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
 
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
-				
-				// Stop the entity if the movement gets below the FRICTION_STOP
-				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+
+				if (ent->getType() == PLAYER)
+				{
+					// Stop the entity if the movement gets below the FRICTION_STOP
+					ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+				}
+				else
+				{
+					ent->SetVelocityVector(0.0, 0.0);
+				}
 			}
 			else if (entACo->Y == collisionBlock[closestX]->GetB()->Y)
 			{
@@ -367,8 +377,15 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
-				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
-			}			
+				if (ent->getType() == PLAYER)
+				{
+					ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+				}
+				else
+				{
+					ent->SetVelocityVector(0.0, 0.0);
+				}
+			}
 			else
 			{
 				collisionBlock[closestY]->SetColor(al_map_rgb(20, 20, 220));
@@ -385,7 +402,14 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 			ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
-			ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+			if (ent->getType() == PLAYER)
+			{
+				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+			}
+			else
+			{
+				ent->SetVelocityVector(0.0, 0.0);
+			}
 		}
 		else if (closestX != -1)
 		{
@@ -393,7 +417,14 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 
 			ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
 
-			ent->SetVelocityVector(OffsetToVector(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION));
+			if (ent->getType() == PLAYER)
+			{
+				ent->SetVelocityVector(OffsetToVector(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION));
+			}
+			else
+			{
+				ent->SetVelocityVector(0.0, 0.0);
+			}
 		}
 
 		if (WillCollide(ent, world))
@@ -401,6 +432,9 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			Collide(ent, world);
 		}
 	}
+
+	delete entBCo;
+	delete entOff;
 }
 
 bool Physics::WillCollide(Entity* entity, WorldBlock* block)
@@ -452,10 +486,14 @@ bool Physics::WillCollide(Entity* entity, WorldBlock* block)
 	
 		if (maxX > minX && maxY > minY)
 		{
+			delete entBCo;
+			delete entOff;
 			return true;
 		}
 	}
 
+	delete entBCo;
+	delete entOff;
 	return false;
 }
 

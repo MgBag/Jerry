@@ -1,7 +1,8 @@
-//TODO: CHECK MEMORY LEAKS
-
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
+
+#include <stdlib.h>
+#include <crtdbg.h>
 
 #include <iostream>
 #include <list>
@@ -82,7 +83,7 @@ int main()
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
-	entities->push_back(Entity(105, 10, 20, 20, al_map_rgb(220, 20, 20), 50.0, 0.0));
+	entities->push_back(Entity(105, 10, 20, 20, 50.0, 0.0, al_map_rgb(220, 20, 20), PLAYER));
 	Entity* player = &(*entities)[0];
 
 	//center bar
@@ -215,6 +216,8 @@ int main()
 		}
 	}
 
+	delete world, entities;
+
 	return 0;
 }
 
@@ -242,7 +245,10 @@ void draw(vector<Entity> *entities, list<WorldBlock> *world)
 			(pos->Y + ent->GetHeight() / 2) + offset->Y,
 			al_map_rgb(220, 20, 20),
 			1.0);
+		
+		delete offset;
 	}
+
 
 	al_flip_display();
 }
