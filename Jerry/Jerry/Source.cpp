@@ -18,12 +18,11 @@
 
 using namespace std;
 
-void draw(vector<Entity>* ent, list<WorldBlock>* world);
+void draw(list<Entity>* ent, list<WorldBlock>* world);
 void move(Entity* player, bool keys[4]);
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 
 Physics phys;
-
-
 
 int main()
 {
@@ -31,7 +30,7 @@ int main()
 	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
 	ALLEGRO_TIMER* frame = 0;
 	list<WorldBlock>* world = new list<WorldBlock>();
-	vector<Entity>* entities = new vector<Entity>();
+	list<Entity>* entities = new list<Entity>();
 	bool keys[4] = { false, false, false, false };
 
 	bool quit = false;
@@ -43,6 +42,12 @@ int main()
 	}
 
 	if (!al_install_keyboard())
+	{
+		cout << "Allegro install keyboard\n";
+		return -1;
+	}
+
+	if (!al_install_mouse())
 	{
 		cout << "Allegro install keyboard\n";
 		return -1;
@@ -79,12 +84,9 @@ int main()
 		return -1;
 	}
 
-	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
-	al_register_event_source(eventQueue, al_get_display_event_source(display));
-	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 
 	entities->push_back(Entity(105, 10, 20, 20, 50.0, 0.0, al_map_rgb(220, 20, 20), PLAYER));
-	Entity* player = &(*entities)[0];
+	Entity* player = &(*entities->begin());
 
 	//center bar
 	world->push_back(WorldBlock(300, 300, 900, 310, al_map_rgb(20, 20, 20)));
@@ -138,8 +140,12 @@ int main()
 	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
 
-	al_start_timer(frame);
+	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
+	al_register_event_source(eventQueue, al_get_display_event_source(display));
+	al_register_event_source(eventQueue, al_get_keyboard_event_source());
+	al_register_event_source(eventQueue, al_get_mouse_event_source());
 
+	al_start_timer(frame);
 
 	while (!quit)
 	{
@@ -155,6 +161,13 @@ int main()
 
 			draw(entities, world);
 		}
+		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+		{
+			if (e.mouse.button == 1)
+			{
+				shoot(entities, e);
+			}
+		}
 		else if (e.type == ALLEGRO_EVENT_KEY_DOWN)
 		{
 			switch (e.keyboard.keycode)
@@ -169,6 +182,7 @@ int main()
 				keys[LEFT] = true;
 				break;
 
+			case ALLEGRO_KEY_SPACE:
 			case ALLEGRO_KEY_W:
 			case ALLEGRO_KEY_UP:
 				keys[UP] = true;
@@ -221,7 +235,7 @@ int main()
 	return 0;
 }
 
-void draw(vector<Entity> *entities, list<WorldBlock> *world)
+void draw(list<Entity> *entities, list<WorldBlock> *world)
 {
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
@@ -232,7 +246,7 @@ void draw(vector<Entity> *entities, list<WorldBlock> *world)
 		wBlock->SetColor(al_map_rgb(20, 20, 20));
 	}
 
-	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
+	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* pos = ent->GetCoordinates();
 		Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
@@ -245,7 +259,7 @@ void draw(vector<Entity> *entities, list<WorldBlock> *world)
 			(pos->Y + ent->GetHeight() / 2) + offset->Y,
 			al_map_rgb(220, 20, 20),
 			1.0);
-		
+
 		delete offset;
 	}
 
@@ -280,4 +294,23 @@ void move(Entity* ent, bool keys[4])
 
 		delete offset;
 	}
+}
+
+// TODO: Include player offset in shotVec
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
+{
+	if (entities->size() > 2)
+	{
+		entities->erase(++entities->begin());
+	}
+
+	Entity* player = &*entities->begin();
+	Coordinates* entPos = player->GetCoordinates();
+	float originX = entPos->X + player->GetHeight() / 2;
+	float originY = entPos->Y + player->GetHeight() / 2;
+	VelocityVector* shotVec = phys.OffsetToVector((originX - e.mouse.x) * -1, (originY - e.mouse.y) * -1);
+
+	entities->push_back(Entity(originX, originY, 5, 5, PROJECTILE_SPEED, shotVec->Angle, al_map_rgb(220, 20, 20), PROJECTILE));
+
+	delete shotVec;
 }

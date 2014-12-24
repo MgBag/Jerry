@@ -11,7 +11,7 @@ const float FM_PI_2 = M_PI_2;
 const float PLAYER_SPEED = 1.0;
 const float PRECISION = 0.01;
 const float FRICTION_STOP = 0.1;
-
+const float PROJECTILE_SPEED = 10.0;
 enum CollType {
 	X, Y
 };

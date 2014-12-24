@@ -27,5 +27,5 @@ public:
 	static Coordinates* VectorToOffset(VelocityVector* vector);
 	static Coordinates* VectorToOffset(float velocity, float angle);
 	
-	static void ApplyPhysics(vector<Entity>* ent, list<WorldBlock>* world);
+	static void ApplyPhysics(list<Entity>* ent, list<WorldBlock>* world);
 };

@@ -8,12 +8,14 @@ Entity::Entity(float x, float y, float width, float height, float velocity, floa
 	m_VelocityVector = new VelocityVector(velocity, angle);
 	m_Color = color;
 	m_Type = type;
+	m_Hit = false;
 }
 
 Entity::~Entity()
 {
 }
 
+// Do not delete! This returns the object in the Entity
 Coordinates* Entity::GetCoordinates()
 {
 	return m_Coordinates;
@@ -63,6 +65,7 @@ void Entity::MoveToOffset(Coordinates* offset)
 	m_Coordinates->Y += offset->Y;
 }
 
+// Do not delete! This returns the object in the Entity
 VelocityVector* Entity::GetVelocityVector()
 {
 	return m_VelocityVector;
@@ -83,4 +86,14 @@ void Entity::SetVelocityVector(VelocityVector* velocityVector)
 EntityType Entity::getType()
 {
 	return m_Type;
+}
+
+bool Entity::GetHit()
+{
+	return m_Hit;
+}
+
+void Entity::SetHit(bool hit)
+{
+	m_Hit = hit;
 }

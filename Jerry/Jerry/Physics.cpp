@@ -3,9 +3,9 @@
 // TODO: Memory leaks mang
 // TODO: Check logics mang, flows and flaws
 
-void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
+void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 {
-	for (vector<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
+	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
 		ApplyGravity(&(*ent));
 		Collide(&(*ent), world);
@@ -16,7 +16,7 @@ void Physics::ApplyPhysics(vector<Entity>* entities, list<WorldBlock>* world)
 
 void Physics::ApplyGravity(Entity* ent)
 {
-	if (ent->getType() == PLAYER)
+	if (ent->getType() == PLAYER || !ent->GetHit())
 	{
 		Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
 
@@ -369,6 +369,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				else
 				{
 					ent->SetVelocityVector(0.0, 0.0);
+					ent->SetHit(true);
 				}
 			}
 			else if (entACo->Y == collisionBlock[closestX]->GetB()->Y)
@@ -384,6 +385,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				else
 				{
 					ent->SetVelocityVector(0.0, 0.0);
+					ent->SetHit(true);
 				}
 			}
 			else
@@ -394,6 +396,11 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 				ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
 
 				ent->SetVelocityVector(0.0, 0.0);
+				
+				if (ent->getType() == PROJECTILE)
+				{
+					ent->SetHit(true);
+				}
 			}
 		}
 		else if (closestY != -1)
@@ -409,6 +416,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			else
 			{
 				ent->SetVelocityVector(0.0, 0.0);
+				ent->SetHit(true);
 			}
 		}
 		else if (closestX != -1)
@@ -424,6 +432,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world)
 			else
 			{
 				ent->SetVelocityVector(0.0, 0.0);
+				ent->SetHit(true);
 			}
 		}
 

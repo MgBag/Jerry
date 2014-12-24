@@ -16,6 +16,8 @@ private:
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
 	EntityType m_Type;
+	bool m_Hit;
+
 public:
 	Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type);
 	~Entity();
@@ -35,6 +37,9 @@ public:
 
 	float GetWidth();
 	float GetHeight();
+
+	bool GetHit();
+	void SetHit(bool hit);
 
 	EntityType getType();
 };
