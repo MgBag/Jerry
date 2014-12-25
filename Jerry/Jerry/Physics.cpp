@@ -518,3 +518,43 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world)
 
 	return false;
 }
+
+float Physics::OffsetToAngle(float x, float y)
+{
+	if (x == 0.0 && y > 0.0)
+	{
+		return FM_PI;
+	}
+	else if (x == 0.0 && y < 0.0)
+	{
+		return 0.0;
+	}
+	else if (x > 0.0 && y == 0.0)
+	{
+		return FM_3_PI_2;
+	}
+	else if (x < 0.0 && y == 0.0)
+	{
+		return FM_PI_2;
+	}
+	else if (x < 0.0 && y < 0.0)
+	{
+		return atan((x * -1.0) / (y * -1.0));
+	}
+	else if (x < 0.0 && y > 0.0)
+	{
+		return atan(y / (x * -1.0)) + FM_PI_2;
+	}
+	else if (x > 0.0 && y > 0.0)
+	{
+		return atan(x / y) + FM_PI;
+	}
+	else if (x > 0.0 && y < 0.0)
+	{
+		return atan((y * -1.0) / x) + FM_3_PI_2;
+	}
+	else
+	{
+		return 0.0;
+	}
+}

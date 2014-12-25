@@ -1,3 +1,5 @@
+// TODO : Remove the vucking fector
+
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
 
@@ -38,24 +40,28 @@ int main()
 	if (!al_init())
 	{
 		cout << "Allegro failed to initiate\n";
+		system("pause");
 		return -1;
 	}
 
 	if (!al_install_keyboard())
 	{
 		cout << "Allegro install keyboard\n";
+		system("pause");
 		return -1;
 	}
 
 	if (!al_install_mouse())
 	{
-		cout << "Allegro install keyboard\n";
+		cout << "Allegro install mouse\n";
+		system("pause");
 		return -1;
 	}
 
 	if (!al_init_primitives_addon())
 	{
 		cout << "Failed to initiate primitives addon\n";
+		system("pause");
 		return -1;
 	}
 
@@ -63,15 +69,17 @@ int main()
 	if (!eventQueue)
 	{
 		cout << "Failed to initiate event queue\n";
+		system("pause");
 		return -1;
 	}
 
-	al_set_new_display_adapter(1);
+	//al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
 		cout << "Failed to initiate display \n";
 		al_destroy_event_queue(eventQueue);
+		system("pause");
 		return -1;
 	}
 
@@ -81,6 +89,7 @@ int main()
 		cout << "Failed to initiate display \n";
 		al_destroy_display(display);
 		al_destroy_event_queue(eventQueue);
+		system("pause");
 		return -1;
 	}
 
@@ -263,6 +272,20 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 		delete offset;
 	}
 
+	ALLEGRO_MOUSE_STATE mouse;
+	al_get_mouse_state(&mouse);
+
+	al_draw_pixel(mouse.x, mouse.y, al_map_rgb(20, 20, 220));
+
+	Entity* player = &*entities->begin();
+	Coordinates* entPos = player->GetCoordinates();
+	float originX = entPos->X + player->GetWidth() / 2;
+	float originY = entPos->Y + player->GetHeight() / 2;
+	Coordinates* gunVec = phys.VectorToOffset(15.0, phys.OffsetToAngle((originX - (float)mouse.x) * -1, (originY - (float)mouse.y) * -1));
+	Coordinates* blankGunVec = phys.VectorToOffset(5.0, phys.OffsetToAngle((originX - (float)mouse.x) * -1, (originY - (float)mouse.y) * -1));
+
+	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
+	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
 
 	al_flip_display();
 }
@@ -296,7 +319,7 @@ void move(Entity* ent, bool keys[4])
 	}
 }
 
-// TODO: Include player offset in shotVec
+// TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
 	if (entities->size() > 2)
@@ -306,11 +329,14 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 
 	Entity* player = &*entities->begin();
 	Coordinates* entPos = player->GetCoordinates();
-	float originX = entPos->X + player->GetHeight() / 2;
+	Coordinates* entOff = phys.VectorToOffset(player->GetVelocityVector());
+	float originX = entPos->X + player->GetWidth() / 2;
 	float originY = entPos->Y + player->GetHeight() / 2;
-	VelocityVector* shotVec = phys.OffsetToVector((originX - e.mouse.x) * -1, (originY - e.mouse.y) * -1);
+	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x) * -1, (originY - e.mouse.y) * -1));
 
-	entities->push_back(Entity(originX, originY, 5, 5, PROJECTILE_SPEED, shotVec->Angle, al_map_rgb(220, 20, 20), PROJECTILE));
+	VelocityVector* shotDelta = phys.OffsetToVector(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	delete shotVec;
+	entities->push_back(Entity(originX, originY, 5, 5, shotDelta->Velocity, shotDelta->Angle, al_map_rgb(220, 20, 20), PROJECTILE));
+
+	delete shotDelta;
 }
