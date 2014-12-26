@@ -251,8 +251,6 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
 		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
-
-		wBlock->SetColor(al_map_rgb(20, 20, 20));
 	}
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
@@ -330,13 +328,13 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 	Entity* player = &*entities->begin();
 	Coordinates* entPos = player->GetCoordinates();
 	Coordinates* entOff = phys.VectorToOffset(player->GetVelocityVector());
-	float originX = entPos->X + player->GetWidth() / 2;
-	float originY = entPos->Y + player->GetHeight() / 2;
-	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x) * -1, (originY - e.mouse.y) * -1));
+	float originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	float originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
 	VelocityVector* shotDelta = phys.OffsetToVector(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	entities->push_back(Entity(originX, originY, 5, 5, shotDelta->Velocity, shotDelta->Angle, al_map_rgb(220, 20, 20), PROJECTILE));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta->Velocity, shotDelta->Angle, al_map_rgb(20, 220, 20), PROJECTILE));
 
 	delete shotDelta;
 }

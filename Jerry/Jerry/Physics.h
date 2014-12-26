@@ -15,7 +15,7 @@ using namespace std;
 class Physics
 {
 private:
-	static void Collide(Entity* ent, list<WorldBlock> *world);
+	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities);
 	static void ApplyGravity(Entity* ent);
 	static void MoveEntity(Entity* ent);
 	static void setMinMax(Coordinates* min, Coordinates* max, Coordinates* minOffset, Coordinates* maxOffset, Coordinates* entACo, Coordinates* entBCo, Coordinates* entOff, Coordinates* worACo, Coordinates* worBCo);

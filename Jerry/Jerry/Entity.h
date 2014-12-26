@@ -38,6 +38,9 @@ public:
 	float GetWidth();
 	float GetHeight();
 
+	void SetWidth(float width);
+	void SetHeight(float height);
+
 	bool GetHit();
 	void SetHit(bool hit);
 

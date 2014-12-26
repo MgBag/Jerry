@@ -1,4 +1,4 @@
-#include "Entity.h"
+ #include "Entity.h"
 
 Entity::Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type)
 {
@@ -41,6 +41,16 @@ float Entity::GetHeight()
 float Entity::GetWidth()
 {
 	return m_Width;
+}
+
+void Entity::SetHeight(float height)
+{
+	m_Height = height;
+}
+
+void Entity::SetWidth(float width)
+{
+	m_Width = width;
 }
 
 void Entity::SetColor(ALLEGRO_COLOR color)
