@@ -19,8 +19,10 @@ private:
 	static void ApplyGravity(Entity* ent);
 	static void MoveEntity(Entity* ent);
 	static void setMinMax(Coordinates* min, Coordinates* max, Coordinates* minOffset, Coordinates* maxOffset, Coordinates* entACo, Coordinates* entBCo, Coordinates* entOff, Coordinates* worACo, Coordinates* worBCo);
-	static bool WillCollide(Entity* entity, WorldBlock* block);
-	static bool WillCollide(Entity* entity, list<WorldBlock>* world);
+	static bool WillCollide(Entity* entity, Coordinates* xA, Coordinates* xB);
+	static bool AreColliding(Coordinates* a1, Coordinates* a2, Coordinates* b1, Coordinates* b2);
+	static bool AreInRange(Entity* entity, Coordinates* xA, Coordinates* xB);
+	static bool WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities);
 public:
 	static VelocityVector* OffsetToVector(Coordinates* offset);
 	static VelocityVector* OffsetToVector(float x, float y);

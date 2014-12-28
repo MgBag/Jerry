@@ -320,7 +320,7 @@ void move(Entity* ent, bool keys[4])
 // TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
-	if (entities->size() > 2)
+	if (entities->size() > 100)
 	{
 		entities->erase(++entities->begin());
 	}
