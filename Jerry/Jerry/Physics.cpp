@@ -47,70 +47,69 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 	vector<WorldBlock*> collisionBlock;
 
 	// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
+	// I fear the ceil useage in this function is the problem, TODO: think of a new way!
 	float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / ceil(entVel);
 	float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / ceil(entVel);
 
-	for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
-	{
-		Coordinates* jelACo = jel->GetCoordinates();
-		Coordinates* jelBCo = new Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
+	//for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
+	//{
+	//	Coordinates* jelACo = jel->GetCoordinates();
+	//	Coordinates* jelBCo = new Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
 
-		// TODO: Add if in range
-		if (WillCollide(ent, jelACo, jelBCo) && !AreColliding(entACo, entBCo, jelACo, jelBCo) && jel->GetHit() && ent != &*jel)
-		{
-			float minX, minY, maxX, maxY;
-			bool minXIsEnt = false, minYIsEnt = false;
+	//	if (ent != &*jel && jel->GetHit() && !AreColliding(entACo, entBCo, jelACo, jelBCo) && WillCollide(ent, jelACo, jelBCo))
+	//	{
+	//		float minX, minY, maxX, maxY;
+	//		bool minXIsEnt = false, minYIsEnt = false;
 
-			Coordinates* colOff = GetCollisionOffset(ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+	//		Coordinates* colOff = GetCollisionOffset(ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
+	//		if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
+	//		{
+	//			if (minXIsEnt)
+	//			{
+	//				possitions.push_back(Coordinates(jelBCo->X, entACo->Y + colOff->Y));
+	//				collisionPosition.push_back(LX);
+	//			}
+	//			else
+	//			{
+	//				possitions.push_back(Coordinates(jelACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
+	//				collisionPosition.push_back(RX);
+	//			}
 
-			if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
-			{
-				if (minXIsEnt)
-				{
-					possitions.push_back(Coordinates(jelBCo->X, entACo->Y + colOff->Y));
-					collisionPosition.push_back(LX);
-				}
-				else
-				{
-					possitions.push_back(Coordinates(jelACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
-					collisionPosition.push_back(RX);
-				}
+	//		}
+	//		else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+	//		{
+	//			if (minYIsEnt)
+	//			{
+	//				possitions.push_back(Coordinates(entACo->X + colOff->X, jelBCo->Y));
+	//				collisionPosition.push_back(DY);
+	//			}
+	//			else
+	//			{
+	//				possitions.push_back(Coordinates(entACo->X + colOff->X, jelACo->Y - ent->GetHeight()));
+	//				collisionPosition.push_back(UY);
+	//			}
+	//		}
+	//		else
+	//		{
+	//			cout << "bad mmkey\n";
+	//		}
 
-			}
-			else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
-			{
-				if (minYIsEnt)
-				{
-					possitions.push_back(Coordinates(entACo->X + colOff->X, jelBCo->Y));
-					collisionPosition.push_back(DY);
-				}
-				else
-				{
-					possitions.push_back(Coordinates(entACo->X + colOff->X, jelACo->Y - ent->GetHeight()));
-					collisionPosition.push_back(UY);
-				}
-			}
-			else
-			{
-				cout << "bad mmkey\n";
-			}
+	//		// TODO: Fix this temp work around
+	//		collisionBlock.push_back(new WorldBlock(jelACo->X, jelACo->Y, jelBCo->X, jelBCo->Y, al_map_rgb(220, 20, 20)));
+	//		collisions.push_back(Coordinates(colOff->X, colOff->Y));
+	//		collisionType.push_back(JELLY);
 
-			// TODO: Fix this temp work around
-			collisionBlock.push_back(new WorldBlock(jelACo->X, jelACo->Y, jelBCo->X, jelBCo->Y, al_map_rgb(220, 20, 20)));
-			collisions.push_back(Coordinates(colOff->X, colOff->Y));
-			collisionType.push_back(JELLY);
+	//		delete colOff;
+	//	}
 
-			delete colOff;
-		}
-
-		delete jelBCo;
-	}
+	//	delete jelBCo;
+	//}
 
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
 		// TODO: Add might collide
-		if (WillCollide(ent, wor->GetA(), wor->GetB()))
+		if (true)//WillCollide(ent, wor->GetA(), wor->GetB()))
 		{
 			Coordinates* worACo = wor->GetA();
 			Coordinates* worBCo = wor->GetB();
@@ -119,12 +118,29 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 			float maxOffsetX;
 			float maxOffsetY;
 			bool minXIsEnt = false;
-			bool minYIsEnt = false;
+			bool minYIsEnt = false; 
+			
+			float minX, minY, maxX, maxY;
+
+			Coordinates* colOff = GetCollisionOffset(ent, worACo, worBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+			//if (colOff == NULL)
+			//{
+			//	cout << "NONONONONOO NO NO. NO!\n";
+			//}
+
+			if (AreColliding(entACo, entBCo, wor->GetA(), wor->GetB()))
+			{
+				cout << "NONONONONOO NO NO. NO!\n";
+			}
+
+
+
 
 			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 			{
 				// X with Offset
-				if (worACo->X < entACo->X + x)
+				if (worACo->X < entACo->X)
 				{
 					minOffsetX = entACo->X + x;
 					minXIsEnt = true;
@@ -139,7 +155,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 
 				//Y	with offset
-				if (worACo->Y < entACo->Y + y)
+				if (worACo->Y < entACo->Y) 
 				{
 					minOffsetY = entACo->Y + y;
 					minYIsEnt = true;
@@ -158,7 +174,6 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				{
 					if (!(maxOffsetX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minOffsetX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxOffsetY > minOffsetY)
 					{
-
 						if (minXIsEnt)
 						{
 							possitions.push_back(Coordinates(worBCo->X, entACo->Y + y));
@@ -311,13 +326,13 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities)
 {
 	// Check if the speed is 0 
-	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
-	{
-		if (WillCollide(entity, wor->GetA(), wor->GetB()))
-		{
-			return true;
-		}
-	}
+	//for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
+	//{
+	//	if (WillCollide(entity, wor->GetA(), wor->GetB()))
+	//	{
+	//		return true;
+	//	}
+	//}
 
 	for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
 	{
@@ -345,39 +360,39 @@ Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordi
 
 	for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 	{
-		// X with Offset
-		if (xA->X < entACo->X + x)
-		{
-			*minX = entACo->X + x;
-			*minXIsEnt = true;
-
-			*maxX = xB->X;
-		}
-		else
-		{
-			*minX = xA->X;
-
-			*maxX = entBCo->X + x;
-		}
-
-		//Y	with offset
-		if (xA->Y < entACo->Y + y)
-		{
-			*minY = entACo->Y + y;
-			*minYIsEnt = true;
-
-			*maxY = xB->Y;
-		}
-		else
-		{
-			*minY = xA->Y;
-
-			*maxY = entBCo->Y + y;
-		}
-	
-		if (maxX > minX && maxY > minY)
-		{
-			delete entBCo;
+		// X with Offset					//// X with Offset
+		if (xA->X < entACo->X + x)			//if (worACo->X < entACo->X + x)
+		{									//{
+			*minX = entACo->X + x;			//	minOffsetX = entACo->X + x;
+			*minXIsEnt = true;				//	minXIsEnt = true;
+											//
+			*maxX = xB->X;					//	maxOffsetX = worBCo->X;
+		}									//}
+		else								//else
+		{									//{
+			*minX = xA->X;					//	minOffsetX = worACo->X;
+											//
+			*maxX = entBCo->X + x;			//	maxOffsetX = entBCo->X + x;
+		}									//}
+											//
+		//Y	with offset						////Y	with offset
+		if (xA->Y < entACo->Y + y)			//if (worACo->Y < entACo->Y + y)
+		{									//{
+			*minY = entACo->Y + y;			//	minOffsetY = entACo->Y + y;
+			*minYIsEnt = true;				//	minYIsEnt = true;
+											//
+			*maxY = xB->Y;					//	maxOffsetY = worBCo->Y;
+		}									//}
+		else								//else
+		{									//{
+			*minY = xA->Y;					//	minOffsetY = worACo->Y;
+											//
+			*maxY = entBCo->Y + y;			//	maxOffsetY = entBCo->Y + y;
+		}									//}
+											//
+		if (*maxX > *minX && *maxY > *minY)		//// Will Collide
+		{									//if (maxOffsetX > minOffsetX && maxOffsetY > minOffsetY)
+			delete entBCo;					//{
 			delete entOff;
 			return new Coordinates(x, y);
 		}
@@ -439,92 +454,145 @@ bool Physics::WillCollide(Entity* entity, Coordinates* xA, Coordinates* xB)
 	Coordinates* entACo = entity->GetCoordinates();
 	Coordinates* entBCo = new Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
 
-	if (offset->X > 0.0 && offset->Y > 0.0)
-	{
-		// Bottom right
-		if ((entBCo->X + offset->X > xA->X) && (entBCo->Y + offset->Y > xA->Y) && (!(entBCo->X > xA->X) || !(entBCo->Y > xA->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
-	}
-	else if (offset->X > 0.0 && offset->Y < 0.0)
-	{
-		// Top Right
-		if ((entBCo->X + offset->X > xA->X && entBCo->Y + offset->Y < xB->Y) && ((!entBCo->X > xA->X || !entBCo->Y < xB->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
-	}
-	else if (offset->X < 0.0 && offset->Y < 0.0)
-	{
-		// Top left
-		if ((entBCo->X + offset->X < xB->X) && (entBCo->Y + offset->Y < xB->Y) && (!(entBCo->X < xB->X) || !(entBCo->Y < xB->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
-	}
-	else if (offset->X < 0.0 && offset->Y > 0.0)
-	{
-		// Bottom left
-		if ((entBCo->X + offset->X < xB->X) && (entBCo->Y + offset->Y > xA->Y) && ((!entBCo->X < xB->X) || !(entBCo->Y < xB->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
-	}
-	else if (offset->X == 0.0 && offset->Y > 0.0)
-	{
-		// Bottom
-		if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entBCo->Y + offset->Y > xA->Y) && !(entBCo->Y > xA->Y))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
+	float minY;
+	float maxY;
+	float minX;
+	float maxX;
 
-	}
-	else if (offset->X == 0.0 && offset->Y < 0.0)
+	// X with Offset
+	if (xA->X < entACo->X)
 	{
-		// Top
-		if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entBCo->Y + offset->Y < xB->Y) && !(entBCo->Y < xB->Y))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
-		
+		minX = entACo->X + offset->X;
+
+		maxX = xB->X;
 	}
-	else if (offset->X > 0.0 && offset->Y == 0.0)
+	else
 	{
-		// Right
-		if ((entBCo->X + offset->X > xA->X) && !(entBCo->X > xA->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
+		minX = xA->X;
+
+		maxX = entBCo->X + offset->X;
 	}
-	else if (offset->X < 0.0 && offset->Y == 0.0)
+
+	//Y	with offset
+	if (xA->Y < entACo->Y)
 	{
-		// Left
-		if ((entBCo->X + offset->X < xB->X) && !(entBCo->X < xB->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
-		{
-			delete entBCo;
-			delete offset;
-			return true;
-		}
+		minY = entACo->Y + offset->Y;
+
+		maxY = xB->Y;
+	}
+	else
+	{
+		minY = xA->Y;
+
+		maxY = entBCo->Y + offset->Y;
+	}
+
+	if (maxX > minX && maxY > minY)
+	{
+		delete entBCo;
+		delete offset;
+		return true;
 	}
 
 	delete entBCo;
 	delete offset;
 	return false;
+
+	//if (offset->X > 0.0 && offset->Y > 0.0)
+	//{
+	//	// Wrong!
+	//	// Bottom right
+	//	if ((entBCo->X + offset->X > xA->X && entBCo->Y + offset->Y > xA->Y) && (!(entBCo->X > xA->X) || !(entBCo->Y > xA->Y)))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X > 0.0 && offset->Y < 0.0)
+	//{
+	//	// Wrong!
+	//	// Wrong trigger?
+	//	// Top Right
+	//	if ((entBCo->X + offset->X > xA->X) && (entACo->Y + offset->Y < xB->Y) && (!(entBCo->X > xA->X) || !(entACo->Y < xB->Y)))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X < 0.0 && offset->Y > 0.0)
+	//{
+	//	// Wrong!
+	//	// Correct!
+	//	// Bottom left
+	//	if ((entACo->X + offset->X < xB->X) && (entBCo->Y + offset->Y > xA->Y) && (!(entACo->X < xB->X) || !(entBCo->Y > xA->Y)))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X < 0.0 && offset->Y < 0.0)
+	//{
+	//	// Correct!
+	//	// Top left
+	//	if ((entACo->X + offset->X < xB->X) && (entACo->Y + offset->Y < xB->Y) && (!(entACo->X < xB->X) || !(entACo->Y < xB->Y)))
+	//	{	
+ //			delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X == 0.0 && offset->Y < 0.0)
+	//{
+	//	// Correct!
+	//	// Top
+	//	if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entACo->Y + offset->Y < xB->Y) && !(entACo->Y < xB->Y))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+
+	//}
+	//else if (offset->X == 0.0 && offset->Y > 0.0)
+	//{
+	//	// Correct!
+	//	// Bottom
+	//	if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entBCo->Y + offset->Y > xA->Y) && !(entBCo->Y > xA->Y))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X > 0.0 && offset->Y == 0.0)
+	//{
+	//	// Correct!
+	//	// Right
+	//	if ((entBCo->X + offset->X > xA->X) && !(entBCo->X > xA->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+	//else if (offset->X < 0.0 && offset->Y == 0.0)
+	//{
+	//	// Correct!
+	//	// Left
+	//	if ((entACo->X + offset->X < xB->X) && !(entACo->X < xB->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
+	//	{
+	//		delete entBCo;
+	//		delete offset;
+	//		return true;
+	//	}
+	//}
+
+	//delete entBCo;
+	//delete offset;
+	//return false;
 }
 
 
