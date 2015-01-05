@@ -1,11 +1,11 @@
  #include "Entity.h"
 
-Entity::Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type)
+Entity::Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type)
 {
 	m_Coordinates = new Coordinates(x, y);
 	m_Width = width;
 	m_Height = height;
-	m_VelocityVector = new VelocityVector(velocity, angle);
+	m_Offset = new Coordinates(xOffset, yOffset);
 	m_Color = color;
 	m_Type = type;
 	m_Hit = false;
@@ -25,12 +25,6 @@ void Entity::SetCoordinates(float x, float y)
 {
 	m_Coordinates->X = x;
 	m_Coordinates->Y = y;
-}
-
-void Entity::SetCoordinates(Coordinates* coordinates)
-{
-	delete m_Coordinates;
-	m_Coordinates = coordinates;
 }
 
 float Entity::GetHeight()
@@ -75,22 +69,28 @@ void Entity::MoveToOffset(Coordinates* offset)
 	m_Coordinates->Y += offset->Y;
 }
 
+void Entity::MoveToOffset()
+{
+	m_Coordinates->X += m_Offset->X;
+	m_Coordinates->Y += m_Offset->Y;
+}
+
 // Do not delete! This returns the object in the Entity
-VelocityVector* Entity::GetVelocityVector()
+Coordinates* Entity::GetOffset()
 {
-	return m_VelocityVector;
+	return m_Offset;
 }
 
-void Entity::SetVelocityVector(float velocity, float angle)
+void Entity::SetOffset(float xOffset, float yOffset)
 {
-	m_VelocityVector->Velocity = velocity;
-	m_VelocityVector->Angle = angle;
+	m_Offset->X = xOffset;
+	m_Offset->Y = yOffset;
 }
 
-void Entity::SetVelocityVector(VelocityVector* velocityVector)
+void Entity::SetOffset(Coordinates* offset)
 {
-	delete m_VelocityVector;
-	m_VelocityVector = velocityVector;
+	delete m_Offset;
+	m_Offset = offset;
 }
 
 EntityType Entity::getType()

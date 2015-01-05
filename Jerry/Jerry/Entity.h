@@ -11,7 +11,7 @@ class Entity
 {
 private:
 	Coordinates* m_Coordinates;
-	VelocityVector* m_VelocityVector;
+	Coordinates* m_Offset;
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
@@ -19,18 +19,18 @@ private:
 	bool m_Hit;
 
 public:
-	Entity(float x, float y, float width, float height, float velocity, float angle, ALLEGRO_COLOR color, EntityType type);
+	Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type);
 	~Entity();
 
 	Coordinates* GetCoordinates();
 	void SetCoordinates(float x, float y);
-	void SetCoordinates(Coordinates* coordinates);
 	void MoveToOffset(float x, float y);
+	void MoveToOffset();
 	void MoveToOffset(Coordinates* offset);
 
-	VelocityVector* GetVelocityVector();
-	void SetVelocityVector(float velocity, float angle);
-	void SetVelocityVector(VelocityVector* velocityVector);
+	Coordinates* GetOffset();
+	void SetOffset(float xOffset, float yOffset);
+	void SetOffset(Coordinates* velocityVector);
 
 	ALLEGRO_COLOR GetColor();
 	void SetColor(ALLEGRO_COLOR color);

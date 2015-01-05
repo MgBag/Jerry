@@ -106,53 +106,56 @@ int main()
 	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
 
-	////center bar stripes
-	//world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(660, 280, 665, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(670, 280, 675, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(680, 280, 685, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(690, 280, 695, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(700, 280, 705, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(710, 280, 715, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(720, 280, 725, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(730, 280, 735, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(740, 280, 745, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(750, 280, 755, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(760, 280, 765, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(770, 280, 775, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(780, 280, 785, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
+	//center bar stripes
+	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(660, 280, 665, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(670, 280, 675, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(680, 280, 685, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(690, 280, 695, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(700, 280, 705, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(710, 280, 715, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(720, 280, 725, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(730, 280, 735, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(740, 280, 745, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(750, 280, 755, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(760, 280, 765, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(770, 280, 775, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(780, 280, 785, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
 
-	//world->push_back(WorldBlock(340, 280, 345, 330, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(365, 280, 370, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(340, 280, 345, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(365, 280, 370, 330, al_map_rgb(20, 20, 20)));
 
 
-	////top left stripes
-	////x
-	//world->push_back(WorldBlock(30, 10, 35, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(40, 10, 45, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(50, 10, 55, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(60, 10, 65, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
+	//top left stripes
+	//x
+	world->push_back(WorldBlock(30, 10, 35, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(40, 10, 45, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(50, 10, 55, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(60, 10, 65, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
 
-	////y
-	//world->push_back(WorldBlock(10, 30, 30, 35, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 40, 30, 45, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 50, 30, 55, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 60, 30, 65, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
+	//y
+	world->push_back(WorldBlock(10, 30, 30, 35, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 40, 30, 45, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 50, 30, 55, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 60, 30, 65, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
 
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
+
+	// TODO: Meak pretti fix for this
+	al_grab_mouse(display);
 
 	al_start_timer(frame);
 
@@ -205,6 +208,10 @@ int main()
 			case ALLEGRO_KEY_R:
 				player->SetCoordinates(105, 10);
 				break;
+
+			case ALLEGRO_KEY_ESCAPE:
+				quit = true;
+				break;
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_UP)
@@ -256,7 +263,7 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* pos = ent->GetCoordinates();
-		Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
+		Coordinates* offset = ent->GetOffset();
 
 		al_draw_filled_rectangle(pos->X, pos->Y, pos->X + ent->GetWidth(), pos->Y + ent->GetHeight(), ent->GetColor());
 		al_draw_line(
@@ -266,8 +273,6 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 			(pos->Y + ent->GetHeight() / 2) + offset->Y,
 			al_map_rgb(220, 20, 20),
 			1.0);
-
-		delete offset;
 	}
 
 	ALLEGRO_MOUSE_STATE mouse;
@@ -292,7 +297,7 @@ void move(Entity* ent, bool keys[4])
 {
 	if (keys[RIGHT] || keys[UP] || keys[LEFT] || keys[DOWN])
 	{
-		Coordinates* offset = phys.VectorToOffset(ent->GetVelocityVector());
+		Coordinates* offset = ent->GetOffset();
 
 		if (keys[RIGHT])
 		{
@@ -310,31 +315,27 @@ void move(Entity* ent, bool keys[4])
 		{
 			offset->Y += PLAYER_SPEED;
 		}
-
-		ent->SetVelocityVector(phys.OffsetToVector(offset));
-
-		delete offset;
 	}
 }
 
 // TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
-	if (entities->size() > 25)
+	if (entities->size() > 500)
 	{
 		entities->erase(++entities->begin());
 	}
 
 	Entity* player = &*entities->begin();
 	Coordinates* entPos = player->GetCoordinates();
-	Coordinates* entOff = phys.VectorToOffset(player->GetVelocityVector());
+	Coordinates* entOff = player->GetOffset();
 	float originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	float originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
 	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
-	VelocityVector* shotDelta = phys.OffsetToVector(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
+	Coordinates shotDelta = Coordinates(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta->Velocity, shotDelta->Angle, al_map_rgb(20, 220, 20), PROJECTILE));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta.X, shotDelta.Y, al_map_rgb(20, 220, 20), PROJECTILE));
 
-	delete shotDelta;
-}
+	delete shotOff;
+}	

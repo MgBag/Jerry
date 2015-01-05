@@ -2,6 +2,7 @@
 
 // TODO: Memory leaks mang
 // TODO: Check logics mang, flows and flaws
+// TODO: Stop deleteing entOff
 
 void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 {
@@ -9,7 +10,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 	{
 		ApplyGravity(&(*ent));
 		Collide(&(*ent), world, entities);
-		MoveEntity(&(*ent));
+		ent->MoveToOffset();
 	}
 }
 
@@ -17,194 +18,130 @@ void Physics::ApplyGravity(Entity* ent)
 {
 	if (ent->getType() == PLAYER || !ent->GetHit())
 	{
-		Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
+		Coordinates* offset = ent->GetOffset();
 
-		ent->SetVelocityVector(OffsetToVector(offset->X, offset->Y + GRAVITY));
-
-		delete offset;
+		ent->SetOffset(offset->X, offset->Y + GRAVITY);
 	}
-}
-
-void Physics::MoveEntity(Entity* ent)
-{
-	Coordinates* offset = VectorToOffset(ent->GetVelocityVector());
-
-	ent->MoveToOffset(offset->X, offset->Y);
-
-	delete offset;
 }
 
 void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entities)
 {
 	Coordinates* entACo = ent->GetCoordinates();
-	Coordinates* entBCo = new Coordinates(entACo->X + ent->GetWidth(), entACo->Y + ent->GetHeight());
-	Coordinates* entOff = VectorToOffset(ent->GetVelocityVector()); // TODO: Add entity offset conlone function;
-	float entVel = ent->GetVelocityVector()->Velocity;
-	vector<Coordinates> collisions;
+	Coordinates entBCo = Coordinates(entACo->X + ent->GetWidth(), entACo->Y + ent->GetHeight());
+	Coordinates* entOff = ent->GetOffset();
+	float entVel = sqrt(entOff->X * entOff->X + entOff->Y * entOff->Y);
+	vector<Coordinates*> collisions;
 	vector<Coordinates> possitions;
 	vector<int> collisionPosition;
 	vector<int> collisionType;
-	vector<WorldBlock*> collisionBlock;
+	vector<WorldBlock> collisionBlock;
 
 	// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
-	// I fear the ceil useage in this function is the problem, TODO: think of a new way!
 	float xStep = entOff->Y == 0 ? entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0)) : entOff->X / ceil(entVel);
 	float yStep = entOff->X == 0 ? entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0)) : entOff->Y / ceil(entVel);
 
-	//for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
-	//{
-	//	Coordinates* jelACo = jel->GetCoordinates();
-	//	Coordinates* jelBCo = new Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
+	for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
+	{
+		Coordinates* jelACo = jel->GetCoordinates();
+		// TODO: Precompute this
+		Coordinates jelBCo = Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
 
-	//	if (ent != &*jel && jel->GetHit() && !AreColliding(entACo, entBCo, jelACo, jelBCo) && WillCollide(ent, jelACo, jelBCo))
-	//	{
-	//		float minX, minY, maxX, maxY;
-	//		bool minXIsEnt = false, minYIsEnt = false;
+		if (ent != &*jel && jel->GetHit() && !AreColliding(entACo, &entBCo, jelACo, &jelBCo) && AreInRange(ent, jelACo, &jelBCo))
+		{
+			float minX, minY, maxX, maxY;
+			bool minXIsEnt = false, minYIsEnt = false;
 
-	//		Coordinates* colOff = GetCollisionOffset(ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+			Coordinates* colOff = GetCollisionOffset(ent, jelACo, &jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
-	//		if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
-	//		{
-	//			if (minXIsEnt)
-	//			{
-	//				possitions.push_back(Coordinates(jelBCo->X, entACo->Y + colOff->Y));
-	//				collisionPosition.push_back(LX);
-	//			}
-	//			else
-	//			{
-	//				possitions.push_back(Coordinates(jelACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
-	//				collisionPosition.push_back(RX);
-	//			}
+			if (colOff != NULL)
+			{
+				if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
+				{
+					if (minXIsEnt)
+					{
+						possitions.push_back(Coordinates(jelBCo.X, entACo->Y + colOff->Y));
+						collisionPosition.push_back(LX);
+					}
+					else
+					{
+						possitions.push_back(Coordinates(jelACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
+						collisionPosition.push_back(RX);
+					}
 
-	//		}
-	//		else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
-	//		{
-	//			if (minYIsEnt)
-	//			{
-	//				possitions.push_back(Coordinates(entACo->X + colOff->X, jelBCo->Y));
-	//				collisionPosition.push_back(DY);
-	//			}
-	//			else
-	//			{
-	//				possitions.push_back(Coordinates(entACo->X + colOff->X, jelACo->Y - ent->GetHeight()));
-	//				collisionPosition.push_back(UY);
-	//			}
-	//		}
-	//		else
-	//		{
-	//			cout << "bad mmkey\n";
-	//		}
+				}
+				else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+				{
+					if (minYIsEnt)
+					{
+						possitions.push_back(Coordinates(entACo->X + colOff->X, jelBCo.Y));
+						collisionPosition.push_back(DY);
+					}
+					else
+					{
+						possitions.push_back(Coordinates(entACo->X + colOff->X, jelACo->Y - ent->GetHeight()));
+						collisionPosition.push_back(UY);
+					}
+				}
+				else
+				{
+					cout << "bad mmkey\n";
+				}
 
-	//		// TODO: Fix this temp work around
-	//		collisionBlock.push_back(new WorldBlock(jelACo->X, jelACo->Y, jelBCo->X, jelBCo->Y, al_map_rgb(220, 20, 20)));
-	//		collisions.push_back(Coordinates(colOff->X, colOff->Y));
-	//		collisionType.push_back(JELLY);
+				// TODO: Fix this temp work around
+				collisionBlock.push_back(WorldBlock(jelACo->X, jelACo->Y, jelBCo.X, jelBCo.Y, al_map_rgb(220, 20, 20)));
+				collisions.push_back(colOff);
+				collisionType.push_back(JELLY);
 
-	//		delete colOff;
-	//	}
-
-	//	delete jelBCo;
-	//}
+				//delete colOff;
+			}
+		}
+	}
 
 	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
 	{
 		// TODO: Add might collide
-		if (true)//WillCollide(ent, wor->GetA(), wor->GetB()))
+		if (AreInRange(ent, wor->GetA(), wor->GetB()))
 		{
 			Coordinates* worACo = wor->GetA();
 			Coordinates* worBCo = wor->GetB();
-			float minOffsetX;
-			float minOffsetY;
-			float maxOffsetX;
-			float maxOffsetY;
-			bool minXIsEnt = false;
-			bool minYIsEnt = false; 
-			
+
+			bool minXIsEnt = false, minYIsEnt = false; 
 			float minX, minY, maxX, maxY;
 
 			Coordinates* colOff = GetCollisionOffset(ent, worACo, worBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
-			//if (colOff == NULL)
-			//{
-			//	cout << "NONONONONOO NO NO. NO!\n";
-			//}
-
-			if (AreColliding(entACo, entBCo, wor->GetA(), wor->GetB()))
+			if (colOff != NULL)
 			{
-				cout << "NONONONONOO NO NO. NO!\n";
-			}
-
-
-
-
-			for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
-			{
-				// X with Offset
-				if (worACo->X < entACo->X)
+				if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
 				{
-					minOffsetX = entACo->X + x;
-					minXIsEnt = true;
-
-					maxOffsetX = worBCo->X;
-				}
-				else
-				{
-					minOffsetX = worACo->X;
-
-					maxOffsetX = entBCo->X + x;
-				}
-
-				//Y	with offset
-				if (worACo->Y < entACo->Y) 
-				{
-					minOffsetY = entACo->Y + y;
-					minYIsEnt = true;
-
-					maxOffsetY = worBCo->Y;
-				}
-				else
-				{
-					minOffsetY = worACo->Y;
-
-					maxOffsetY = entBCo->Y + y;
-				}
-
-				// Will Collide
-				if (maxOffsetX > minOffsetX && maxOffsetY > minOffsetY)
-				{
-					if (!(maxOffsetX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minOffsetX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxOffsetY > minOffsetY)
+					if (minXIsEnt)
 					{
-						if (minXIsEnt)
-						{
-							possitions.push_back(Coordinates(worBCo->X, entACo->Y + y));
-							collisionPosition.push_back(LX);
-						}
-						else
-						{
-							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), entACo->Y + y));
-							collisionPosition.push_back(RX);
-						}
+						possitions.push_back(Coordinates(worBCo->X, entACo->Y + colOff->Y));
+						collisionPosition.push_back(LX);
 					}
-					else if (maxOffsetX > minOffsetX && !(maxOffsetY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minOffsetY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+					else
 					{
-						if (minYIsEnt)
-						{
-							possitions.push_back(Coordinates(entACo->X + x, worBCo->Y));
-							collisionPosition.push_back(DY);
-						}
-						else
-						{
-							possitions.push_back(Coordinates(entACo->X + x, worACo->Y - ent->GetHeight()));
-							collisionPosition.push_back(UY);
-						}
+						possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
+						collisionPosition.push_back(RX);
 					}
-
-					collisionBlock.push_back(&(*wor));
-					collisions.push_back(Coordinates(x, y));
-					collisionType.push_back(WORLD);
-
-					break;
 				}
+				else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+				{
+					if (minYIsEnt)
+					{
+						possitions.push_back(Coordinates(entACo->X + colOff->X, worBCo->Y));
+						collisionPosition.push_back(DY);
+					}
+					else
+					{
+						possitions.push_back(Coordinates(entACo->X + colOff->X, worACo->Y - ent->GetHeight()));
+						collisionPosition.push_back(UY);
+					}
+				}
+
+				collisionBlock.push_back((*wor));
+				collisions.push_back(colOff);
+				collisionType.push_back(WORLD);
 			}
 		}
 	}
@@ -218,14 +155,14 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 		{
 			if (collisionPosition[i] == LX || collisionPosition[i] == RX)
 			{
-				if (closestX == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestX].X, 2) + pow(collisions[closestX].Y, 2))))
+				if (closestX == -1 ? true : (sqrt(pow(collisions[i]->X, 2) + pow(collisions[i]->Y, 2)) < sqrt(pow(collisions[closestX]->X, 2) + pow(collisions[closestX]->Y, 2))))
 				{
 					closestX = i;
 				}
 			}
 			else if (collisionPosition[i] == UY || collisionPosition[i] == DY)
 			{
-				if (closestY == -1 ? true : (sqrt(pow(collisions[i].X, 2) + pow(collisions[i].Y, 2)) < sqrt(pow(collisions[closestY].X, 2) + pow(collisions[closestY].Y, 2))))
+				if (closestY == -1 ? true : (sqrt(pow(collisions[i]->X, 2) + pow(collisions[i]->Y, 2)) < sqrt(pow(collisions[closestY]->X, 2) + pow(collisions[closestY]->Y, 2))))
 				{
 					closestY = i;
 				}
@@ -234,32 +171,32 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 		if (closestX != -1 && closestY != -1)
 		{
-			if (entBCo->Y == collisionBlock[closestX]->GetA()->Y)
+			if (entBCo.Y == collisionBlock[closestX].GetA()->Y)
 			{
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 				if (ent->getType() == PLAYER)
 				{
 					// Stop the entity if the movement gets below the FRICTION_STOP
-					ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+					ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 				}
 				else
 				{
-					ent->SetVelocityVector(0.0, 0.0);
+					ent->SetOffset(0.0, 0.0);
 					ent->SetHit(true);
 				}
 			}
-			else if (entACo->Y == collisionBlock[closestX]->GetB()->Y)
+			else if (entACo->Y == collisionBlock[closestX].GetB()->Y)
 			{
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 				if (ent->getType() == PLAYER)
 				{
-					ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+					ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 				}
 				else
 				{
-					ent->SetVelocityVector(0.0, 0.0);
+					ent->SetOffset(0.0, 0.0);
 					ent->SetHit(true);
 				}
 			}
@@ -267,7 +204,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 			{
 				ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
 
-				ent->SetVelocityVector(0.0, 0.0);
+				ent->SetOffset(0.0, 0.0);
 				
 				if (ent->getType() == PROJECTILE)
 				{
@@ -281,15 +218,15 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 			if (collisionType[closestY] == JELLY)
 			{
-				ent->SetVelocityVector(OffsetToVector(entOff->X, entOff->Y *-1));
+				ent->SetOffset(entOff->X, entOff->Y *-1);
 			}
 			else if (ent->getType() == PLAYER)
 			{
-				ent->SetVelocityVector(OffsetToVector(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0));
+				ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 			}
 			else
 			{
-				ent->SetVelocityVector(0.0, 0.0);
+				ent->SetOffset(0.0, 0.0);
 				ent->SetHit(true);
 			}
 		}
@@ -299,53 +236,81 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 			if (collisionType[closestX] == JELLY)
 			{
-				ent->SetVelocityVector(OffsetToVector(entOff->X *-1, entOff->Y));
+				ent->SetOffset(entOff->X *-1, entOff->Y);
 			}
 			else if (ent->getType() == PLAYER)
 			{
-				ent->SetVelocityVector(OffsetToVector(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION));
+				ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 			}
 			else
 			{
-				ent->SetVelocityVector(0.0, 0.0);
+				ent->SetOffset(0.0, 0.0);
 				ent->SetHit(true);
 			}
 		}
 
-		// Add entities will collide
+		// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
 		if (WillCollide(ent, world, entities))
 		{
 			Collide(ent, world, entities);
 		}
 	}
 
-	delete entBCo;
-	delete entOff;
 }
 
 bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities)
 {
-	// Check if the speed is 0 
-	//for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
-	//{
-	//	if (WillCollide(entity, wor->GetA(), wor->GetB()))
-	//	{
-	//		return true;
-	//	}
-	//}
+	Coordinates* entOff = entity->GetOffset();
+	float entVel = sqrt(entOff->X * entOff->X + entOff->Y * entOff->Y);
 
+	float xStep = (entOff->Y == 0 ? (entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0))) : entOff->X) / ceil(entVel);
+	float yStep = (entOff->X == 0 ? (entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0))) : entOff->Y) / ceil(entVel);
+
+	// Check if the speed is 0 
+	for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
+	{
+		if (AreInRange(entity, wor->GetA(), wor->GetB()))
+		{
+			bool minXIsEnt = false, minYIsEnt = false;
+			float minX, minY, maxX, maxY;
+
+			Coordinates* colOff = GetCollisionOffset(entity, wor->GetA(), wor->GetB(), xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+			if (colOff != NULL)
+			{
+				// TODO: use colOff so that it doesn't have to calculated again.
+				delete colOff;
+				return true;
+			}
+		}
+	}
+
+	//TODO: Add the isHit conditions and shit
 	for (list<Entity>::iterator jel = ++entities->begin(); jel != entities->end(); ++jel)
 	{
 		Coordinates* jelACo = jel->GetCoordinates();
-		Coordinates* jelBCo = new Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
+		Coordinates jelBCo = Coordinates(jelACo->X + jel->GetWidth(), jelACo->Y + jel->GetHeight());
+		Coordinates* entACo = entity->GetCoordinates();
+		Coordinates entBCo = Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
 
-		if (WillCollide(entity, jelACo, jelBCo))
+		if (entity != &*jel && jel->GetHit() && !AreColliding(entACo, &entBCo, jelACo, &jelBCo) && AreInRange(entity, jelACo, &jelBCo))
 		{
-			delete jelBCo;
-			return true;
+			bool minXIsEnt = false, minYIsEnt = false;
+			float minX, minY, maxX, maxY;
+
+			Coordinates* colOff = GetCollisionOffset(entity, jelACo, &jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+			if (colOff != NULL)
+			{
+				jel->SetColor(al_map_rgb(220, 20, 220));
+				// TODO: use colOff so that it doesn't have to calculated again.
+
+				delete colOff;
+				return true;
+			}
 		}
 
-		delete jelBCo;
+
 	}
 
 	return false;
@@ -355,51 +320,48 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, float xStep, float yStep, float* minX, float* minY, float* maxX, float* maxY, bool* minXIsEnt, bool* minYIsEnt)
 {
 	Coordinates* entACo = entity->GetCoordinates();
-	Coordinates* entBCo = new Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
-	Coordinates* entOff = VectorToOffset(entity->GetVelocityVector());
+	Coordinates entBCo = Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
+	Coordinates* entOff = entity->GetOffset();
 
 	for (float x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X : x <= entOff->X) && (yStep < 0.0 ? y >= entOff->Y : y <= entOff->Y); x += xStep, y += yStep)
 	{
-		// X with Offset					//// X with Offset
-		if (xA->X < entACo->X + x)			//if (worACo->X < entACo->X + x)
-		{									//{
-			*minX = entACo->X + x;			//	minOffsetX = entACo->X + x;
-			*minXIsEnt = true;				//	minXIsEnt = true;
-											//
-			*maxX = xB->X;					//	maxOffsetX = worBCo->X;
-		}									//}
-		else								//else
-		{									//{
-			*minX = xA->X;					//	minOffsetX = worACo->X;
-											//
-			*maxX = entBCo->X + x;			//	maxOffsetX = entBCo->X + x;
-		}									//}
-											//
-		//Y	with offset						////Y	with offset
-		if (xA->Y < entACo->Y + y)			//if (worACo->Y < entACo->Y + y)
-		{									//{
-			*minY = entACo->Y + y;			//	minOffsetY = entACo->Y + y;
-			*minYIsEnt = true;				//	minYIsEnt = true;
-											//
-			*maxY = xB->Y;					//	maxOffsetY = worBCo->Y;
-		}									//}
-		else								//else
-		{									//{
-			*minY = xA->Y;					//	minOffsetY = worACo->Y;
-											//
-			*maxY = entBCo->Y + y;			//	maxOffsetY = entBCo->Y + y;
-		}									//}
-											//
-		if (*maxX > *minX && *maxY > *minY)		//// Will Collide
-		{									//if (maxOffsetX > minOffsetX && maxOffsetY > minOffsetY)
-			delete entBCo;					//{
-			delete entOff;
+		// X with Offset					
+		if (xA->X < entACo->X + x)			
+		{									
+			*minX = entACo->X + x;			
+			*minXIsEnt = true;				
+											
+			*maxX = xB->X;					
+		}									
+		else								
+		{									
+			*minX = xA->X;					
+											
+			*maxX = entBCo.X + x;			
+		}									
+											
+		//Y	with offset						
+		if (xA->Y < entACo->Y + y)			
+		{									
+			*minY = entACo->Y + y;			
+			*minYIsEnt = true;				
+											
+			*maxY = xB->Y;					
+		}									
+		else								
+		{									
+			*minY = xA->Y;					
+											
+			*maxY = entBCo.Y + y;			
+		}									
+											
+		if (*maxX > *minX && *maxY > *minY)	
+		{									
+			// TODO: Delete this
 			return new Coordinates(x, y);
 		}
 	}
 
-	delete entBCo;
-	delete entOff;
 	return NULL;
 }
 
@@ -448,11 +410,11 @@ bool Physics::AreColliding(Coordinates* aa, Coordinates* ab, Coordinates* ba, Co
 
 
 // TODO: Refine this function with conditionary statements
-bool Physics::WillCollide(Entity* entity, Coordinates* xA, Coordinates* xB)
+bool Physics::AreInRange(Entity* entity, Coordinates* xA, Coordinates* xB)
 {
-	Coordinates* offset = VectorToOffset(entity->GetVelocityVector());
+	Coordinates* offset = entity->GetOffset();
 	Coordinates* entACo = entity->GetCoordinates();
-	Coordinates* entBCo = new Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
+	Coordinates entBCo = Coordinates(entACo->X + entity->GetWidth(), entACo->Y + entity->GetHeight());
 
 	float minY;
 	float maxY;
@@ -470,7 +432,7 @@ bool Physics::WillCollide(Entity* entity, Coordinates* xA, Coordinates* xB)
 	{
 		minX = xA->X;
 
-		maxX = entBCo->X + offset->X;
+		maxX = entBCo.X + offset->X;
 	}
 
 	//Y	with offset
@@ -484,117 +446,16 @@ bool Physics::WillCollide(Entity* entity, Coordinates* xA, Coordinates* xB)
 	{
 		minY = xA->Y;
 
-		maxY = entBCo->Y + offset->Y;
+		maxY = entBCo.Y + offset->Y;
 	}
 
 	if (maxX > minX && maxY > minY)
 	{
-		delete entBCo;
-		delete offset;
 		return true;
 	}
 
-	delete entBCo;
-	delete offset;
 	return false;
-
-	//if (offset->X > 0.0 && offset->Y > 0.0)
-	//{
-	//	// Wrong!
-	//	// Bottom right
-	//	if ((entBCo->X + offset->X > xA->X && entBCo->Y + offset->Y > xA->Y) && (!(entBCo->X > xA->X) || !(entBCo->Y > xA->Y)))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X > 0.0 && offset->Y < 0.0)
-	//{
-	//	// Wrong!
-	//	// Wrong trigger?
-	//	// Top Right
-	//	if ((entBCo->X + offset->X > xA->X) && (entACo->Y + offset->Y < xB->Y) && (!(entBCo->X > xA->X) || !(entACo->Y < xB->Y)))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X < 0.0 && offset->Y > 0.0)
-	//{
-	//	// Wrong!
-	//	// Correct!
-	//	// Bottom left
-	//	if ((entACo->X + offset->X < xB->X) && (entBCo->Y + offset->Y > xA->Y) && (!(entACo->X < xB->X) || !(entBCo->Y > xA->Y)))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X < 0.0 && offset->Y < 0.0)
-	//{
-	//	// Correct!
-	//	// Top left
-	//	if ((entACo->X + offset->X < xB->X) && (entACo->Y + offset->Y < xB->Y) && (!(entACo->X < xB->X) || !(entACo->Y < xB->Y)))
-	//	{	
- //			delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X == 0.0 && offset->Y < 0.0)
-	//{
-	//	// Correct!
-	//	// Top
-	//	if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entACo->Y + offset->Y < xB->Y) && !(entACo->Y < xB->Y))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-
-	//}
-	//else if (offset->X == 0.0 && offset->Y > 0.0)
-	//{
-	//	// Correct!
-	//	// Bottom
-	//	if (((entACo->X >= xA->X && entACo->X <= xB->X) || (entBCo->X >= xA->X && entBCo->X <= xB->X)) && (entBCo->Y + offset->Y > xA->Y) && !(entBCo->Y > xA->Y))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X > 0.0 && offset->Y == 0.0)
-	//{
-	//	// Correct!
-	//	// Right
-	//	if ((entBCo->X + offset->X > xA->X) && !(entBCo->X > xA->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-	//else if (offset->X < 0.0 && offset->Y == 0.0)
-	//{
-	//	// Correct!
-	//	// Left
-	//	if ((entACo->X + offset->X < xB->X) && !(entACo->X < xB->X) && ((entACo->Y >= xA->Y && entACo->Y <= xB->Y) || (entBCo->Y >= xA->Y && entBCo->Y <= xB->Y)))
-	//	{
-	//		delete entBCo;
-	//		delete offset;
-	//		return true;
-	//	}
-	//}
-
-	//delete entBCo;
-	//delete offset;
-	//return false;
 }
-
 
 float Physics::OffsetToAngle(float x, float y)
 {
