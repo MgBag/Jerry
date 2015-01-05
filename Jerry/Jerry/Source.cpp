@@ -22,7 +22,7 @@ using namespace std;
 
 void draw(list<Entity>* ent, list<WorldBlock>* world);
 void move(Entity* player, bool keys[4]);
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e);
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID);
 
 Physics phys;
 
@@ -94,7 +94,7 @@ int main()
 	}
 
 
-	entities->push_back(Entity(20, 400, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER));
+	entities->push_back(Entity(20, 400, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER, 0));
 	Entity* player = &(*entities->begin());
 
 	//center bar
@@ -159,6 +159,11 @@ int main()
 
 	al_start_timer(frame);
 
+	int tempShoot = 0;
+	ALLEGRO_EVENT mouse;
+	// TODO: Make dynamic
+	int burstID = 1;
+
 	while (!quit)
 	{
 		ALLEGRO_EVENT e;
@@ -167,6 +172,12 @@ int main()
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
+			if (tempShoot)
+			{
+				shoot(entities, mouse, burstID);
+				--tempShoot;
+			}
+
 			move(player, keys);
 
 			phys.ApplyPhysics(entities, world);
@@ -175,9 +186,11 @@ int main()
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			if (e.mouse.button == 1)
+			if (e.mouse.button == 1 && !tempShoot)
 			{
-				shoot(entities, e);
+				++burstID;
+				tempShoot = 3;
+				mouse = e;
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -260,11 +273,13 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
 	}
 
+
+	// TODO: Particle age in color
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		Coordinates* pos = ent->GetCoordinates();
+		Coordinates* pos = ent->GetACoordinates();
 		Coordinates* offset = ent->GetOffset();
-
+		
 		al_draw_filled_rectangle(pos->X, pos->Y, pos->X + ent->GetWidth(), pos->Y + ent->GetHeight(), ent->GetColor());
 		al_draw_line(
 			pos->X + ent->GetWidth() / 2,
@@ -281,7 +296,7 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_pixel(mouse.x, mouse.y, al_map_rgb(20, 20, 220));
 
 	Entity* player = &*entities->begin();
-	Coordinates* entPos = player->GetCoordinates();
+	Coordinates* entPos = player->GetACoordinates();
 	float originX = entPos->X + player->GetWidth() / 2;
 	float originY = entPos->Y + player->GetHeight() / 2;
 	Coordinates* gunVec = phys.VectorToOffset(15.0, phys.OffsetToAngle((originX - (float)mouse.x) * -1, (originY - (float)mouse.y) * -1));
@@ -319,15 +334,25 @@ void move(Entity* ent, bool keys[4])
 }
 
 // TODO: Check nececerity of convertions
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 {
-	if (entities->size() > 500)
+	//if (entities->size() > PARTICLE_MAX)
+	//{
+	//	entities->erase(++entities->begin());
+	//}
+
+	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
-		entities->erase(++entities->begin());
+		unsigned char r, g, b;
+		al_unmap_rgb(ent->GetColor(), &r, &g, &b);
+
+		g -= 220.0 / PARTICLE_MAX;
+
+		ent->SetColor(al_map_rgb(r, g, b));
 	}
 
 	Entity* player = &*entities->begin();
-	Coordinates* entPos = player->GetCoordinates();
+	Coordinates* entPos = player->GetACoordinates();
 	Coordinates* entOff = player->GetOffset();
 	float originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	float originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
@@ -335,7 +360,7 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 
 	Coordinates shotDelta = Coordinates(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta.X, shotDelta.Y, al_map_rgb(20, 220, 20), PROJECTILE));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta.X, shotDelta.Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
 
 	delete shotOff;
 }	

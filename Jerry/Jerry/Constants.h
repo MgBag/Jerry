@@ -13,7 +13,9 @@ const float PRECISION = 0.01;
 const float FRICTION_STOP = 0.1;
 const float PROJECTILE_SPEED = 10.0;
 const float PROJECTILE_SIZE = 5.0;
-
+const float PARTICLE_MAX = 900;
+const float BOUNCINESS = 0.9;
+ 
 enum CollPos {
 	LX, RX, UY, DY
 };

@@ -10,19 +10,22 @@
 class Entity
 {
 private:
-	Coordinates* m_Coordinates;
+	Coordinates* m_ACoordinates;
+	Coordinates* m_BCoordinates;
 	Coordinates* m_Offset;
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
 	EntityType m_Type;
 	bool m_Hit;
+	int m_BurstID;
 
 public:
-	Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type);
+	Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
 	~Entity();
 
-	Coordinates* GetCoordinates();
+	Coordinates* GetACoordinates();
+	Coordinates* GetBCoordinates();
 	void SetCoordinates(float x, float y);
 	void MoveToOffset(float x, float y);
 	void MoveToOffset();
@@ -43,6 +46,8 @@ public:
 
 	bool GetHit();
 	void SetHit(bool hit);
+
+	int GetBurstID();
 
 	EntityType getType();
 };
