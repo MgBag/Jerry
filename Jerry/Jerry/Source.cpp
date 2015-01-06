@@ -1,11 +1,10 @@
+// TODO : Fix roation twitch
 // TODO : Remove the vucking fector
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
 
-#include <stdlib.h>
-#include <crtdbg.h>
-
+#include <process.h>
 #include <iostream>
 #include <list>
 #include <vector>
@@ -13,6 +12,8 @@
 #include <string>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_font.h>
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Physics.h"
@@ -23,8 +24,17 @@ using namespace std;
 void draw(list<Entity>* ent, list<WorldBlock>* world);
 void move(Entity* player, bool keys[4]);
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID);
+void AsyncPhysics(void* struc);
 
 Physics phys;
+ALLEGRO_FONT *font = 0;
+bool quit = false;
+
+struct PhysicsVariables
+{
+	list<Entity>* entities;
+	list<WorldBlock>* world;
+};
 
 int main()
 {
@@ -34,8 +44,6 @@ int main()
 	list<WorldBlock>* world = new list<WorldBlock>();
 	list<Entity>* entities = new list<Entity>();
 	bool keys[4] = { false, false, false, false };
-
-	bool quit = false;
 
 	if (!al_init())
 	{
@@ -73,6 +81,7 @@ int main()
 		return -1;
 	}
 
+
 	//al_set_new_display_adapter(1);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
@@ -86,13 +95,24 @@ int main()
 	frame = al_create_timer(1.0 / FPS);
 	if (!frame)
 	{
-		cout << "Failed to initiate display \n";
+		cout << "Failed to initiate frame \n";
 		al_destroy_display(display);
 		al_destroy_event_queue(eventQueue);
 		system("pause");
 		return -1;
 	}
 
+
+	// TODO: Do these
+	al_init_font_addon();
+	al_init_ttf_addon();
+
+	font = al_load_ttf_font("arial.ttf", 16, 0);
+
+	if (!font)
+	{
+		fprintf(stderr, "Failed to load font\n");
+	}
 
 	entities->push_back(Entity(20, 400, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER, 0));
 	Entity* player = &(*entities->begin());
@@ -149,10 +169,19 @@ int main()
 	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
 
+	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
 	al_register_event_source(eventQueue, al_get_display_event_source(display));
 	al_register_event_source(eventQueue, al_get_keyboard_event_source());
 	al_register_event_source(eventQueue, al_get_mouse_event_source());
+
+
+	//void AsyncPhysics(void* void_tickQueue, void* void_entities, void* void_world)
+	PhysicsVariables physVar;
+	physVar.entities = entities;
+	physVar.world = world;
+
+	_beginthread(AsyncPhysics, 0, (void*)&physVar);
 
 	// TODO: Meak pretti fix for this
 	al_grab_mouse(display);
@@ -180,7 +209,7 @@ int main()
 
 			move(player, keys);
 
-			phys.ApplyPhysics(entities, world);
+			//phys.ApplyPhysics(entities, world);
 
 			draw(entities, world);
 		}
@@ -259,6 +288,8 @@ int main()
 		}
 	}
 
+	al_rest(0.1);
+
 	delete world, entities;
 
 	return 0;
@@ -279,7 +310,7 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	{
 		Coordinates* pos = ent->GetACoordinates();
 		Coordinates* offset = ent->GetOffset();
-		
+
 		al_draw_filled_rectangle(pos->X, pos->Y, pos->X + ent->GetWidth(), pos->Y + ent->GetHeight(), ent->GetColor());
 		al_draw_line(
 			pos->X + ent->GetWidth() / 2,
@@ -304,6 +335,8 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 
 	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
 	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
+
+	al_draw_text(font, al_map_rgb(255, 10, 10), 5, 5, 0, std::to_string(12).c_str());
 
 	al_flip_display();
 }
@@ -336,10 +369,25 @@ void move(Entity* ent, bool keys[4])
 // TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 {
-	//if (entities->size() > PARTICLE_MAX)
-	//{
-	//	entities->erase(++entities->begin());
-	//}
+	if (entities->size() > PARTICLE_MAX)
+	{
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+		//entities->erase(++entities->begin());
+	}
 
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
@@ -356,11 +404,75 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 	Coordinates* entOff = player->GetOffset();
 	float originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	float originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
+	//Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
+	Coordinates* shotOff1 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 1);
+	Coordinates* shotOff2 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 2);
+	Coordinates* shotOff3 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 3);
+	Coordinates* shotOff4 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 4);
+	Coordinates* shotOff5 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 5);
+	Coordinates* shotOff6 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 6);
+	Coordinates* shotOff7 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 7);
+	Coordinates* shotOff8 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 8);
+	Coordinates* shotOff9 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 9);
+	Coordinates* shotOff10 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 10);
+	Coordinates* shotOff11 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 11);
+	Coordinates* shotOff12 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 12);
+	Coordinates* shotOff13 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 13);
+	Coordinates* shotOff14 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 14);
+	Coordinates* shotOff15 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 15);
+	Coordinates* shotOff16 = phys.VectorToOffset(PROJECTILE_SPEED, FM_PI_2 / 4 * 16);
 
-	Coordinates shotDelta = Coordinates(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta.X, shotDelta.Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	//Coordinates shotDelta = Coordinates(entOff->X + shotOff->X, entOff->Y + shotOff->Y);
 
-	delete shotOff;
-}	
+	//entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotDelta.X, shotDelta.Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff1->X, entOff->Y + shotOff1->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff2->X, entOff->Y + shotOff2->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff3->X, entOff->Y + shotOff3->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff4->X, entOff->Y + shotOff4->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff5->X, entOff->Y + shotOff5->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff6->X, entOff->Y + shotOff6->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff7->X, entOff->Y + shotOff7->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff8->X, entOff->Y + shotOff8->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff9->X, entOff->Y + shotOff9->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff10->X, entOff->Y + shotOff10->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff11->X, entOff->Y + shotOff11->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff12->X, entOff->Y + shotOff12->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff13->X, entOff->Y + shotOff13->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff14->X, entOff->Y + shotOff14->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff15->X, entOff->Y + shotOff15->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff16->X, entOff->Y + shotOff16->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+
+	delete shotOff1,
+		shotOff2,
+		shotOff3,
+		shotOff4,
+		shotOff5,
+		shotOff6,
+		shotOff7,
+		shotOff8,
+		shotOff9,
+		shotOff10,
+		shotOff11,
+		shotOff12,
+		shotOff13,
+		shotOff14,
+		shotOff15,
+		shotOff16;
+}
+
+void AsyncPhysics(void* struc)
+{
+	list<WorldBlock>* world = ((PhysicsVariables*)struc)->world;
+	list<Entity>* entities = ((PhysicsVariables*)struc)->entities;
+
+
+	while (!quit)
+	{
+		al_rest(1.0 / PHYSICS_TICK);
+		phys.ApplyPhysics(entities, world);
+	}
+	
+
+	_endthread();
+}

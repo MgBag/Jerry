@@ -1,6 +1,7 @@
 #pragma once
 
-const int FPS = 60;
+const float PHYSICS_TICK = 60;
+const float FPS = 60;
 const int SCREEN_W = 1280;
 const int SCREEN_H = 600;
 const float GRAVITY = 9.8 / FPS;
@@ -13,9 +14,11 @@ const float PRECISION = 0.01;
 const float FRICTION_STOP = 0.1;
 const float PROJECTILE_SPEED = 10.0;
 const float PROJECTILE_SIZE = 5.0;
-const float PARTICLE_MAX = 900;
+const float PARTICLE_MAX = 90;
 const float BOUNCINESS = 0.9;
- 
+
+const int ActiveParticles = 0.0;
+
 enum CollPos {
 	LX, RX, UY, DY
 };

@@ -10,9 +10,9 @@
 class Entity
 {
 private:
-	Coordinates* m_ACoordinates;
-	Coordinates* m_BCoordinates;
-	Coordinates* m_Offset;
+	Coordinates m_ACoordinates;
+	Coordinates m_BCoordinates;
+	Coordinates m_Offset;
 	float m_Width;
 	float m_Height;
 	ALLEGRO_COLOR m_Color;
@@ -29,11 +29,9 @@ public:
 	void SetCoordinates(float x, float y);
 	void MoveToOffset(float x, float y);
 	void MoveToOffset();
-	void MoveToOffset(Coordinates* offset);
 
 	Coordinates* GetOffset();
 	void SetOffset(float xOffset, float yOffset);
-	void SetOffset(Coordinates* velocityVector);
 
 	ALLEGRO_COLOR GetColor();
 	void SetColor(ALLEGRO_COLOR color);

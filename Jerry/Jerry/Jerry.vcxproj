@@ -26,6 +26,9 @@
     <ClInclude Include="Coordinates.h" />
     <ClInclude Include="WorldBlock.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="..\..\..\..\..\Users\Benjamin\Google Drive\Allegro\AllegroAntColor\AllegroAnt\arial.ttf" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E1EEBA91-0F0F-4A5D-B253-238E18579E4D}</ProjectGuid>
     <RootNamespace>Jerry</RootNamespace>
@@ -80,6 +83,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>allegro-5.0.10-monolith-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

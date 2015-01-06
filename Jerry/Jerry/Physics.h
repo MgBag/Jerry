@@ -18,7 +18,7 @@ private:
 	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities);
 	static void ApplyGravity(Entity* ent);
 	static bool WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities);
-	static bool AreInRange(Entity* entity, Coordinates* xA, Coordinates* xB);
+	static bool AreInRange(Coordinates* entOff, Coordinates* entACo, Coordinates* entBCo, Coordinates* xA, Coordinates* xB);
 	static bool AreColliding(Coordinates* a1, Coordinates* a2, Coordinates* b1, Coordinates* b2);
 	static Coordinates* GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, float xStep, float yStep, float* minX, float* minY, float* maxX, float* maxY, bool* minXIsEnt, bool* minYIsEnt);
 public:
