@@ -13,34 +13,34 @@ private:
 	Coordinates m_ACoordinates;
 	Coordinates m_BCoordinates;
 	Coordinates m_Offset;
-	float m_Width;
-	float m_Height;
+	double m_Width;
+	double m_Height;
 	ALLEGRO_COLOR m_Color;
 	EntityType m_Type;
 	bool m_Hit;
 	int m_BurstID;
 
 public:
-	Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
+	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
 	~Entity();
 
 	Coordinates* GetACoordinates();
 	Coordinates* GetBCoordinates();
-	void SetCoordinates(float x, float y);
-	void MoveToOffset(float x, float y);
+	void SetCoordinates(double x, double y);
+	void MoveToOffset(double x, double y);
 	void MoveToOffset();
 
 	Coordinates* GetOffset();
-	void SetOffset(float xOffset, float yOffset);
+	void SetOffset(double xOffset, double yOffset);
 
 	ALLEGRO_COLOR GetColor();
 	void SetColor(ALLEGRO_COLOR color);
 
-	float GetWidth();
-	float GetHeight();
+	double GetWidth();
+	double GetHeight();
 
-	void SetWidth(float width);
-	void SetHeight(float height);
+	void SetWidth(double width);
+	void SetHeight(double height);
 
 	bool GetHit();
 	void SetHit(bool hit);

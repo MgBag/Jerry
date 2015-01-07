@@ -1,7 +1,7 @@
 #include "WorldBlock.h"
 
 
-WorldBlock::WorldBlock(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color)
+WorldBlock::WorldBlock(double x1, double y1, double x2, double y2, ALLEGRO_COLOR color)
 {
 	m_A = Coordinates(x1, y1);
 	m_B = Coordinates(x2, y2);

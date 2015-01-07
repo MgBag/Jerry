@@ -9,7 +9,7 @@ private:
 	Coordinates m_B;
 	ALLEGRO_COLOR m_Color;
 public:
-	WorldBlock(float x1, float y1, float x2, float y2, ALLEGRO_COLOR color);
+	WorldBlock(double x1, double y1, double x2, double y2, ALLEGRO_COLOR color);
 	~WorldBlock();
 
 	Coordinates* GetA();

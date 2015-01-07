@@ -1,6 +1,6 @@
 #include "Coordinates.h"
 
-Coordinates::Coordinates(float x, float y)
+Coordinates::Coordinates(double x, double y)
 {
 	X = x;
 	Y = y;

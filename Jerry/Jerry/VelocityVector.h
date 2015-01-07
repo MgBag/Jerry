@@ -4,10 +4,10 @@ class VelocityVector
 {
 public:
 	VelocityVector();
-	VelocityVector(float velocity, float angle);
+	VelocityVector(double velocity, double angle);
 	~VelocityVector();
 
-	float Velocity;
-	float Angle;
+	double Velocity;
+	double Angle;
 };
 

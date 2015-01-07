@@ -1,21 +1,22 @@
 #pragma once
 
-const float PHYSICS_TICK = 60;
-const float FPS = 60;
+const double PHYSICS_TICK = 60;
+const double FPS = 60;
 const int SCREEN_W = 1280;
 const int SCREEN_H = 600;
-const float GRAVITY = 9.8 / FPS;
-const float FRICTION = 0.8;
-const float FM_3_PI_2 = 3 * M_PI_2;
-const float FM_PI = 2 * M_PI_2;
-const float FM_PI_2 = M_PI_2;
-const float PLAYER_SPEED = 1.0;
-const float PRECISION = 0.01;
-const float FRICTION_STOP = 0.1;
-const float PROJECTILE_SPEED = 10.0;
-const float PROJECTILE_SIZE = 5.0;
-const float PARTICLE_MAX = 90;
-const float BOUNCINESS = 0.9;
+const double GRAVITY = 9.8 / FPS;
+const double FRICTION = 0.8;
+const double FM_PI_2 = 3.1415926535897932384626433832795 / 2;
+const double FM_3_PI_2 = 3 * FM_PI_2;
+const double FM_PI = 2 * FM_PI_2;
+const double PLAYER_SPEED = 1.0;
+const double PRECISION = 0.0001;
+const double FRICTION_STOP = 0.1;
+const double PROJECTILE_SPEED = 10.0;
+const double PROJECTILE_SIZE = 5.0;
+const double PARTICLE_MAX = 90;
+const double BOUNCINESS = 0.9;
+const int BURST_SIZE = 1;
 
 const int ActiveParticles = 0.0;
 

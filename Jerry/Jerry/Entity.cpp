@@ -1,6 +1,6 @@
  #include "Entity.h"
 
-Entity::Entity(float x, float y, float width, float height, float xOffset, float yOffset, ALLEGRO_COLOR color, EntityType type, int burstID)
+Entity::Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID)
 {
 	m_ACoordinates = Coordinates(x, y);
 	m_BCoordinates = Coordinates(x + width, y + height);
@@ -28,7 +28,7 @@ Coordinates* Entity::GetBCoordinates()
 	return &m_BCoordinates;
 }
 
-void Entity::SetCoordinates(float x, float y)
+void Entity::SetCoordinates(double x, double y)
 {
 	m_ACoordinates.X = x;
 	m_ACoordinates.Y = y;
@@ -36,24 +36,24 @@ void Entity::SetCoordinates(float x, float y)
 	m_BCoordinates.Y = y + m_Height;
 }
 
-float Entity::GetHeight()
+double Entity::GetHeight()
 {
 	return m_Height;
 
 }
 
-float Entity::GetWidth()
+double Entity::GetWidth()
 {
 	return m_Width;
 }
 
-void Entity::SetHeight(float height)
+void Entity::SetHeight(double height)
 {
 	m_Height = height;
 	m_BCoordinates.Y = m_ACoordinates.Y + height;
 }
 
-void Entity::SetWidth(float width)
+void Entity::SetWidth(double width)
 {
 	m_Width = width;
 	m_BCoordinates.X = m_ACoordinates.X + width;
@@ -69,7 +69,7 @@ ALLEGRO_COLOR Entity::GetColor()
 	return m_Color;
 }
 
-void Entity::MoveToOffset(float x, float y)
+void Entity::MoveToOffset(double x, double y)
 {
 	m_ACoordinates.X += x;
 	m_ACoordinates.Y += y;	
@@ -91,7 +91,7 @@ Coordinates* Entity::GetOffset()
 	return &m_Offset;
 }
 
-void Entity::SetOffset(float xOffset, float yOffset)
+void Entity::SetOffset(double xOffset, double yOffset)
 {
 	m_Offset.X = xOffset;
 	m_Offset.Y = yOffset;

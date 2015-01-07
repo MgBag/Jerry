@@ -1,7 +1,7 @@
 #include "VelocityVector.h"
 
 
-VelocityVector::VelocityVector(float velocity, float angle)
+VelocityVector::VelocityVector(double velocity, double angle)
 {
 	Velocity = velocity;
 	Angle = angle;
