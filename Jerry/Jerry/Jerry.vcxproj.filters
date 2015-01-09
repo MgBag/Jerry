@@ -33,6 +33,9 @@
     <ClCompile Include="VelocityVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Constants.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h">
@@ -56,6 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="..\..\..\..\..\Users\Benjamin\Google Drive\Allegro\AllegroAntColor\AllegroAnt\arial.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+    <Font Include="C:\WINDOWS\Fonts\arialblack.ttf">
       <Filter>Resource Files</Filter>
     </Font>
   </ItemGroup>

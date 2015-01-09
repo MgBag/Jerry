@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Constants.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Coordinates.cpp" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="..\..\..\..\..\Users\Benjamin\Google Drive\Allegro\AllegroAntColor\AllegroAnt\arial.ttf" />
+    <Font Include="C:\WINDOWS\Fonts\arialblack.ttf" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E1EEBA91-0F0F-4A5D-B253-238E18579E4D}</ProjectGuid>
