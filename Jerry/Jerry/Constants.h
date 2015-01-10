@@ -1,7 +1,7 @@
 #pragma once
 
 const double PHYSICS_TICK = 60;
-const double FPS = 120;
+const double FPS = 60;
 const int SCREEN_W = 1280;
 const int SCREEN_H = 600;
 const double GRAVITY = 9.8 / FPS;
@@ -17,6 +17,7 @@ const double PROJECTILE_SIZE = 5.0;
 const double PARTICLE_MAX = 4;
 const double BOUNCINESS = 0.9;
 const int BURST_SIZE = 3;
+const int MAX_AGE = 1 * PHYSICS_TICK;
 
 extern int ActiveParticles;
 extern int Particles;

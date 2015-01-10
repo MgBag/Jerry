@@ -11,6 +11,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_Type = type;
 	m_Hit = false;
 	m_BurstID = burstID;
+	m_Age = 0;
 }
 
 Entity::~Entity()
@@ -40,7 +41,6 @@ void Entity::SetCoordinates(double x, double y)
 double Entity::GetHeight()
 {
 	return m_Height;
-
 }
 
 double Entity::GetWidth()
@@ -112,4 +112,19 @@ void Entity::SetHit(bool hit)
 int Entity::GetBurstID()
 {
 	return m_BurstID;
+}
+
+int Entity::GetAge()
+{
+	return m_Age;
+}
+
+void Entity::IncAge()
+{
+	++m_Age;
+}
+
+void Entity::SetAge(int age)
+{
+	m_Age = age;
 }

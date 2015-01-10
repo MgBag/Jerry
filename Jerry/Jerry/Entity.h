@@ -19,6 +19,7 @@ private:
 	EntityType m_Type;
 	bool m_Hit;
 	int m_BurstID;
+	int m_Age;
 
 public:
 	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
@@ -44,6 +45,10 @@ public:
 
 	bool GetHit();
 	void SetHit(bool hit);
+
+	int GetAge();
+	void SetAge(int age);
+	void IncAge();
 
 	int GetBurstID();
 

@@ -282,7 +282,9 @@ int main()
 
 	al_rest(0.1);
 
-	//delete world, entities;
+	asyncPhys.detach();
+
+	delete world, entities;
 
 	return 0;
 }
@@ -382,14 +384,11 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 	double shotAngle = phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1);
 	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, shotAngle);
 
-
 	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
-
 
 	++Particles;
 
 	delete shotOff;
-
 }
 
 void AsyncPhysics(void* struc)

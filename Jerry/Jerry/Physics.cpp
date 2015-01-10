@@ -11,6 +11,20 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
 		if (!ent->GetHit()) ++ActiveParticles;
+		
+		if (ent->getType() == PROJECTILE)
+		{
+			if (ent->GetAge() > MAX_AGE)
+			{
+				entities->erase(ent);
+				continue;
+			}
+			else
+			{
+				ent->IncAge();
+			}
+		}
+
 		//ApplyGravity(&(*ent));
 		Collide(&(*ent), world, entities);
 		ent->MoveToOffset();
@@ -195,46 +209,121 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 			if (closestX != -1 && closestY != -1)
 			{
-				//if (entBCo->Y == collisionBlock[closestX].GetA()->Y)
-				//{
-				//	ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
+				if (entBCo->Y == (collisionType[closestX] == WORLD ? ((WorldBlock*)collisionItem[closestX])->GetA()->Y : ((Entity*)collisionItem[closestX])->GetACoordinates()->Y) ||
+					entACo->Y == (collisionType[closestX] == WORLD ? ((WorldBlock*)collisionItem[closestX])->GetB()->Y : ((Entity*)collisionItem[closestX])->GetBCoordinates()->Y))
+				{
+					// X collision while the Y of the entity is the same as the item that will be collided with thus colliding with Y
+					
+					ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
-				//	if (ent->getType() == PLAYER)
-				//	{
-				//		// Stop the entity if the movement gets below the FRICTION_STOP
-				//		ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-				//	}
-				//	else if (collisionType[closestX] == WORLD || collisionType[closestY] == WORLD)
-				//	{
-				//		ent->SetOffset(0.0, 0.0);
-				//		ent->SetHit(true);
-				//	}
-				//}
-				//else if (entACo->Y == collisionBlock[closestX].GetB()->Y)
-				//{
-				//	ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
+					if (ent->getType() == PROJECTILE)
+					{
+						if (collisionType[closestY] == WORLD)
+						{
+							ent->SetHit(true);
+							ent->SetOffset(0.0, 0.0);
 
-				//	if (ent->getType() == PLAYER)
-				//	{
-				//		ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-				//	}
-				//	else if (collisionType[closestX] == WORLD || collisionType[closestY] == WORLD)
-				//	{
-				//		ent->SetOffset(0.0, 0.0);
-				//		ent->SetHit(true);
-				//	}
-				//}
-				//else
-				//{
-				//	ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
+							ent->SetWidth(ent->GetWidth() * 4);
+							ent->SetHeight(ent->GetHeight() / 2);
 
-				//	ent->SetOffset(0.0, 0.0);
+							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+							if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
+						}
+						else
+						{
+							ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS);
+						}
+					}
+					else
+					{
+						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+					}
+				}
+				else if (entBCo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
+					entACo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetB()->X : ((Entity*)collisionItem[closestY])->GetBCoordinates()->X))
+				{
+					// Y collision while the X of the entity is the same as the item that will be collided with thus colliding with X
 
-				//	if (ent->getType() == PROJECTILE && (collisionType[closestX] == WORLD || collisionType[closestY] == WORLD))
-				//	{
-				//		ent->SetHit(true);
-				//	}
-				//}
+					ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
+
+					if (ent->getType() == PROJECTILE)
+					{
+						if (collisionType[closestX] == WORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+							ent->SetHit(true);
+
+							ent->SetHeight(ent->GetHeight() * 4);
+							ent->SetWidth(ent->GetWidth() / 2);
+
+							ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+							if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
+						}
+						else
+						{
+							ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * BOUNCINESS * -1);
+						}
+					}
+					else
+					{
+						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+					}
+				}
+				else
+				{
+					// Inner corner collision
+
+					ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
+
+					if (ent->getType() == PROJECTILE)
+					{
+						if (collisionType[closestX] == WORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+							ent->SetHit(true);
+
+							ent->SetHeight(ent->GetHeight() * 4);
+							ent->SetWidth(ent->GetWidth() / 2);
+
+							ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+							if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
+						}
+						else if (collisionType[closestY] == WORLD)
+						{
+							ent->SetHit(true);
+							ent->SetOffset(0.0, 0.0);
+
+							ent->SetWidth(ent->GetWidth() * 4);
+							ent->SetHeight(ent->GetHeight() / 2);
+
+							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+							if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
+						}
+						else
+						{
+							ent->SetOffset(entOff->X * BOUNCINESS * -1, entOff->Y * BOUNCINESS * -1);
+						}
+					}
+					else if (ent->getType() == PLAYER)
+					{
+						if (collisionType[closestX] == WORLD && collisionType[closestY] == WORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+						}
+						else if (collisionType[closestY] == WORLD)
+						{
+							ent->SetOffset(entOff->X * BOUNCINESS * -1, 0.0);
+						}
+						else if (collisionType[closestX] == WORLD)
+						{
+							ent->SetOffset(0.0, entOff->Y * BOUNCINESS * -1);
+						}
+						else
+						{
+							ent->SetOffset(entOff->X * BOUNCINESS * -1, entOff->Y * BOUNCINESS * -1);
+						}
+					}
+				}
 			}
 			else if (closestY != -1)
 			{
@@ -246,19 +335,28 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					{
 						ent->SetOffset(0.0, 0.0);
 						ent->SetHit(true);
+
 						ent->SetWidth(ent->GetWidth() * 4);
+						ent->SetHeight(ent->GetHeight() / 2);
+
 						ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+						if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
 					}
 					else
-					{
+					{			
 						ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * -1 * BOUNCINESS);
-						ent->SetWidth(ent->GetWidth() / 2);
-						ent->SetHeight(ent->GetHeight() / 2);
 					}
 				}
 				else // Type is player
 				{
-					ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0); 
+					if (collisionType[closestY] == WORLD)
+					{
+						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+					}
+					else
+					{
+						ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * -1 * BOUNCINESS);
+					}
 				}
 			}
 			else if (closestX != -1)
@@ -271,8 +369,12 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					{
 						ent->SetOffset(0.0, 0.0);
 						ent->SetHit(true);
+
 						ent->SetHeight(ent->GetHeight() * 4);
+						ent->SetWidth(ent->GetWidth() / 2);
+
 						ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+						if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
 					}
 					else
 					{
@@ -281,7 +383,14 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else // Type is player
 				{
-					ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+					if (collisionType[closestX] == WORLD)
+					{
+						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+					}
+					else
+					{
+						ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS);
+					}
 				}
 			}
 
