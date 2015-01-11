@@ -12,6 +12,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_Hit = false;
 	m_BurstID = burstID;
 	m_Age = 0;
+	m_IsAirBorn = true;
 }
 
 Entity::~Entity()
@@ -85,13 +86,16 @@ void Entity::MoveToOffset()
 // Do not delete! This returns the object in the Entity
 Coordinates* Entity::GetOffset()
 {
+	m_Offset.X = m_Offset.X < MAX_VELOCITY ? m_Offset.X : MAX_VELOCITY;
+	m_Offset.Y = m_Offset.Y < MAX_VELOCITY ? m_Offset.Y : MAX_VELOCITY;
+
 	return &m_Offset;
 }
 
 void Entity::SetOffset(double xOffset, double yOffset)
 {
-	m_Offset.X = xOffset;
-	m_Offset.Y = yOffset;
+	m_Offset.X = xOffset < MAX_VELOCITY ? xOffset : MAX_VELOCITY;
+	m_Offset.Y = yOffset < MAX_VELOCITY ? yOffset : MAX_VELOCITY;
 }
 
 EntityType Entity::getType()
@@ -127,4 +131,14 @@ void Entity::IncAge()
 void Entity::SetAge(int age)
 {
 	m_Age = age;
+}
+
+bool Entity::GetIsAirBorn()
+{
+	return m_IsAirBorn;
+}
+
+void Entity::SetIsAirBorn(bool hit)
+{
+	m_IsAirBorn = hit;
 }

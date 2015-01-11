@@ -1,5 +1,8 @@
 // TODO : Fix roation twitch
 // TODO : Remove the vucking fector
+// TODO : Naming and names mang. Projectile particle etc....
+// TODO : Add noclip
+
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
@@ -126,10 +129,10 @@ int main()
 
 
 	// world outlining
-	world->push_back(WorldBlock(0, 590, 1280, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(0, 590, 12800, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
+	//world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
 
 	//center bar stripes
 	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
@@ -239,12 +242,22 @@ int main()
 				keys[DOWN] = true;
 				break;
 
-			case ALLEGRO_KEY_R:
-				player->SetCoordinates(105, 10);
+			case ALLEGRO_KEY_T:
+				player->SetCoordinates(620, 200);
 				break;
 
 			case ALLEGRO_KEY_ESCAPE:
 				quit = true;
+				break;
+
+			case ALLEGRO_KEY_R:
+				while (entities->size() > 1)
+				{
+					entities->pop_back();
+				}
+
+				Particles = 0;
+
 				break;
 			}
 		}
@@ -294,26 +307,18 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
 	// TODO: Particle age in color
-	for (list<Entity>::iterator ent = entities->begin()++; ent != entities->end(); ++ent)
+	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* posA = ent->GetACoordinates();
-		//Coordinates* offset = ent->GetOffset();
 
 		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
-		//al_draw_line(
-		//	posA->X + ent->GetWidth() / 2,
-		//	posA->Y + ent->GetHeight() / 2,
-		//	(posA->X + ent->GetWidth() / 2) + offset->X,
-		//	(posA->Y + ent->GetHeight() / 2) + offset->Y,
-		//	al_map_rgb(220, 20, 20),
-		//	1.0);
 	}
 
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
 		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
 	}
-
+	
 	Entity* player = &*entities->begin();
 	ALLEGRO_MOUSE_STATE mouse;
 	al_get_mouse_state(&mouse);
@@ -323,7 +328,6 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	Coordinates* gunVec = phys.VectorToOffset(15.0, phys.OffsetToAngle((originX - (double)mouse.x) * -1, (originY - (double)mouse.y) * -1));
 	Coordinates* blankGunVec = phys.VectorToOffset(5.0, phys.OffsetToAngle((originX - (double)mouse.x) * -1, (originY - (double)mouse.y) * -1));
 
-	//al_draw_pixel(mouse.x, mouse.y, al_map_rgb(20, 20, 220));
 	// Player
 	al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
 
@@ -331,9 +335,19 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
 	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
 
+	// Gun Charge
+	int i = 0;
+	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
+	{
+		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
+		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+	}
+
 	// Jelly amount
-	al_draw_text(font, al_map_rgb(255, 10, 10), 5, 5, 0, ("Total particles: " + to_string(Particles)).c_str());
-	al_draw_text(font, al_map_rgb(255, 10, 10), 5, 20, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 20, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 30, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 40, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
 
 	al_flip_display();
 }
@@ -346,19 +360,15 @@ void move(Entity* ent)
 
 		if (keys[RIGHT])
 		{
-			offset->X += PLAYER_SPEED;
+			offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? AIR_CONTROL : 1.0;
 		}
 		if (keys[UP])
 		{
-			offset->Y -= PLAYER_SPEED;
+			offset->Y -= ent->GetIsAirBorn() ? 0.0 : PLAYER_JUMP_SPEED;
 		}
 		if (keys[LEFT])
 		{
-			offset->X -= PLAYER_SPEED;
-		}
-		if (keys[DOWN])
-		{
-			offset->Y += PLAYER_SPEED;
+			offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? AIR_CONTROL : 1.0;
 		}
 	}
 }
@@ -366,29 +376,22 @@ void move(Entity* ent)
 // TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 {
-	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
+	if (entities->size() -1 < MAX_PARTICLES)
 	{
-		unsigned char r, g, b;
-		al_unmap_rgb(ent->GetColor(), &r, &g, &b);
+		Entity* player = &*entities->begin();
+		Coordinates* entPos = player->GetACoordinates();
+		Coordinates* entOff = player->GetOffset();
+		double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+		double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+		double shotAngle = phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1);
+		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, shotAngle);
 
-		g -= 220.0 / PARTICLE_MAX;
+		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
 
-		ent->SetColor(al_map_rgb(r, g, b));
+		++Particles;
+
+		delete shotOff;
 	}
-
-	Entity* player = &*entities->begin();
-	Coordinates* entPos = player->GetACoordinates();
-	Coordinates* entOff = player->GetOffset();
-	double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-	double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	double shotAngle = phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1);
-	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, shotAngle);
-
-	entities->push_back(Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
-
-	++Particles;
-
-	delete shotOff;
 }
 
 void AsyncPhysics(void* struc)
@@ -404,5 +407,4 @@ void AsyncPhysics(void* struc)
 		move(player);
 		phys.ApplyPhysics(entities, world);
 	}
-	
 }

@@ -13,11 +13,13 @@ const double PLAYER_SPEED = 1.0;
 const double PRECISION = 0.0001;
 const double FRICTION_STOP = 0.1;
 const double PROJECTILE_SPEED = 10.0;
-const double PROJECTILE_SIZE = 5.0;
-const double PARTICLE_MAX = 4;
-const double BOUNCINESS = 0.9;
-const int BURST_SIZE = 3;
-const int MAX_AGE = 1 * PHYSICS_TICK;
+const double PROJECTILE_SIZE = 6.0;
+const double BOUNCINESS = 1.5;
+const double MAX_PARTICLES = 3;
+const double MAX_PARTICLE_AGE = 10.0 * PHYSICS_TICK;
+const double AIR_CONTROL = 0.1;
+const double PLAYER_JUMP_SPEED = 3.0;
+const double MAX_VELOCITY = 60.0;
 
 extern int ActiveParticles;
 extern int Particles;

@@ -20,6 +20,7 @@ private:
 	bool m_Hit;
 	int m_BurstID;
 	int m_Age;
+	bool m_IsAirBorn;
 
 public:
 	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
@@ -45,6 +46,9 @@ public:
 
 	bool GetHit();
 	void SetHit(bool hit);
+
+	bool GetIsAirBorn();
+	void SetIsAirBorn(bool hit);
 
 	int GetAge();
 	void SetAge(int age);

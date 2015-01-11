@@ -3,10 +3,13 @@
 // TODO: Memory leaks mang
 // TODO: Check logics mang, flows and flaws
 // TODO: Stop deleteing entOff
+// TODO: Meak air collision, might be easy?
 
 void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 {
 	ActiveParticles = -1;
+
+	entities->begin()->SetIsAirBorn(true);
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
@@ -14,18 +17,22 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 		
 		if (ent->getType() == PROJECTILE)
 		{
-			if (ent->GetAge() > MAX_AGE)
+			if (ent->GetAge() == MAX_PARTICLE_AGE)
 			{
-				entities->erase(ent);
-				continue;
+				entities->pop_back();
+
+				--Particles;
+
+				break;
 			}
 			else
 			{
 				ent->IncAge();
+				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
 			}
 		}
 
-		//ApplyGravity(&(*ent));
+		ApplyGravity(&(*ent));
 		Collide(&(*ent), world, entities);
 		ent->MoveToOffset();
 	}
@@ -237,6 +244,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					else
 					{
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+						ent->SetIsAirBorn(false);
 					}
 				}
 				else if (entBCo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
@@ -309,10 +317,12 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						if (collisionType[closestX] == WORLD && collisionType[closestY] == WORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
+							ent->SetIsAirBorn(false);
 						}
 						else if (collisionType[closestY] == WORLD)
 						{
 							ent->SetOffset(entOff->X * BOUNCINESS * -1, 0.0);
+							ent->SetIsAirBorn(false);
 						}
 						else if (collisionType[closestX] == WORLD)
 						{
@@ -352,6 +362,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					if (collisionType[closestY] == WORLD)
 					{
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+						ent->SetIsAirBorn(false);
 					}
 					else
 					{
