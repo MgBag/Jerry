@@ -1,6 +1,6 @@
 #pragma once
 
-const double PHYSICS_TICK = 60;
+const double PHYSICS_TICK = 5;
 const double FPS = 60;
 const int SCREEN_W = 1280;
 const int SCREEN_H = 600;
@@ -15,11 +15,13 @@ const double FRICTION_STOP = 0.1;
 const double PROJECTILE_SPEED = 10.0;
 const double PROJECTILE_SIZE = 6.0;
 const double BOUNCINESS = 0.9;
-const double MAX_PARTICLES = 3000;
-const double MAX_PARTICLE_AGE = 10.0 * PHYSICS_TICK;
+const double MAX_PARTICLES = 3;
+const double MAX_PARTICLE_AGE = 25.0 * PHYSICS_TICK;
 const double AIR_CONTROL = 0.1;
 const double PLAYER_JUMP_SPEED = 3.0;
 const double MAX_VELOCITY = 60.0;
+const double PROJECTILE_TRAIL_FRACTION = 10; // TODO : Use this
+const int PROJECTILE_TRAIL_LENGTH = 3;
 
 extern int ActiveParticles;
 extern int Particles;

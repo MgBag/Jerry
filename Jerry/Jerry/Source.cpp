@@ -3,6 +3,12 @@
 // TODO : Naming and names mang. Projectile particle etc....
 // TODO : Add noclip
 // TODO : Stop in mind air on direction change
+// TODO : Maek returns const so that they cannot be eddited
+// TODO : Following trail
+// TODO : Air controls
+// TODO : Projectile trajectory
+// TODO : Bounce
+// TODO : Level
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
@@ -112,7 +118,7 @@ int main()
 	al_init_font_addon();
 	al_init_ttf_addon();
 
-	font = al_load_ttf_font("impact.ttf", 12, 0);
+	font = al_load_ttf_font("coolvetica.ttf", 17, 0);
 
 	if (!font)
 	{
@@ -312,8 +318,24 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* posA = ent->GetACoordinates();
+		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), al_map_rgb(20, 20, 220));
 
-		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
+		if (!ent->GetHit())
+		{
+			double lastY = 0;
+
+			for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
+			{
+				al_draw_filled_rectangle(
+					posA->X - ent->GetOffset()->X * i,
+					posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
+					posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					ent->GetColor());
+
+				lastY += (ent->GetOffset()->Y - (GRAVITY * i));
+			}
+		}
 	}
 
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
@@ -337,19 +359,19 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
 	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
 
-	//// Gun Charge
-	//int i = 0;
-	//for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
-	//{
-	//	al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
-	//	al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
-	//}
+	// Gun Charge
+	int i = 0;
+	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
+	{
+		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
+		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+	}
 
 	// Jelly amount
 	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 20, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 30, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 40, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
 
 	al_flip_display();
 }

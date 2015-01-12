@@ -13,25 +13,25 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		//if (!ent->GetHit()) ++ActiveParticles;
-		//
-		//if (ent->getType() == PROJECTILE)
-		//{
-		//	if (ent->GetAge() == MAX_PARTICLE_AGE)
-		//	{
-		//		entities->pop_back();
-
-		//		--Particles;
-
-		//		break;
-		//	}
-		//	else
-		//	{
-		//		ent->IncAge();
-		//		ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
-		//	}
-		//}
-
+		 if (!ent->GetHit()) ++ActiveParticles;
+		 
+		 if (ent->getType() == PROJECTILE)
+		 {
+		 	if (ent->GetAge() == MAX_PARTICLE_AGE)
+		 	{
+		 		entities->pop_back();
+		 
+		 		--Particles;
+		 
+		 		break;
+		 	}
+		 	else
+		 	{
+		 		ent->IncAge();
+		 		ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
+		 	}
+		 }
+		 
 		ApplyGravity(&(*ent));
 		Collide(&(*ent), world, entities);
 		ent->MoveToOffset();
@@ -401,7 +401,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else
 					{
-						ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS);
+						ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS * -1);
 					}
 				}
 			}
