@@ -57,12 +57,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <Font Include="..\..\..\..\..\Users\Benjamin\Google Drive\Allegro\AllegroAntColor\AllegroAnt\arial.ttf">
-      <Filter>Resource Files</Filter>
-    </Font>
-    <Font Include="C:\WINDOWS\Fonts\arialblack.ttf">
-      <Filter>Resource Files</Filter>
-    </Font>
-  </ItemGroup>
 </Project>

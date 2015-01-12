@@ -13,24 +13,24 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		if (!ent->GetHit()) ++ActiveParticles;
-		
-		if (ent->getType() == PROJECTILE)
-		{
-			if (ent->GetAge() == MAX_PARTICLE_AGE)
-			{
-				entities->pop_back();
+		//if (!ent->GetHit()) ++ActiveParticles;
+		//
+		//if (ent->getType() == PROJECTILE)
+		//{
+		//	if (ent->GetAge() == MAX_PARTICLE_AGE)
+		//	{
+		//		entities->pop_back();
 
-				--Particles;
+		//		--Particles;
 
-				break;
-			}
-			else
-			{
-				ent->IncAge();
-				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
-			}
-		}
+		//		break;
+		//	}
+		//	else
+		//	{
+		//		ent->IncAge();
+		//		ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
+		//	}
+		//}
 
 		ApplyGravity(&(*ent));
 		Collide(&(*ent), world, entities);
@@ -353,7 +353,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
 					}
 					else
-					{			
+					{
+						//((Entity*)collisionItem[closestX])->GetInitialImpactSpeed()
 						ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * -1 * BOUNCINESS);
 					}
 				}

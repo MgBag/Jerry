@@ -13,6 +13,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_BurstID = burstID;
 	m_Age = 0;
 	m_IsAirBorn = true;
+	m_InitialImpactSpeed = 0.0;
 }
 
 Entity::~Entity()
@@ -141,4 +142,14 @@ bool Entity::GetIsAirBorn()
 void Entity::SetIsAirBorn(bool hit)
 {
 	m_IsAirBorn = hit;
+}
+
+double Entity::GetInitialImpactSpeed()
+{
+	return m_InitialImpactSpeed;
+}
+
+void Entity::SetInitialImpactSpeed(double speed)
+{
+	m_InitialImpactSpeed = speed;
 }

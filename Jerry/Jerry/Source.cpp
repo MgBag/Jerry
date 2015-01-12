@@ -2,7 +2,7 @@
 // TODO : Remove the vucking fector
 // TODO : Naming and names mang. Projectile particle etc....
 // TODO : Add noclip
-
+// TODO : Stop in mind air on direction change
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
@@ -117,6 +117,8 @@ int main()
 	if (!font)
 	{
 		fprintf(stderr, "Failed to load font\n");
+		system("pause");
+		return -1;
 	}
 
 	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER, 0));
@@ -132,7 +134,7 @@ int main()
 	world->push_back(WorldBlock(0, 590, 12800, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
-	//world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
 
 	//center bar stripes
 	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
@@ -335,13 +337,13 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
 	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
 
-	// Gun Charge
-	int i = 0;
-	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
-	{
-		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
-		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
-	}
+	//// Gun Charge
+	//int i = 0;
+	//for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
+	//{
+	//	al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
+	//	al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+	//}
 
 	// Jelly amount
 	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 10, 0, ("Total particles: " + to_string(Particles)).c_str());

@@ -21,6 +21,7 @@ private:
 	int m_BurstID;
 	int m_Age;
 	bool m_IsAirBorn;
+	double m_InitialImpactSpeed;
 
 public:
 	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
@@ -57,4 +58,7 @@ public:
 	int GetBurstID();
 
 	EntityType getType();
+
+	double GetInitialImpactSpeed();
+	void SetInitialImpactSpeed(double speed);
 };
