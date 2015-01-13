@@ -1,6 +1,6 @@
  #include "Entity.h"
 
-Entity::Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID)
+Entity::Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type, int burstID)
 {
 	m_ACoordinates = Coordinates(x, y);
 	m_BCoordinates = Coordinates(x + width, y + height);
@@ -14,6 +14,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_Age = 0;
 	m_IsAirBorn = true;
 	m_InitialImpactSpeed = 0.0;
+	m_LastImpactType = WORLD;
 }
 
 Entity::~Entity()
@@ -87,19 +88,19 @@ void Entity::MoveToOffset()
 // Do not delete! This returns the object in the Entity
 Coordinates* Entity::GetOffset()
 {
-	m_Offset.X = m_Offset.X < MAX_VELOCITY ? m_Offset.X : MAX_VELOCITY;
-	m_Offset.Y = m_Offset.Y < MAX_VELOCITY ? m_Offset.Y : MAX_VELOCITY;
+	m_Offset.X = m_Offset.X < MAX_ENTITY_VELOCITY ? m_Offset.X : MAX_ENTITY_VELOCITY;
+	m_Offset.Y = m_Offset.Y < MAX_ENTITY_VELOCITY ? m_Offset.Y : MAX_ENTITY_VELOCITY;
 
 	return &m_Offset;
 }
 
 void Entity::SetOffset(double xOffset, double yOffset)
 {
-	m_Offset.X = xOffset < MAX_VELOCITY ? xOffset : MAX_VELOCITY;
-	m_Offset.Y = yOffset < MAX_VELOCITY ? yOffset : MAX_VELOCITY;
+	m_Offset.X = xOffset < MAX_ENTITY_VELOCITY ? xOffset : MAX_ENTITY_VELOCITY;
+	m_Offset.Y = yOffset < MAX_ENTITY_VELOCITY ? yOffset : MAX_ENTITY_VELOCITY;
 }
 
-EntityType Entity::getType()
+ItemType Entity::getType()
 {
 	return m_Type;
 }
@@ -152,4 +153,34 @@ double Entity::GetInitialImpactSpeed()
 void Entity::SetInitialImpactSpeed(double speed)
 {
 	m_InitialImpactSpeed = speed;
+}
+
+bool Entity::GetIsCrouching()
+{
+	return m_IsCrouching;
+}
+
+void Entity::SetIsCrouching(bool isCrouching)
+{
+	m_IsCrouching = isCrouching;
+}
+
+ItemType Entity::GetLastImpactType()
+{
+	return m_LastImpactType;
+}
+
+void Entity::SetLastImpactType(ItemType impactType)
+{
+	m_LastImpactType = impactType;
+}
+
+double Entity::GetPreviousImpactHeight()
+{
+	return m_PreviousImpactHeight;
+}
+
+void Entity::SetPreviousImpactHeight(double preImpactHeight)
+{
+	m_PreviousImpactHeight = preImpactHeight;
 }

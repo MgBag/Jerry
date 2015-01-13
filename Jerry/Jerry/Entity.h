@@ -16,15 +16,18 @@ private:
 	double m_Width;
 	double m_Height;
 	ALLEGRO_COLOR m_Color;
-	EntityType m_Type;
+	ItemType m_Type;
 	bool m_Hit;
 	int m_BurstID;
 	int m_Age;
 	bool m_IsAirBorn;
 	double m_InitialImpactSpeed;
+	bool m_IsCrouching;
+	ItemType m_LastImpactType;
+	double m_PreviousImpactHeight;
 
 public:
-	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, EntityType type, int burstID);
+	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type, int burstID);
 	~Entity();
 
 	Coordinates* GetACoordinates();
@@ -57,8 +60,17 @@ public:
 
 	int GetBurstID();
 
-	EntityType getType();
+	ItemType getType();
 
 	double GetInitialImpactSpeed();
 	void SetInitialImpactSpeed(double speed);
+
+	bool GetIsCrouching();
+	void SetIsCrouching(bool hit);
+
+	ItemType GetLastImpactType();
+	void SetLastImpactType(ItemType impactType);
+
+	double GetPreviousImpactHeight();
+	void SetPreviousImpactHeight(double preImpactHeight);
 };

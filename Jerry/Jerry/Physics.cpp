@@ -17,7 +17,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 		 
 		 if (ent->getType() == PROJECTILE)
 		 {
-		 	if (ent->GetAge() == MAX_PARTICLE_AGE)
+		 	if (ent->GetAge() == MAX_ENTITY_AGE)
 		 	{
 		 		entities->pop_back();
 		 
@@ -28,7 +28,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 		 	else
 		 	{
 		 		ent->IncAge();
-		 		ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_PARTICLE_AGE * ent->GetAge()), 20));
+				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_ENTITY_AGE * ent->GetAge()), 20));
 		 	}
 		 }
 		 
@@ -243,6 +243,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else
 					{
+						// TODO: Bounce here mang
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 						ent->SetIsAirBorn(false);
 					}
@@ -274,6 +275,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else
 					{
+						// TODO: Bounce here mang
 						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 					}
 				}
@@ -314,7 +316,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else if (ent->getType() == PLAYER)
 					{
-						if (collisionType[closestX] == WORLD && collisionType[closestY] == WORLD)
+						if ((collisionType[closestX] == WORLD && collisionType[closestY] == WORLD) || ent->GetIsCrouching())
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetIsAirBorn(false);
@@ -360,14 +362,39 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else // Type is player
 				{
-					if (collisionType[closestY] == WORLD)
+					if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+						ent->SetLastImpactType(WORLD);
 						ent->SetIsAirBorn(false);
 					}
 					else
 					{
-						ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * -1 * BOUNCINESS);
+						if (collisionType[closestY] == UY)
+						{
+							ent->SetOffset(entOff->X, entOff->Y * -1);
+							ent->SetLastImpactType(JELLY);
+						}
+						else if (ent->GetLastImpactType() == WORLD)
+						{
+							ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+							ent->SetPreviousImpactHeight(possitions[closestY].Y);
+							ent->SetLastImpactType(JELLY);
+						}
+						else
+						{
+							if (ent->GetPreviousImpactHeight() > possitions[closestY].Y)
+							{
+								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+								ent->SetPreviousImpactHeight(possitions[closestY].Y);
+								ent->SetLastImpactType(JELLY);
+							}
+							else
+							{
+								ent->SetOffset(entOff->X, entOff->Y * -1);
+								ent->SetLastImpactType(JELLY);
+							}
+						}
 					}
 				}
 			}
@@ -395,7 +422,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else // Type is player
 				{
-					if (collisionType[closestX] == WORLD)
+					if (collisionType[closestX] == WORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 					}
@@ -766,7 +793,7 @@ Coordinates* Physics::VectorToOffset(double velocity, double angle)
 	else if (angle == FM_PI)
 	{
 		offset->X = 0.0;
-		offset->Y = velocity * -1;
+		offset->Y = velocity;
 	}
 	else if (angle == FM_PI_2)
 	{

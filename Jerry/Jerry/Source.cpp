@@ -1,11 +1,11 @@
-// TODO : Fix roation twitch
-// TODO : Remove the vucking fector
+// DONE : Fix roation twitch
+// DONE : Remove the vucking fector
 // TODO : Naming and names mang. Projectile particle etc....
-// TODO : Add noclip
-// TODO : Stop in mind air on direction change
-// TODO : Maek returns const so that they cannot be eddited
-// TODO : Following trail
-// TODO : Air controls
+// TOD? : Add noclip
+// DONE : Stop in mind air on direction change
+// TOD? : Maek returns const so that they cannot be eddited
+// DONE : Following trail
+// DONE : Air controls
 // TODO : Projectile trajectory
 // TODO : Bounce
 // TODO : Level
@@ -40,7 +40,8 @@ Physics phys;
 ALLEGRO_FONT *font = 0;
 bool quit = false;
 mutex mtx;
-bool keys[4] = { false, false, false, false };
+bool keys[5] = { false, false, false, false, false };
+string keyName[5] = { "R", "U", "L", "D", "LCTRL" };
 
 struct PhysicsVariables
 {
@@ -224,6 +225,15 @@ int main()
 				++burstID;
 				shoot(entities, e, burstID);
 			}
+			else if (e.mouse.button == 2)
+			{
+				while (entities->size() > 1)
+				{
+					entities->pop_back();
+				}
+
+				Particles = 0;
+			}
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_DOWN)
 		{
@@ -250,8 +260,8 @@ int main()
 				keys[DOWN] = true;
 				break;
 
-			case ALLEGRO_KEY_T:
-				player->SetCoordinates(620, 200);
+			case ALLEGRO_KEY_LCTRL:
+				keys[LCTRL] = true;
 				break;
 
 			case ALLEGRO_KEY_ESCAPE:
@@ -259,13 +269,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_R:
-				while (entities->size() > 1)
-				{
-					entities->pop_back();
-				}
-
-				Particles = 0;
-
+				player->SetCoordinates(620, 200);
 				break;
 			}
 		}
@@ -293,6 +297,10 @@ int main()
 			case ALLEGRO_KEY_DOWN:
 				keys[DOWN] = false;
 				break;
+
+			case ALLEGRO_KEY_LCTRL:
+				keys[LCTRL] = false;
+				break;
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
@@ -318,7 +326,7 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* posA = ent->GetACoordinates();
-		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), al_map_rgb(20, 20, 220));
+		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
 
 		if (!ent->GetHit())
 		{
@@ -364,43 +372,75 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
 	{
 		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
-		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_PARTICLE_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+	}
+
+	string pressed = "";
+
+	for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
+	{
+		if (keys[i])
+		{
+			pressed += keyName[i] + ", ";
+		}
 	}
 
 	// Jelly amount
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1100, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
 
 	al_flip_display();
 }
 
 void move(Entity* ent)
 {
-	if (keys[RIGHT] || keys[UP] || keys[LEFT] || keys[DOWN])
-	{
-		Coordinates* offset = ent->GetOffset();
+	Coordinates* offset = ent->GetOffset();
 
-		if (keys[RIGHT])
+	if (keys[RIGHT])
+	{
+		if (offset->X < 0.0 && ent->GetIsAirBorn())
 		{
-			offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? AIR_CONTROL : 1.0;
+			offset->X *= PLAYER_AIR_CONTROL_BREAK;
 		}
-		if (keys[UP])
+
+		offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+	}
+
+	if (keys[LEFT])
+	{
+		if (offset->X > 0.0 && ent->GetIsAirBorn())
 		{
-			offset->Y -= ent->GetIsAirBorn() ? 0.0 : PLAYER_JUMP_SPEED;
+			offset->X *= PLAYER_AIR_CONTROL_BREAK;
 		}
-		if (keys[LEFT])
+
+		offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+	}
+
+	if (keys[UP])
+	{
+		if (!ent->GetIsAirBorn())
 		{
-			offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? AIR_CONTROL : 1.0;
+			offset->Y -= PLAYER_JUMP_SPEED;
 		}
+	}
+
+	if (keys[LCTRL])
+	{
+		ent->SetIsCrouching(true);
+	}
+	else
+	{
+		ent->SetIsCrouching(false);
 	}
 }
 
 // TODO: Check nececerity of convertions
 void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 {
-	if (entities->size() -1 < MAX_PARTICLES)
+	if (entities->size() -1 < MAX_ENTITIES)
 	{
 		Entity* player = &*entities->begin();
 		Coordinates* entPos = player->GetACoordinates();
