@@ -1,6 +1,6 @@
  #include "Entity.h"
 
-Entity::Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type, int burstID)
+Entity::Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type)
 {
 	m_ACoordinates = Coordinates(x, y);
 	m_BCoordinates = Coordinates(x + width, y + height);
@@ -10,7 +10,6 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_Color = color;
 	m_Type = type;
 	m_Hit = false;
-	m_BurstID = burstID;
 	m_Age = 0;
 	m_IsAirBorn = true;
 	m_InitialImpactSpeed = 0.0;
@@ -113,11 +112,6 @@ bool Entity::GetHit()
 void Entity::SetHit(bool hit)
 {
 	m_Hit = hit;
-}
-
-int Entity::GetBurstID()
-{
-	return m_BurstID;
 }
 
 int Entity::GetAge()

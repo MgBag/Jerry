@@ -221,6 +221,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				{
 					// X collision while the Y of the entity is the same as the item that will be collided with thus colliding with Y
 					
+					entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
 					ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 					if (ent->getType() == PROJECTILE)
@@ -238,14 +239,53 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						}
 						else
 						{
-							ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS);
+							ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 						}
 					}
 					else
 					{
-						// TODO: Bounce here mang
-						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-						ent->SetIsAirBorn(false);
+						if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
+						{
+							ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+							ent->SetLastImpactType(WORLD);
+							ent->SetIsAirBorn(false);
+						}
+						else
+						{
+							if (collisionType[closestY] == UY)
+							{
+								ent->SetOffset(entOff->X, entOff->Y * -1);
+								ent->SetLastImpactType(JELLY);
+							}
+							else if (ent->GetLastImpactType() == WORLD)
+							{
+								if (ent->GetPreviousImpactHeight() < possitions[closestY].Y)
+								{
+									ent->SetOffset(entOff->X, entOff->Y * -1 - 0.5);
+								}
+								else
+								{
+									ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+								}
+
+								ent->SetPreviousImpactHeight(possitions[closestY].Y);
+								ent->SetLastImpactType(JELLY);
+							}
+							else
+							{
+								if (ent->GetPreviousImpactHeight() > possitions[closestY].Y)
+								{
+									ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+									ent->SetPreviousImpactHeight(possitions[closestY].Y);
+									ent->SetLastImpactType(JELLY);
+								}
+								else
+								{
+									ent->SetOffset(entOff->X, entOff->Y * -1);
+									ent->SetLastImpactType(JELLY);
+								}
+							}
+						}
 					}
 				}
 				else if (entBCo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
@@ -270,19 +310,27 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						}
 						else
 						{
-							ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * BOUNCINESS * -1);
+							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
 					}
 					else
 					{
-						// TODO: Bounce here mang
-						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+						if (collisionType[closestX] == WORLD || ent->GetIsCrouching())
+						{
+							ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+							ent->SetLastImpactType(WORLD);
+						}
+						else
+						{
+							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9), PLAYER_BOUNCE_OFFSET / -1.5);
+							ent->SetLastImpactType(JELLY);
+						}
 					}
 				}
 				else
 				{
 					// Inner corner collision
-
+					entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
 					ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
 
 					if (ent->getType() == PROJECTILE)
@@ -311,7 +359,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						}
 						else
 						{
-							ent->SetOffset(entOff->X * BOUNCINESS * -1, entOff->Y * BOUNCINESS * -1);
+							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
 					}
 					else if (ent->getType() == PLAYER)
@@ -323,23 +371,26 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						}
 						else if (collisionType[closestY] == WORLD)
 						{
-							ent->SetOffset(entOff->X * BOUNCINESS * -1, 0.0);
+							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, 0.0);
 							ent->SetIsAirBorn(false);
 						}
 						else if (collisionType[closestX] == WORLD)
 						{
-							ent->SetOffset(0.0, entOff->Y * BOUNCINESS * -1);
+							ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
 						else
 						{
-							ent->SetOffset(entOff->X * BOUNCINESS * -1, entOff->Y * BOUNCINESS * -1);
+							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
 					}
 				}
 			}
 			else if (closestY != -1)
 			{
+				// Calculate the offset at point of impact
+				entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
+				
 
 				if (ent->getType() == PROJECTILE)
 				{
@@ -356,8 +407,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else
 					{
-						//((Entity*)collisionItem[closestX])->GetInitialImpactSpeed()
-						ent->SetOffset(entOff->X * BOUNCINESS, entOff->Y * -1 * BOUNCINESS);
+						ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
 					}
 				}
 				else // Type is player
@@ -365,30 +415,44 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-						ent->SetLastImpactType(WORLD);
+						
+						if (collisionPosition[closestY] == UY)
+						{
+							ent->SetLastImpactType(WORLD);
+							ent->SetPreviousImpactHeight(possitions[closestY].Y);
+						}
+
 						ent->SetIsAirBorn(false);
 					}
-					else
+					else // Jelly collision
 					{
-						if (collisionType[closestY] == UY)
+						if (collisionPosition[closestY] == DY)
 						{
 							ent->SetOffset(entOff->X, entOff->Y * -1);
 							ent->SetLastImpactType(JELLY);
 						}
 						else if (ent->GetLastImpactType() == WORLD)
 						{
-							ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+							if (ent->GetPreviousImpactHeight() < possitions[closestY].Y)
+							{
+								ent->SetOffset(entOff->X, entOff->Y * -1 - 0.5);
+							}
+							else
+							{
+								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+							}
+
 							ent->SetPreviousImpactHeight(possitions[closestY].Y);
 							ent->SetLastImpactType(JELLY);
 						}
 						else
 						{
-							if (ent->GetPreviousImpactHeight() > possitions[closestY].Y)
+							if (ent->GetPreviousImpactHeight() >= possitions[closestY].Y)
 							{
 								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
 								ent->SetPreviousImpactHeight(possitions[closestY].Y);
 								ent->SetLastImpactType(JELLY);
-							}
+							} 
 							else
 							{
 								ent->SetOffset(entOff->X, entOff->Y * -1);
@@ -417,7 +481,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 					else
 					{
-						ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS);
+						ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 					}
 				}
 				else // Type is player
@@ -425,10 +489,12 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					if (collisionType[closestX] == WORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+						ent->SetLastImpactType(WORLD);
 					}
 					else
 					{
-						ent->SetOffset(entOff->X * -1 * BOUNCINESS, entOff->Y * BOUNCINESS * -1);
+						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9 ), PLAYER_BOUNCE_OFFSET / -1.5);
+						ent->SetLastImpactType(JELLY);
 					}
 				}
 			}

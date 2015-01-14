@@ -13,10 +13,10 @@ const double PLAYER_AIR_CONTROL_BREAK = 0.9;
 const double PROJECTILE_SPEED = 10.0;
 const double PROJECTILE_SIZE = 6.0;
 const int	 PROJECTILE_TRAIL_LENGTH = 2;
+const double PROJECTILE_BOUNCINESS = 1.0;
 const double MAX_ENTITIES = 30;
 const double MAX_ENTITY_AGE = 25.0 * PHYSICS_TICK;
 const double MAX_ENTITY_VELOCITY = 60.0;
-const double BOUNCINESS = 1.1;
 const double FRICTION = 0.8;
 const double FRICTION_STOP = 0.1;
 const double FM_PI_2 = 3.1415926535897932384626433832795 / 2;
@@ -37,7 +37,12 @@ enum ItemType
 	PLAYER, PROJECTILE, WORLD, JELLY
 };
 
-enum UDLR
+enum KEYS
 {
 	RIGHT, UP, LEFT, DOWN, LCTRL
+};
+
+enum MOUSEBUTTONS
+{
+	LMB, RMB, MIDDLEMOUSE
 };

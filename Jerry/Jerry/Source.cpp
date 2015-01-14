@@ -7,7 +7,7 @@
 // DONE : Following trail
 // DONE : Air controls
 // TODO : Projectile trajectory
-// TODO : Bounce
+// DONE : Bounce
 // TODO : Level
 
 #define ALLEGRO_STATICLINK
@@ -33,7 +33,7 @@ using namespace std;
 
 void draw(list<Entity>* ent, list<WorldBlock>* world);
 void move(Entity* player);
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID);
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 void AsyncPhysics(void* struc);
 
 Physics phys;
@@ -42,6 +42,7 @@ bool quit = false;
 mutex mtx;
 bool keys[5] = { false, false, false, false, false };
 string keyName[5] = { "R", "U", "L", "D", "LCTRL" };
+bool mouseButtons[3] = { false, false, false };
 
 struct PhysicsVariables
 {
@@ -128,7 +129,7 @@ int main()
 		return -1;
 	}
 
-	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER, 0));
+	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER));
 	Entity* player = &(*entities->begin());
 
 	//center bar
@@ -136,12 +137,14 @@ int main()
 
 	world->push_back(WorldBlock(400, 200, 500, 201, al_map_rgb(20, 20, 20)));
 
-
 	// world outlining
-	world->push_back(WorldBlock(0, 590, 12800, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(0, 590, 1280, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
 	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
+
+	world->push_back(WorldBlock(1095, 400, 1100, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(900, 400, 905, 600, al_map_rgb(20, 20, 20)));
 
 	//center bar stripes
 	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
@@ -205,9 +208,6 @@ int main()
 
 	al_start_timer(frame);
 
-	// TODO: Make dynamic
-	int burstID = 1;
-
 	while (!quit)
 	{
 		ALLEGRO_EVENT e;
@@ -220,19 +220,16 @@ int main()
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
-			if (e.mouse.button == 1)
+			switch (e.mouse.button)
 			{
-				++burstID;
-				shoot(entities, e, burstID);
-			}
-			else if (e.mouse.button == 2)
-			{
-				while (entities->size() > 1)
-				{
-					entities->pop_back();
-				}
-
+			case 1:
+				shoot(entities, e);
+				//mouseButtons[LMB] = true;
+				break;
+			case 2:
+				mouseButtons[RMB] = true;
 				Particles = 0;
+				break;
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_DOWN)
@@ -271,6 +268,11 @@ int main()
 			case ALLEGRO_KEY_R:
 				player->SetCoordinates(620, 200);
 				break;
+
+			case ALLEGRO_KEY_T:
+				al_clear_to_color(al_map_rgb(220, 220, 220));
+				break;
+
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_KEY_UP)
@@ -322,7 +324,38 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 {
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
-	// TODO: Particle age in color
+	Entity* player = &*entities->begin();
+	ALLEGRO_MOUSE_STATE mouse;
+	al_get_mouse_state(&mouse);
+	Coordinates posA = *player->GetACoordinates();
+	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
+	Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
+	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
+	Coordinates* entOff = player->GetOffset();
+	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
+	Entity ghostShot = Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(200, 200, 200), PROJECTILE);
+	Coordinates last = Coordinates(-1, -1);
+
+	for (int i = 0; i < MAX_ENTITY_AGE; ++i)
+	{
+		phys.ApplyGravity(&ghostShot);
+		phys.Collide(&ghostShot, world, entities);
+		ghostShot.MoveToOffset();
+
+		if (last.X == ghostShot.GetACoordinates()->X && last.Y == ghostShot.GetACoordinates()->Y)
+		{
+			break;
+		}
+		else
+		{
+			al_draw_filled_rectangle(ghostShot.GetACoordinates()->X, ghostShot.GetACoordinates()->Y, ghostShot.GetBCoordinates()->X, ghostShot.GetBCoordinates()->Y, ghostShot.GetColor());
+			last.X = ghostShot.GetACoordinates()->X;
+			last.Y = ghostShot.GetACoordinates()->Y;
+		}
+	}
+
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* posA = ent->GetACoordinates();
@@ -351,21 +384,15 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
 	}
 	
-	Entity* player = &*entities->begin();
-	ALLEGRO_MOUSE_STATE mouse;
-	al_get_mouse_state(&mouse);
-	Coordinates posA = *player->GetACoordinates();
-	double originX = posA.X + player->GetWidth() / 2;
-	double originY = posA.Y + player->GetHeight() / 2;
-	Coordinates* gunVec = phys.VectorToOffset(15.0, phys.OffsetToAngle((originX - (double)mouse.x) * -1, (originY - (double)mouse.y) * -1));
-	Coordinates* blankGunVec = phys.VectorToOffset(5.0, phys.OffsetToAngle((originX - (double)mouse.x) * -1, (originY - (double)mouse.y) * -1));
+
+
 
 	// Player
 	al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
 
 	// Gun of player
-	al_draw_line(originX, originY, gunVec->X + originX, gunVec->Y + originY, al_map_rgb(20, 20, 220), 5.0);
-	al_draw_line(originX, originY, blankGunVec->X + originX, blankGunVec->Y + originY, al_map_rgb(220, 20, 20), 5.0);
+	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(20, 20, 220), 5.0);
+	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(220, 20, 20), 5.0);
 
 	// Gun Charge
 	int i = 0;
@@ -384,6 +411,8 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 			pressed += keyName[i] + ", ";
 		}
 	}
+
+
 
 	// Jelly amount
 	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
@@ -437,8 +466,9 @@ void move(Entity* ent)
 	}
 }
 
-// TODO: Check nececerity of convertions
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
+// TODO : Check nececerity of convertions
+// TODO : Mang, dat copy of event
+void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
 	if (entities->size() -1 < MAX_ENTITIES)
 	{
@@ -447,10 +477,9 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e, int burstID)
 		Coordinates* entOff = player->GetOffset();
 		double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 		double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-		double shotAngle = phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1);
-		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, shotAngle);
+		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
-		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE, burstID));
+		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE));
 
 		++Particles;
 
@@ -470,5 +499,15 @@ void AsyncPhysics(void* struc)
 		
 		move(player);
 		phys.ApplyPhysics(entities, world);
+
+		if (mouseButtons[RMB])
+		{
+			while (entities->size() > 1)
+			{
+				entities->pop_back();
+			}
+
+			mouseButtons[RMB] = false;
+		}
 	}
 }

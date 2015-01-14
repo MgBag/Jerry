@@ -15,13 +15,13 @@ using namespace std;
 class Physics
 {
 private:
-	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities);
-	static void ApplyGravity(Entity* ent);
 	static bool WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities);
 	static bool AreInRange(Coordinates* entOff, Coordinates* entACo, Coordinates* entBCo, Coordinates* xA, Coordinates* xB);
 	static bool AreColliding(Coordinates* a1, Coordinates* a2, Coordinates* b1, Coordinates* b2);
 	static Coordinates* GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, double xStep, double yStep, double* minX, double* minY, double* maxX, double* maxY, bool* minXIsEnt, bool* minYIsEnt);
 public:
+	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities);
+	static void ApplyGravity(Entity* ent);
 	static VelocityVector* OffsetToVector(Coordinates* offset);
 	static VelocityVector* OffsetToVector(double x, double y);
 	static Coordinates* VectorToOffset(VelocityVector* vector);

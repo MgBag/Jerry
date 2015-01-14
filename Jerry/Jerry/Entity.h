@@ -18,7 +18,6 @@ private:
 	ALLEGRO_COLOR m_Color;
 	ItemType m_Type;
 	bool m_Hit;
-	int m_BurstID;
 	int m_Age;
 	bool m_IsAirBorn;
 	double m_InitialImpactSpeed;
@@ -27,7 +26,7 @@ private:
 	double m_PreviousImpactHeight;
 
 public:
-	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type, int burstID);
+	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type);
 	~Entity();
 
 	Coordinates* GetACoordinates();
@@ -57,8 +56,6 @@ public:
 	int GetAge();
 	void SetAge(int age);
 	void IncAge();
-
-	int GetBurstID();
 
 	ItemType getType();
 
