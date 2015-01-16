@@ -129,65 +129,70 @@ int main()
 		return -1;
 	}
 
-	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, al_map_rgb(220, 20, 20), PLAYER));
+	PlayerColor = al_map_rgb(20, 20, 220);
+	JellyColor = al_map_rgb(20, 220, 20);
+	WorldColor = al_map_rgb(20, 20, 20);
+	BadWorldColor = al_map_rgb(220, 20, 20);
+
+	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
 	//center bar
-	world->push_back(WorldBlock(300, 300, 900, 310, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(300, 300, 900, 310, WorldColor, WORLD));
 
-	world->push_back(WorldBlock(400, 200, 500, 201, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(400, 200, 500, 201, BadWorldColor, BADWORLD));
 
 	// world outlining
-	world->push_back(WorldBlock(0, 590, 1280, 600, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(0, 0, 10, 600, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(0, 0, 1280, 10, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(1270, 0, 1280, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(0, 590, 1280, 600, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 0, 10, 600, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 0, 1280, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(1270, 0, 1280, 600, WorldColor, WORLD));
 
-	world->push_back(WorldBlock(1095, 400, 1100, 600, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(900, 400, 905, 600, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(1095, 400, 1100, 600, WorldColor, WORLD));
+	world->push_back(WorldBlock(900, 400, 905, 600, WorldColor, WORLD));
 
 	//center bar stripes
-	world->push_back(WorldBlock(650, 280, 655, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(660, 280, 665, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(670, 280, 675, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(680, 280, 685, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(690, 280, 695, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(700, 280, 705, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(710, 280, 715, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(720, 280, 725, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(730, 280, 735, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(740, 280, 745, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(750, 280, 755, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(760, 280, 765, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(770, 280, 775, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(780, 280, 785, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(790, 280, 795, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(800, 280, 805, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(650, 280, 655, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(660, 280, 665, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(670, 280, 675, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(680, 280, 685, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(690, 280, 695, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(700, 280, 705, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(710, 280, 715, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(720, 280, 725, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(730, 280, 735, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(740, 280, 745, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(750, 280, 755, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(760, 280, 765, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(770, 280, 775, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(780, 280, 785, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(790, 280, 795, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(800, 280, 805, 330, WorldColor, WORLD));
 
-	world->push_back(WorldBlock(340, 280, 345, 330, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(365, 280, 370, 330, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(340, 280, 345, 330, WorldColor, WORLD));
+	world->push_back(WorldBlock(365, 280, 370, 330, WorldColor, WORLD));
 
 
 	//top left stripes
 	//x
-	world->push_back(WorldBlock(30, 10, 35, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(40, 10, 45, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(50, 10, 55, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(60, 10, 65, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(70, 10, 75, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(80, 10, 85, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(90, 10, 95, 30, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(100, 10, 105, 30, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(30, 10, 35, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(40, 10, 45, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(50, 10, 55, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(60, 10, 65, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(70, 10, 75, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(80, 10, 85, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(90, 10, 95, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(100, 10, 105, 30, WorldColor, WORLD));
 
 	//y
-	world->push_back(WorldBlock(10, 30, 30, 35, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 40, 30, 45, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 50, 30, 55, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 60, 30, 65, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 70, 30, 75, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 80, 30, 85, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 90, 30, 95, al_map_rgb(20, 20, 20)));
-	world->push_back(WorldBlock(10, 100, 30, 105, al_map_rgb(20, 20, 20)));
+	world->push_back(WorldBlock(10, 30, 30, 35, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 40, 30, 45, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 50, 30, 55, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 60, 30, 65, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 70, 30, 75, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 80, 30, 85, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 90, 30, 95, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 100, 30, 105, WorldColor, WORLD));
 
 	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
@@ -324,104 +329,112 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 {
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
-	Entity* player = &*entities->begin();
-	ALLEGRO_MOUSE_STATE mouse;
-	al_get_mouse_state(&mouse);
-	Coordinates posA = *player->GetACoordinates();
-	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
-	Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
-	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
-	Coordinates* entOff = player->GetOffset();
-	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
-	Entity ghostShot = Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(200, 200, 200), PROJECTILE);
-	Coordinates last = Coordinates(-1, -1);
-
-	for (int i = 0; i < MAX_ENTITY_AGE; ++i)
+	try
 	{
-		phys.ApplyGravity(&ghostShot);
-		phys.Collide(&ghostShot, world, entities);
-		ghostShot.MoveToOffset();
+		Entity* player = &*entities->begin();
+		ALLEGRO_MOUSE_STATE mouse;
+		al_get_mouse_state(&mouse);
+		Coordinates posA = *player->GetACoordinates();
+		double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+		double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+		double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
+		Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
+		Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
+		Coordinates* entOff = player->GetOffset();
+		Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
+		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(200, 200, 200), PROJECTILE) };
+		list<Entity>::iterator ghostShot = hackhack.begin();
 
-		if (last.X == ghostShot.GetACoordinates()->X && last.Y == ghostShot.GetACoordinates()->Y)
+		Coordinates last = Coordinates(-1, -1);
+
+		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 		{
-			break;
-		}
-		else
-		{
-			al_draw_filled_rectangle(ghostShot.GetACoordinates()->X, ghostShot.GetACoordinates()->Y, ghostShot.GetBCoordinates()->X, ghostShot.GetBCoordinates()->Y, ghostShot.GetColor());
-			last.X = ghostShot.GetACoordinates()->X;
-			last.Y = ghostShot.GetACoordinates()->Y;
-		}
-	}
+			phys.ApplyGravity(&*ghostShot);
+			phys.Collide(ghostShot, world, entities);
+			ghostShot->MoveToOffset();
 
-	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
-	{
-		Coordinates* posA = ent->GetACoordinates();
-		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
-
-		if (!ent->GetHit())
-		{
-			double lastY = 0;
-
-			for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
+			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y)
 			{
-				al_draw_filled_rectangle(
-					posA->X - ent->GetOffset()->X * i,
-					posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-					posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
-					posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-					ent->GetColor());
-
-				lastY += (ent->GetOffset()->Y - (GRAVITY * i));
+				break;
+			}
+			else
+			{
+				al_draw_filled_rectangle(ghostShot->GetACoordinates()->X, ghostShot->GetACoordinates()->Y, ghostShot->GetBCoordinates()->X, ghostShot->GetBCoordinates()->Y, ghostShot->GetColor());
+				last.X = ghostShot->GetACoordinates()->X;
+				last.Y = ghostShot->GetACoordinates()->Y;
 			}
 		}
-	}
 
-	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
-	{
-		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
-	}
-	
-
-
-
-	// Player
-	al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
-
-	// Gun of player
-	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(20, 20, 220), 5.0);
-	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(220, 20, 20), 5.0);
-
-	// Gun Charge
-	int i = 0;
-	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
-	{
-		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, al_map_rgb(20, 220, 20));
-		al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
-	}
-
-	string pressed = "";
-
-	for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
-	{
-		if (keys[i])
+		for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 		{
-			pressed += keyName[i] + ", ";
+			Coordinates* posA = ent->GetACoordinates();
+			al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
+
+			if (!ent->GetHit())
+			{
+				double lastY = 0;
+
+				for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
+				{
+					al_draw_filled_rectangle(
+						posA->X - ent->GetOffset()->X * i,
+						posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+						posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
+						posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+						ent->GetColor());
+
+					lastY += (ent->GetOffset()->Y - (GRAVITY * i));
+				}
+			}
 		}
+
+		for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
+		{
+			al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
+		}
+
+		// Player
+		al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
+
+		// Gun of player
+		al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
+		al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
+
+		// Gun Charge
+		int i = 0;
+		for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
+		{
+			al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, JellyColor);
+			al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+		}
+
+		string pressed = "";
+
+		for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
+		{
+			if (keys[i])
+			{
+				pressed += keyName[i] + ", ";
+			}
+		}
+
+
+
+		// Jelly amount
+		al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
+		al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+		al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+		al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+		al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
+
 	}
-
-
-
-	// Jelly amount
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
-	al_draw_text(font, al_map_rgb(20, 20, 20), 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
+	catch (exception& e)
+	{
+		cout << "Standard exception: " << e.what() << endl;
+	}
 
 	al_flip_display();
+
 }
 
 void move(Entity* ent)
@@ -479,7 +492,7 @@ void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 		double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
 		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
-		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, al_map_rgb(20, 220, 20), PROJECTILE));
+		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
 
 		++Particles;
 

@@ -20,7 +20,7 @@ private:
 	static bool AreColliding(Coordinates* a1, Coordinates* a2, Coordinates* b1, Coordinates* b2);
 	static Coordinates* GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, double xStep, double yStep, double* minX, double* minY, double* maxX, double* maxY, bool* minXIsEnt, bool* minYIsEnt);
 public:
-	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities);
+	static void Collide(list<Entity>::iterator ent, list<WorldBlock> *world, list<Entity>* entities);
 	static void ApplyGravity(Entity* ent);
 	static VelocityVector* OffsetToVector(Coordinates* offset);
 	static VelocityVector* OffsetToVector(double x, double y);

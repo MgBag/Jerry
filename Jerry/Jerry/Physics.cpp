@@ -33,7 +33,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 		 }
 		 
 		ApplyGravity(&(*ent));
-		Collide(&(*ent), world, entities);
+		Collide(ent, world, entities);
 		ent->MoveToOffset();
 	}
 }
@@ -48,7 +48,7 @@ void Physics::ApplyGravity(Entity* ent)
 	}
 }
 
-void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entities)
+void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<Entity>* entities)
 {
 	Coordinates* entOff = ent->GetOffset();
 	
@@ -60,7 +60,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 		vector<Coordinates*> collisions;
 		vector<Coordinates> possitions;
 		vector<int> collisionPosition;
-		vector<int> collisionType;
+		vector<ItemType> collisionType;
 		vector<void*> collisionItem;
 
 
@@ -70,7 +70,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 		for (list<Entity>::iterator jel = entities->begin(); jel != entities->end(); ++jel)
 		{
-			if (ent == &*jel)
+			if (ent == jel)
 				continue;
 			if (!jel->GetHit())
 				continue;
@@ -85,7 +85,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					double minX, minY, maxX, maxY;
 					bool minXIsEnt = false, minYIsEnt = false;
 
-					Coordinates* colOff = GetCollisionOffset(ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+					Coordinates* colOff = GetCollisionOffset(&*ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
 					if (colOff != NULL)
 					{
@@ -149,7 +149,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				bool minXIsEnt = false, minYIsEnt = false;
 				double minX, minY, maxX, maxY;
 
-				Coordinates* colOff = GetCollisionOffset(ent, worACo, worBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+				Coordinates* colOff = GetCollisionOffset(&*ent, worACo, worBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
 				if (colOff != NULL)
 				{
@@ -186,7 +186,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 					collisionItem.push_back((void*)&*wor);
 					collisions.push_back(colOff);
-					collisionType.push_back(WORLD);
+					collisionType.push_back(wor->GetType());
 				}
 			}
 		}
@@ -237,7 +237,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
 							if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
 						}
-						else
+						else if (collisionType[closestY] == JELLY)
 						{
 							ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 						}
@@ -250,7 +250,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							ent->SetLastImpactType(WORLD);
 							ent->SetIsAirBorn(false);
 						}
-						else
+						else if (collisionType[closestY] == JELLY)
 						{
 							if (collisionType[closestY] == UY)
 							{
@@ -308,7 +308,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
 							if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
 						}
-						else
+						else if (collisionType[closestX] == JELLY)
 						{
 							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
@@ -320,7 +320,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 							ent->SetLastImpactType(WORLD);
 						}
-						else
+						else if (collisionType[closestX] == JELLY)
 						{
 							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9), PLAYER_BOUNCE_OFFSET / -1.5);
 							ent->SetLastImpactType(JELLY);
@@ -356,8 +356,8 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
 							if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
-						}
-						else
+						} 
+						else if (collisionType[closestY] == JELLY || collisionType[closestX] == JELLY)
 						{
 							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
@@ -378,7 +378,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						{
 							ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
-						else
+						else if (collisionType[closestY] == JELLY)
 						{
 							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
@@ -405,9 +405,13 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
 						if (collisionPosition[closestY] == UY) ent->MoveToOffset(0.0, ent->GetHeight());
 					}
-					else
+					else if (collisionType[closestY] == JELLY)
 					{
 						ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
+					}
+					else if (collisionType[closestY] == BADWORLD)
+					{
+						entities->erase(ent);
 					}
 				}
 				else // Type is player
@@ -424,7 +428,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 						ent->SetIsAirBorn(false);
 					}
-					else // Jelly collision
+					else if (collisionType[closestY] == JELLY)
 					{
 						if (collisionPosition[closestY] == DY)
 						{
@@ -479,9 +483,13 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
 						if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
 					}
-					else
+					else if (collisionType[closestX] == JELLY)
 					{
 						ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
+					}
+					else if (collisionType[closestX] == BADWORLD)
+					{
+						entities->erase(ent);
 					}
 				}
 				else // Type is player
@@ -491,7 +499,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 						ent->SetLastImpactType(WORLD);
 					}
-					else
+					else if (collisionType[closestX] == JELLY)
 					{
 						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9 ), PLAYER_BOUNCE_OFFSET / -1.5);
 						ent->SetLastImpactType(JELLY);
@@ -500,7 +508,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 			}
 
 			// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
-			if (WillCollide(ent, world, entities))
+			if (WillCollide(&*ent, world, entities))
 			{
 				Collide(ent, world, entities);
 			}
@@ -543,24 +551,31 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 		//TODO: Add the isHit conditions and shit
 		for (list<Entity>::iterator jel = entities->begin(); jel != entities->end(); ++jel)
 		{
+			if (entity == &*jel)
+				continue;
+			if (!jel->GetHit())
+				continue;
+
 			Coordinates* jelACo = jel->GetACoordinates();
 			Coordinates* jelBCo = jel->GetBCoordinates();
 
-
-			if (entity != &*jel && jel->GetHit() && !AreColliding(entACo, entBCo, jelACo, jelBCo) && AreInRange(entOff, entACo, entBCo, jelACo, jelBCo))
+			if (AreInRange(entOff, entACo, entBCo, jelACo, jelBCo))
 			{
-				bool minXIsEnt = false, minYIsEnt = false;
-				double minX, minY, maxX, maxY;
-
-				Coordinates* colOff = GetCollisionOffset(entity, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
-
-				if (colOff != NULL)
+				if (!AreColliding(entACo, entBCo, jelACo, jelBCo))
 				{
-					jel->SetColor(al_map_rgb(220, 20, 220));
-					// TODO: use colOff so that it doesn't have to calculated again.
+					bool minXIsEnt = false, minYIsEnt = false;
+					double minX, minY, maxX, maxY;
 
-					delete colOff;
-					return true;
+					Coordinates* colOff = GetCollisionOffset(entity, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+					if (colOff != NULL)
+					{
+						jel->SetColor(al_map_rgb(220, 20, 220));
+						// TODO: use colOff so that it doesn't have to calculated again.
+
+						delete colOff;
+						return true;
+					}
 				}
 			}
 		}
