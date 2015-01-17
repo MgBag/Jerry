@@ -13,8 +13,17 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
+		 if (ent->GetDelete())
+		 {
+			 list<Entity>::iterator temp = ent;
+			 --ent;
+			 entities->erase(temp);
+
+			 continue;
+		 }
+
 		 if (!ent->GetHit()) ++ActiveParticles;
-		 
+
 		 if (ent->getType() == PROJECTILE)
 		 {
 		 	if (ent->GetAge() == MAX_ENTITY_AGE)
@@ -70,7 +79,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 		for (list<Entity>::iterator jel = entities->begin(); jel != entities->end(); ++jel)
 		{
-			if (ent == jel)
+			if (&*ent == &*jel)
 				continue;
 			if (!jel->GetHit())
 				continue;
@@ -411,7 +420,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else if (collisionType[closestY] == BADWORLD)
 					{
-						entities->erase(ent);
+						ent->SetDelete(true);
 					}
 				}
 				else // Type is player
@@ -489,7 +498,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else if (collisionType[closestX] == BADWORLD)
 					{
-						entities->erase(ent);
+						ent->SetDelete(true);
 					}
 				}
 				else // Type is player
@@ -518,7 +527,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities)
 {
-	if (!entity->GetHit())
+	if (!entity->GetHit() && !entity->GetDelete())
 	{
 		Coordinates* entACo = entity->GetACoordinates();
 		Coordinates* entBCo = entity->GetBCoordinates();

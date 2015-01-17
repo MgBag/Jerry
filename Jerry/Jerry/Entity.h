@@ -24,6 +24,7 @@ private:
 	bool m_IsCrouching;
 	ItemType m_LastImpactType;
 	double m_PreviousImpactHeight;
+	bool m_Delete;
 
 public:
 	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type);
@@ -70,4 +71,9 @@ public:
 
 	double GetPreviousImpactHeight();
 	void SetPreviousImpactHeight(double preImpactHeight);
-};
+
+	bool GetDelete();
+	void SetDelete(bool del);
+
+	bool operator==(const Entity& e);
+}; 

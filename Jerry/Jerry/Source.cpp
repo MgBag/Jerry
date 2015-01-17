@@ -353,7 +353,7 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 			phys.Collide(ghostShot, world, entities);
 			ghostShot->MoveToOffset();
 
-			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y)
+			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetDelete())
 			{
 				break;
 			}
