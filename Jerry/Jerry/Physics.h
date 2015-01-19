@@ -5,6 +5,7 @@
 #include <vector>
 #include <list>
 #include <iostream>
+#include <math.h>
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Coordinates.h"

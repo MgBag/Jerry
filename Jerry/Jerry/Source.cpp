@@ -13,6 +13,9 @@
 // TODO : In air Entity collision
 // TODO : Find some crash in the drawing of the projectile trajectory
 // TODO : Preformance optimizing
+// TODO : Physics tick counter
+
+// TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
@@ -142,62 +145,62 @@ int main()
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
-	//center bar
-	world->push_back(WorldBlock(300, 300, 900, 310, WorldColor, WORLD));
-
-	world->push_back(WorldBlock(400, 200, 500, 201, BadWorldColor, BADWORLD));
-
 	// world outlining
 	world->push_back(WorldBlock(0, 590, 1280, 600, WorldColor, WORLD));
 	world->push_back(WorldBlock(0, 0, 10, 600, WorldColor, WORLD));
 	world->push_back(WorldBlock(0, 0, 1280, 10, WorldColor, WORLD));
 	world->push_back(WorldBlock(1270, 0, 1280, 600, WorldColor, WORLD));
 
-	world->push_back(WorldBlock(1095, 400, 1100, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(900, 400, 905, 600, WorldColor, WORLD));
+	world->push_back(WorldBlock(350, 500, 360, 600, WorldColor, WORLD));
+	world->push_back(WorldBlock(100, 589, 150, 600, BadWorldColor, BADWORLD));
 
-	//center bar stripes
-	world->push_back(WorldBlock(650, 280, 655, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(660, 280, 665, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(670, 280, 675, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(680, 280, 685, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(690, 280, 695, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(700, 280, 705, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(710, 280, 715, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(720, 280, 725, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(730, 280, 735, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(740, 280, 745, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(750, 280, 755, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(760, 280, 765, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(770, 280, 775, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(780, 280, 785, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(790, 280, 795, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(800, 280, 805, 330, WorldColor, WORLD));
+	////center bar
+	//world->push_back(WorldBlock(300, 300, 900, 310, WorldColor, WORLD));
+	//world->push_back(WorldBlock(400, 200, 500, 201, BadWorldColor, BADWORLD));
+	//world->push_back(WorldBlock(1095, 400, 1100, 600, WorldColor, WORLD));
+	//world->push_back(WorldBlock(900, 400, 905, 600, WorldColor, WORLD));
 
-	world->push_back(WorldBlock(340, 280, 345, 330, WorldColor, WORLD));
-	world->push_back(WorldBlock(365, 280, 370, 330, WorldColor, WORLD));
+	////center bar stripes
+	//world->push_back(WorldBlock(650, 280, 655, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(660, 280, 665, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(670, 280, 675, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(680, 280, 685, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(690, 280, 695, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(700, 280, 705, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(710, 280, 715, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(720, 280, 725, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(730, 280, 735, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(740, 280, 745, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(750, 280, 755, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(760, 280, 765, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(770, 280, 775, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(780, 280, 785, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(790, 280, 795, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(800, 280, 805, 330, WorldColor, WORLD));
 
+	//world->push_back(WorldBlock(340, 280, 345, 330, WorldColor, WORLD));
+	//world->push_back(WorldBlock(365, 280, 370, 330, WorldColor, WORLD));
 
-	//top left stripes
-	//x
-	world->push_back(WorldBlock(30, 10, 35, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(40, 10, 45, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(50, 10, 55, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(60, 10, 65, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(70, 10, 75, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(80, 10, 85, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(90, 10, 95, 30, WorldColor, WORLD));
-	world->push_back(WorldBlock(100, 10, 105, 30, WorldColor, WORLD));
+	////top left stripes
+	////x
+	//world->push_back(WorldBlock(30, 10, 35, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(40, 10, 45, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(50, 10, 55, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(60, 10, 65, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(70, 10, 75, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(80, 10, 85, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(90, 10, 95, 30, WorldColor, WORLD));
+	//world->push_back(WorldBlock(100, 10, 105, 30, WorldColor, WORLD));
 
-	//y
-	world->push_back(WorldBlock(10, 30, 30, 35, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 40, 30, 45, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 50, 30, 55, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 60, 30, 65, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 70, 30, 75, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 80, 30, 85, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 90, 30, 95, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 100, 30, 105, WorldColor, WORLD));
+	////y
+	//world->push_back(WorldBlock(10, 30, 30, 35, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 40, 30, 45, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 50, 30, 55, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 60, 30, 65, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 70, 30, 75, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 80, 30, 85, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 90, 30, 95, WorldColor, WORLD));
+	//world->push_back(WorldBlock(10, 100, 30, 105, WorldColor, WORLD));
 
 	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));

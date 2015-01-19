@@ -423,7 +423,8 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			else if (closestY != -1)
 			{
 				// Calculate the offset at point of impact
-				entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
+				double delta = possitions[closestY].Y - entACo->Y;
+				entOff->Y = entOff->Y - GRAVITY + delta / entOff->Y * GRAVITY;
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
 				if (ent->getType() == PROJECTILE)
@@ -471,7 +472,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						}
 						else if (ent->GetLastImpactType() == WORLD)
 						{
-							if (ent->GetPreviousImpactHeight() < possitions[closestY].Y)
+							if (ent->GetPreviousImpactHeight() < possitions[closestY].Y && delta > ((pow(PLAYER_BOUNCE_OFFSET, 2) * pow(sin(OffsetToAngle(entOff->X, entOff->Y * -1) - FM_PI_2), 2)) / (2 * GRAVITY)))
 							{
 								ent->SetOffset(entOff->X, entOff->Y * -1 - 0.5);
 							}
