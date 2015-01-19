@@ -1,18 +1,23 @@
+// TOD? : Add noclip
+// TOD? : Maek returns const so that they cannot be eddited
 // DONE : Fix roation twitch
 // DONE : Remove the vucking fector
-// TODO : Naming and names mang. Projectile particle etc....
-// TOD? : Add noclip
 // DONE : Stop in mind air on direction change
-// TOD? : Maek returns const so that they cannot be eddited
 // DONE : Following trail
 // DONE : Air controls
-// TODO : Projectile trajectory
+// DONE : Projectile trajectory
 // DONE : Bounce
 // TODO : Level
+// TODO : Naming and names mang. Projectile particle etc....
+// TODO : Use the recursion in Collision() so that it doesn't need recalulation later on
+// TODO : In air Entity collision
+// TODO : Find some crash in the drawing of the projectile trajectory
+// TODO : Preformance optimizing
 
 #define ALLEGRO_STATICLINK
 #define _USE_MATH_DEFINES 
 
+#include <mutex>
 #include <thread>
 #include <iostream>
 #include <list>
@@ -39,10 +44,10 @@ void AsyncPhysics(void* struc);
 Physics phys;
 ALLEGRO_FONT *font = 0;
 bool quit = false;
-mutex mtx;
 bool keys[5] = { false, false, false, false, false };
 string keyName[5] = { "R", "U", "L", "D", "LCTRL" };
 bool mouseButtons[3] = { false, false, false };
+mutex mtx;
 
 struct PhysicsVariables
 {
@@ -134,7 +139,7 @@ int main()
 	WorldColor = al_map_rgb(20, 20, 20);
 	BadWorldColor = al_map_rgb(220, 20, 20);
 
-	entities->push_back(Entity(620, 200, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
+	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
 	//center bar
@@ -271,7 +276,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_R:
-				player->SetCoordinates(620, 200);
+				player->SetCoordinates(Spawn.X, Spawn.Y);
 				break;
 
 			case ALLEGRO_KEY_T:
@@ -329,109 +334,107 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 {
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
-	try
+	Entity* player = &*entities->begin();
+	ALLEGRO_MOUSE_STATE mouse;
+	al_get_mouse_state(&mouse);
+	Coordinates posA = *player->GetACoordinates();
+	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
+	Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
+	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
+	Coordinates* entOff = player->GetOffset();
+	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
+	list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE) };
+	list<Entity>::iterator ghostShot = hackhack.begin();
+
+	Coordinates last = Coordinates(-1, -1);
+
+	for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 	{
-		Entity* player = &*entities->begin();
-		ALLEGRO_MOUSE_STATE mouse;
-		al_get_mouse_state(&mouse);
-		Coordinates posA = *player->GetACoordinates();
-		double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-		double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-		double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
-		Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
-		Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
-		Coordinates* entOff = player->GetOffset();
-		Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
-		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(200, 200, 200), PROJECTILE) };
-		list<Entity>::iterator ghostShot = hackhack.begin();
+		phys.ApplyGravity(&*ghostShot);
+		phys.Collide(ghostShot, world, entities);
+		ghostShot->MoveToOffset();
 
-		Coordinates last = Coordinates(-1, -1);
-
-		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
+		if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetDelete())
 		{
-			phys.ApplyGravity(&*ghostShot);
-			phys.Collide(ghostShot, world, entities);
-			ghostShot->MoveToOffset();
-
-			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetDelete())
-			{
-				break;
-			}
-			else
-			{
-				al_draw_filled_rectangle(ghostShot->GetACoordinates()->X, ghostShot->GetACoordinates()->Y, ghostShot->GetBCoordinates()->X, ghostShot->GetBCoordinates()->Y, ghostShot->GetColor());
-				last.X = ghostShot->GetACoordinates()->X;
-				last.Y = ghostShot->GetACoordinates()->Y;
-			}
+			break;
 		}
-
-		for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
+		else
 		{
-			Coordinates* posA = ent->GetACoordinates();
-			al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
-
-			if (!ent->GetHit())
-			{
-				double lastY = 0;
-
-				for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
-				{
-					al_draw_filled_rectangle(
-						posA->X - ent->GetOffset()->X * i,
-						posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-						posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
-						posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-						ent->GetColor());
-
-					lastY += (ent->GetOffset()->Y - (GRAVITY * i));
-				}
-			}
+ 			al_draw_filled_rectangle(ghostShot->GetACoordinates()->X, ghostShot->GetACoordinates()->Y, ghostShot->GetBCoordinates()->X, ghostShot->GetBCoordinates()->Y, ghostShot->GetColor());
+			last.X = ghostShot->GetACoordinates()->X;
+			last.Y = ghostShot->GetACoordinates()->Y;
 		}
-
-		for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
-		{
-			al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
-		}
-
-		// Player
-		al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
-
-		// Gun of player
-		al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
-		al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
-
-		// Gun Charge
-		int i = 0;
-		for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent, ++i)
-		{
-			al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + 5, posA.Y - 5, JellyColor);
-			al_draw_filled_rectangle(posA.X + i * 7, posA.Y - 7, posA.X + i * 7 + (ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
-		}
-
-		string pressed = "";
-
-		for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
-		{
-			if (keys[i])
-			{
-				pressed += keyName[i] + ", ";
-			}
-		}
-
-
-
-		// Jelly amount
-		al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-		al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-		al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-		al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
-		al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
-
 	}
-	catch (exception& e)
+
+	mtx.lock();
+	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
-		cout << "Standard exception: " << e.what() << endl;
+		Coordinates* posA = ent->GetACoordinates();
+		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
+
+		if (!ent->GetHit())
+		{
+			double lastY = 0;
+
+			for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
+			{
+				al_draw_filled_rectangle(
+					posA->X - ent->GetOffset()->X * i,
+					posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
+					posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					ent->GetColor());
+
+				lastY += (ent->GetOffset()->Y - (GRAVITY * i));
+			}
+		}
 	}
+	mtx.unlock();
+
+	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
+	{
+		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
+	}
+
+	// Player
+	al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
+
+	// Gun of player
+	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
+	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
+
+	mtx.lock();
+	// Gun Charge
+	struct ts { int i; list<Entity>::iterator ent; };
+
+	for (ts t = { 0, ++entities->begin() }; t.ent != entities->end(); ++t.ent, ++t.i)
+	{
+		al_draw_filled_rectangle(posA.X + t.i * 7, posA.Y - 7, posA.X + t.i * 7 + 5, posA.Y - 5, JellyColor);
+		al_draw_filled_rectangle(posA.X + t.i * 7, posA.Y - 7, posA.X + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+	}
+	mtx.unlock();
+
+	string pressed = "";
+
+	for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
+	{
+		if (keys[i])
+		{
+			pressed += keyName[i] + ", ";
+		}
+	}
+
+
+
+	// Jelly amount
+	al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
+	al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+	al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+	al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
+
 
 	al_flip_display();
 
@@ -510,16 +513,19 @@ void AsyncPhysics(void* struc)
 	{
 		al_rest(1.0 / PHYSICS_TICK);
 		
+		mtx.lock();
 		move(player);
 		phys.ApplyPhysics(entities, world);
+		mtx.unlock();
 
 		if (mouseButtons[RMB])
 		{
+			mtx.lock();
 			while (entities->size() > 1)
 			{
 				entities->pop_back();
 			}
-
+			mtx.unlock();
 			mouseButtons[RMB] = false;
 		}
 	}

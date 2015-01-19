@@ -13,34 +13,36 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
-		 if (ent->GetDelete())
-		 {
-			 list<Entity>::iterator temp = ent;
-			 --ent;
-			 entities->erase(temp);
+		StackOverflowProtection = 0;
 
-			 continue;
-		 }
+		if (ent->GetDelete())
+		{
+			list<Entity>::iterator temp = ent;
+			--ent;
+			entities->erase(temp);
 
-		 if (!ent->GetHit()) ++ActiveParticles;
+			continue;
+		}
 
-		 if (ent->getType() == PROJECTILE)
-		 {
-		 	if (ent->GetAge() == MAX_ENTITY_AGE)
-		 	{
-		 		entities->pop_back();
-		 
-		 		--Particles;
-		 
-		 		break;
-		 	}
-		 	else
-		 	{
-		 		ent->IncAge();
+		if (!ent->GetHit()) ++ActiveParticles;
+
+		if (ent->getType() == PROJECTILE)
+		{
+			if (ent->GetAge() == MAX_ENTITY_AGE)
+			{
+				entities->pop_back();
+
+				--Particles;
+
+				break;
+			}
+			else
+			{
+				ent->IncAge();
 				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_ENTITY_AGE * ent->GetAge()), 20));
-		 	}
-		 }
-		 
+			}
+		}
+
 		ApplyGravity(&(*ent));
 		Collide(ent, world, entities);
 		ent->MoveToOffset();
@@ -112,7 +114,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							}
 
 						}
-						else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+						else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
 						{
 							if (minYIsEnt)
 							{
@@ -125,10 +127,10 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 								collisionPosition.push_back(UY);
 							}
 						}
-						else
-						{
-							cout << "bad mmkey\n";
-						}
+						//else
+						//{
+						//	cout << "bad mmkey\n";
+						//}
 
 						// TODO: Fix this temp work around
 						collisionItem.push_back((void*)&*jel);
@@ -175,7 +177,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							collisionPosition.push_back(RX);
 						}
 					}
-					else if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))
+					else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
 					{
 						if (minYIsEnt)
 						{
@@ -188,10 +190,10 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							collisionPosition.push_back(UY);
 						}
 					}
-					else
-					{
-						cout << "This is booshit";
-					}
+					//else
+					//{
+					//	cout << "This is booshit";
+					//}
 
 					collisionItem.push_back((void*)&*wor);
 					collisions.push_back(colOff);
@@ -204,7 +206,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 		{
 			int closestX = -1;
 			int closestY = -1;
-
+ 
 			for (int i = 0; i < collisions.size(); ++i)
 			{
 				if (collisionPosition[i] == LX || collisionPosition[i] == RX)
@@ -230,6 +232,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 				{
 					// X collision while the Y of the entity is the same as the item that will be collided with thus colliding with Y
 					
+					// Calculation for the correct offset at collision
 					entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
 					ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
 
@@ -253,7 +256,12 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else
 					{
-						if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
+						if (collisionType[closestY] == BADWORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+							ent->SetCoordinates(Spawn.X, Spawn.Y);
+						}
+						else if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
 						{
 							ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 							ent->SetLastImpactType(WORLD);
@@ -306,7 +314,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 					if (ent->getType() == PROJECTILE)
 					{
-						if (collisionType[closestX] == WORLD)
+						if (collisionType[closestX] == BADWORLD)
+						{
+							ent->SetDelete(true);
+						}
+						else if (collisionType[closestX] == WORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -324,7 +336,12 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else
 					{
-						if (collisionType[closestX] == WORLD || ent->GetIsCrouching())
+						if (collisionType[closestX] == BADWORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+							ent->SetCoordinates(Spawn.X, Spawn.Y);
+						}
+						else if (collisionType[closestX] == WORLD || ent->GetIsCrouching())
 						{
 							ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 							ent->SetLastImpactType(WORLD);
@@ -344,7 +361,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 					if (ent->getType() == PROJECTILE)
 					{
-						if (collisionType[closestX] == WORLD)
+						if (collisionType[closestX] == BADWORLD)
+						{
+							ent->SetDelete(true);
+						}
+						else if(collisionType[closestX] == WORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -373,7 +394,12 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else if (ent->getType() == PLAYER)
 					{
-						if ((collisionType[closestX] == WORLD && collisionType[closestY] == WORLD) || ent->GetIsCrouching())
+						if (collisionType[closestX] == BADWORLD || collisionType[closestY] == BADWORLD)
+						{
+							ent->SetOffset(0.0, 0.0);
+							ent->SetCoordinates(Spawn.X, Spawn.Y);
+						}
+						else if ((collisionType[closestX] == WORLD && collisionType[closestY] == WORLD) || ent->GetIsCrouching())
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetIsAirBorn(false);
@@ -399,7 +425,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 				// Calculate the offset at point of impact
 				entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
 				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
-				
 
 				if (ent->getType() == PROJECTILE)
 				{
@@ -473,6 +498,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							}
 						}
 					}
+					else if (collisionType[closestY] == BADWORLD)
+					{
+						ent->SetOffset(0.0, 0.0);
+						ent->SetCoordinates(Spawn.X, Spawn.Y);
+					}
 				}
 			}
 			else if (closestX != -1)
@@ -513,13 +543,26 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9 ), PLAYER_BOUNCE_OFFSET / -1.5);
 						ent->SetLastImpactType(JELLY);
 					}
+					else if (collisionType[closestX] == BADWORLD)
+					{
+						ent->SetOffset(0.0, 0.0);
+						ent->SetCoordinates(Spawn.X, Spawn.Y);
+					}
 				}
 			}
 
 			// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
 			if (WillCollide(&*ent, world, entities))
 			{
-				Collide(ent, world, entities);
+				if (StackOverflowProtection < MAX_COLLISION_RECURSION)
+				{
+					++StackOverflowProtection;
+					Collide(ent, world, entities);
+				}
+				else
+				{
+					ent->SetOffset(0.0, 0.0);
+				}
 			}
 		}
 	}
@@ -579,7 +622,6 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 					if (colOff != NULL)
 					{
-						jel->SetColor(al_map_rgb(220, 20, 220));
 						// TODO: use colOff so that it doesn't have to calculated again.
 
 						delete colOff;

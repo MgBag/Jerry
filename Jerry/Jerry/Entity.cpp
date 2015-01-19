@@ -88,16 +88,16 @@ void Entity::MoveToOffset()
 // Do not delete! This returns the object in the Entity
 Coordinates* Entity::GetOffset()
 {
-	m_Offset.X = m_Offset.X < MAX_ENTITY_VELOCITY ? m_Offset.X : MAX_ENTITY_VELOCITY;
-	m_Offset.Y = m_Offset.Y < MAX_ENTITY_VELOCITY ? m_Offset.Y : MAX_ENTITY_VELOCITY;
+	m_Offset.X = m_Offset.X < MAX_ENTITY_VELOCITY ? (m_Offset.X > (MAX_ENTITY_VELOCITY * -1) ? m_Offset.X : (MAX_ENTITY_VELOCITY * -1)) : MAX_ENTITY_VELOCITY;
+	m_Offset.Y = m_Offset.Y < MAX_ENTITY_VELOCITY ? (m_Offset.Y > (MAX_ENTITY_VELOCITY * -1) ? m_Offset.Y : (MAX_ENTITY_VELOCITY * -1)) : MAX_ENTITY_VELOCITY;
 
 	return &m_Offset;
 }
 
 void Entity::SetOffset(double xOffset, double yOffset)
 {
-	m_Offset.X = xOffset < MAX_ENTITY_VELOCITY ? xOffset : MAX_ENTITY_VELOCITY;
-	m_Offset.Y = yOffset < MAX_ENTITY_VELOCITY ? yOffset : MAX_ENTITY_VELOCITY;
+	m_Offset.X = xOffset < MAX_ENTITY_VELOCITY ? (xOffset >(MAX_ENTITY_VELOCITY * -1) ? xOffset : (MAX_ENTITY_VELOCITY * -1)) : MAX_ENTITY_VELOCITY;
+	m_Offset.Y = yOffset < MAX_ENTITY_VELOCITY ? (yOffset >(MAX_ENTITY_VELOCITY * -1) ? yOffset : (MAX_ENTITY_VELOCITY * -1)) : MAX_ENTITY_VELOCITY;
 }
 
 ItemType Entity::getType()
