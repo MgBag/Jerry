@@ -25,6 +25,7 @@ private:
 	ItemType m_LastImpactType;
 	double m_PreviousImpactHeight;
 	bool m_Delete;
+	CollPos m_LastCollPos;
 
 public:
 	Entity(double x, double y, double width, double height, double xOffset, double yOffset, ALLEGRO_COLOR color, ItemType type);
@@ -76,4 +77,7 @@ public:
 	void SetDelete(bool del);
 
 	bool operator==(const Entity& e);
+
+	CollPos GetLastColPos();
+	void SetLastColPos(CollPos collpos);
 }; 

@@ -152,7 +152,7 @@ int main()
 	world->push_back(WorldBlock(1270, 0, 1280, 600, WorldColor, WORLD));
 
 	world->push_back(WorldBlock(350, 500, 360, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(100, 589, 150, 600, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(100, 589, 200, 600, BadWorldColor, BADWORLD));
 
 	////center bar
 	//world->push_back(WorldBlock(300, 300, 900, 310, WorldColor, WORLD));

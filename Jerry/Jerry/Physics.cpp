@@ -127,17 +127,10 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 								collisionPosition.push_back(UY);
 							}
 						}
-						//else
-						//{
-						//	cout << "bad mmkey\n";
-						//}
 
-						// TODO: Fix this temp work around
 						collisionItem.push_back((void*)&*jel);
 						collisions.push_back(colOff);
 						collisionType.push_back(JELLY);
-
-						//delete colOff;
 					}
 				}
 			}
@@ -190,10 +183,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							collisionPosition.push_back(UY);
 						}
 					}
-					//else
-					//{
-					//	cout << "This is booshit";
-					//}
 
 					collisionItem.push_back((void*)&*wor);
 					collisions.push_back(colOff);
@@ -227,8 +216,8 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 			if (closestX != -1 && closestY != -1)
 			{
-				if (entBCo->Y == (collisionType[closestX] == WORLD ? ((WorldBlock*)collisionItem[closestX])->GetA()->Y : ((Entity*)collisionItem[closestX])->GetACoordinates()->Y) ||
-					entACo->Y == (collisionType[closestX] == WORLD ? ((WorldBlock*)collisionItem[closestX])->GetB()->Y : ((Entity*)collisionItem[closestX])->GetBCoordinates()->Y))
+				if (entBCo->Y == ((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetA()->Y : ((Entity*)collisionItem[closestX])->GetACoordinates()->Y) ||
+					entACo->Y == ((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->Y : ((Entity*)collisionItem[closestX])->GetBCoordinates()->Y))
 				{
 					// X collision while the Y of the entity is the same as the item that will be collided with thus colliding with Y
 					
@@ -305,8 +294,8 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						}
 					}
 				}
-				else if (entBCo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
-					entACo->X == (collisionType[closestY] == WORLD ? ((WorldBlock*)collisionItem[closestY])->GetB()->X : ((Entity*)collisionItem[closestY])->GetBCoordinates()->X))
+				else if (entBCo->X == ((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
+						 entACo->X == ((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->X : ((Entity*)collisionItem[closestY])->GetBCoordinates()->X))
 				{
 					// Y collision while the X of the entity is the same as the item that will be collided with thus colliding with X
 
@@ -541,7 +530,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					}
 					else if (collisionType[closestX] == JELLY)
 					{
-						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -0.9 : 0.9 ), PLAYER_BOUNCE_OFFSET / -1.5);
+						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -1.0 : 1.0 ), PLAYER_BOUNCE_OFFSET / -1.0);
 						ent->SetLastImpactType(JELLY);
 					}
 					else if (collisionType[closestX] == BADWORLD)
