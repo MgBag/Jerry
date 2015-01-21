@@ -147,35 +147,35 @@ int main()
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
-	world->push_back(WorldBlock(300, 330, 240 + 300, 10 + 330, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(300, 230, 240 + 300, 10 + 230, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(640, 280, 30 + 640, 60 + 280, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(730, 280, 30 + 730, 60 + 280, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(820, 280, 30 + 820, 60 + 280, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(160, 590, 50 + 160, 10 + 590, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(1160, 340, 10 + 1160, 90 + 340, WorldColor, WORLD));
-	world->push_back(WorldBlock(0, 0, 1280 + 0, 10 + 0, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 590, 150 + 10, 10 + 590, WorldColor, WORLD));
-	world->push_back(WorldBlock(1270, 10, 10 + 1270, 580 + 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 340, 1150 + 10, 10 + 340, WorldColor, WORLD));
-	world->push_back(WorldBlock(0, 10, 10 + 0, 590 + 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(210, 590, 1070 + 210, 10 + 590, WorldColor, WORLD));
-	world->push_back(WorldBlock(540, 210, 730 + 540, 10 + 210, WorldColor, WORLD));
-	world->push_back(WorldBlock(300, 210, 240 + 300, 20 + 210, WorldColor, WORLD));
-	world->push_back(WorldBlock(250, 580, 10 + 250, 10 + 580, WorldColor, WORLD));
-	world->push_back(WorldBlock(310, 570, 10 + 310, 20 + 570, WorldColor, WORLD));
-	world->push_back(WorldBlock(370, 560, 10 + 370, 30 + 560, WorldColor, WORLD));
-	world->push_back(WorldBlock(430, 550, 10 + 430, 40 + 550, WorldColor, WORLD));
-	world->push_back(WorldBlock(490, 540, 10 + 490, 50 + 540, WorldColor, WORLD));
-	world->push_back(WorldBlock(550, 530, 10 + 550, 60 + 530, WorldColor, WORLD));
-	world->push_back(WorldBlock(610, 520, 10 + 610, 70 + 520, WorldColor, WORLD));
-	world->push_back(WorldBlock(670, 510, 10 + 670, 80 + 510, WorldColor, WORLD));
-	world->push_back(WorldBlock(730, 500, 10 + 730, 90 + 500, WorldColor, WORLD));
-	world->push_back(WorldBlock(790, 490, 10 + 790, 100 + 490, WorldColor, WORLD));
-	world->push_back(WorldBlock(850, 480, 10 + 850, 110 + 480, WorldColor, WORLD));
-	world->push_back(WorldBlock(910, 470, 10 + 910, 120 + 470, WorldColor, WORLD));
-	world->push_back(WorldBlock(1160, 470, 10 + 1160, 120 + 470, WorldColor, WORLD));
-	world->push_back(WorldBlock(540, 220, 10 + 540, 20 + 220, WorldColor, WORLD));
+	world->push_back(WorldBlock(300, 330, 240, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(300, 230, 240, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(640, 280, 30, 60, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(730, 280, 30, 60, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(820, 280, 30, 60, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(160, 590, 50, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(1160, 340, 10, 90, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 0, 1280, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 590, 150, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(1270, 10, 10, 580, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 340, 1150, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 10, 10, 590, WorldColor, WORLD));
+	world->push_back(WorldBlock(210, 590, 1070, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(540, 210, 730, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(300, 210, 240, 20, WorldColor, WORLD));
+	world->push_back(WorldBlock(250, 580, 10, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(310, 570, 10, 20, WorldColor, WORLD));
+	world->push_back(WorldBlock(370, 560, 10, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(430, 550, 10, 40, WorldColor, WORLD));
+	world->push_back(WorldBlock(490, 540, 10, 50, WorldColor, WORLD));
+	world->push_back(WorldBlock(550, 530, 10, 60, WorldColor, WORLD));
+	world->push_back(WorldBlock(610, 520, 10, 70, WorldColor, WORLD));
+	world->push_back(WorldBlock(670, 510, 10, 80, WorldColor, WORLD));
+	world->push_back(WorldBlock(730, 500, 10, 90, WorldColor, WORLD));
+	world->push_back(WorldBlock(790, 490, 10, 100, WorldColor, WORLD));
+	world->push_back(WorldBlock(850, 480, 10, 110, WorldColor, WORLD));
+	world->push_back(WorldBlock(910, 470, 10, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(1160, 470, 10, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(540, 220, 10, 20, WorldColor, WORLD));
 
 	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
@@ -320,7 +320,7 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 	Coordinates posA = *player->GetACoordinates();
 	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	double angle = phys.OffsetToAngle((originX - (double)mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - (double)mouse.y + PROJECTILE_SIZE / 2) * -1);
+	double angle = phys.OffsetToAngle((player->GetWidth() / 2 - PROJECTILE_SIZE / 2 - mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - mouse.y + PROJECTILE_SIZE / 2) * -1);
 	Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
 	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
 	Coordinates* entOff = player->GetOffset();
@@ -342,7 +342,12 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 		}
 		else
 		{
- 			al_draw_filled_rectangle(ghostShot->GetACoordinates()->X, ghostShot->GetACoordinates()->Y, ghostShot->GetBCoordinates()->X, ghostShot->GetBCoordinates()->Y, ghostShot->GetColor());
+ 			al_draw_filled_rectangle(
+				ghostShot->GetACoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				ghostShot->GetACoordinates()->Y,
+				ghostShot->GetBCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				ghostShot->GetBCoordinates()->Y,
+				ghostShot->GetColor());
 			last.X = ghostShot->GetACoordinates()->X;
 			last.Y = ghostShot->GetACoordinates()->Y;
 		}
@@ -351,8 +356,9 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 	mtx.lock();
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
-		Coordinates* posA = ent->GetACoordinates();
-		al_draw_filled_rectangle(posA->X, posA->Y, posA->X + ent->GetWidth(), posA->Y + ent->GetHeight(), ent->GetColor());
+		Coordinates* entA = ent->GetACoordinates();
+
+		al_draw_filled_rectangle(entA->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y, entA->X + ent->GetWidth() + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y + ent->GetHeight(), ent->GetColor());
 
 		if (!ent->GetHit())
 		{
@@ -361,10 +367,10 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 			for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
 			{
 				al_draw_filled_rectangle(
-					posA->X - ent->GetOffset()->X * i,
-					posA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-					posA->X + ent->GetWidth() - ent->GetOffset()->X * i,
-					posA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					entA->X - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+					entA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+					entA->X + ent->GetWidth() - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+					entA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
 					ent->GetColor());
 
 				lastY += (ent->GetOffset()->Y - (GRAVITY * i));
@@ -375,15 +381,20 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
-		al_draw_filled_rectangle(wBlock->GetA()->X, wBlock->GetA()->Y, wBlock->GetB()->X, wBlock->GetB()->Y, wBlock->GetColor());
+		al_draw_filled_rectangle(
+			wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wBlock->GetA()->Y,
+			wBlock->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wBlock->GetB()->Y,
+			wBlock->GetColor());
 	}
 
 	// Player
-	al_draw_filled_rectangle(posA.X, posA.Y, posA.X + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
+	al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2, posA.Y, SCREEN_W / 2 - player->GetWidth() / 2 + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
 
 	// Gun of player
-	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, gunVec->X + originX + PROJECTILE_SIZE / 2, gunVec->Y + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
-	al_draw_line(originX + PROJECTILE_SIZE / 2, originY + PROJECTILE_SIZE / 2, blankGunVec->X + originX + PROJECTILE_SIZE / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
+	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, gunVec->X +      SCREEN_W / 2, gunVec->Y      + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
+	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, blankGunVec->X + SCREEN_W / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
 
 	mtx.lock();
 	// Gun Charge
@@ -391,8 +402,8 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 
 	for (ts t = { 0, ++entities->begin() }; t.ent != entities->end(); ++t.ent, ++t.i)
 	{
-		al_draw_filled_rectangle(posA.X + t.i * 7, posA.Y - 7, posA.X + t.i * 7 + 5, posA.Y - 5, JellyColor);
-		al_draw_filled_rectangle(posA.X + t.i * 7, posA.Y - 7, posA.X + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + 5, posA.Y - 5, JellyColor);
+		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
 	}
 	mtx.unlock();
 
@@ -406,8 +417,6 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 		}
 	}
 
-
-
 	// Jelly amount
 	al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
 	al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
@@ -417,47 +426,59 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_text(font, WorldColor, 1000, 85, 0, ("Is airborn: " + to_string(player->GetIsAirBorn())).c_str());
 	al_draw_text(font, WorldColor, 1000, 100, 0, ("Last CollPos: " + collPosName[player->GetLastColPos()]).c_str());
 
-
 	al_flip_display();
-
 }
 
 void Move(Entity* ent)
 {
 	Coordinates* offset = ent->GetOffset();
 
-	if (keys[RIGHT])
+	if (!FLY)
 	{
-		if (offset->X < 0.0 && ent->GetIsAirBorn())
+		if (keys[RIGHT])
 		{
-			offset->X *= PLAYER_AIR_CONTROL_BREAK;
+			if (offset->X < 0.0 && ent->GetIsAirBorn())
+			{
+				offset->X *= PLAYER_AIR_CONTROL_BREAK;
+			}
+
+			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
+			{
+				offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+			}
 		}
-		
-		if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
-		{ 
-			offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+
+		if (keys[LEFT])
+		{
+			if (offset->X > 0.0 && ent->GetIsAirBorn())
+			{
+				offset->X *= PLAYER_AIR_CONTROL_BREAK;
+			}
+
+			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
+			{
+				offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+			}
+		}
+
+		if (keys[UP])
+		{
+			if (!ent->GetIsAirBorn())
+			{
+				offset->Y -= PLAYER_JUMP_SPEED;
+			}
 		}
 	}
-
-	if (keys[LEFT])
+	else
 	{
-		if (offset->X > 0.0 && ent->GetIsAirBorn())
-		{
-			offset->X *= PLAYER_AIR_CONTROL_BREAK;
-		}
-
-		if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
-		{ 
-			offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
-		}
-	}
-
-	if (keys[UP])
-	{
-		if (!ent->GetIsAirBorn())
-		{
-			offset->Y -= PLAYER_JUMP_SPEED;
-		}
+		if (keys[UP])
+			--offset->Y;
+		if (keys[DOWN])
+			++offset->Y;
+		if (keys[RIGHT])
+			++offset->X;
+		if (keys[LEFT])
+			--offset->X;
 	}
 
 	if (keys[LCTRL])
@@ -481,7 +502,7 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 		Coordinates* entOff = player->GetOffset();
 		double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 		double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((originX - e.mouse.x + PROJECTILE_SIZE / 2) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
+		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
 		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
 
@@ -538,19 +559,182 @@ void DevConsole()
 			command = input.substr(0, splitIndex);
 			value = input.substr(++splitIndex, input.length() - 1);
 
-			if (command == "gravity")
+			if (command == "GRAVITY")
 			{
-				GRAVITY = stoi(value) / FPS;
-				cout << "Gravity set to " << value << endl;
+				GRAVITY = stod(value) / FPS;
+				cout << "GRAVITY set to: " << GRAVITY << endl;
 			}
+			else if (command == "PHYSICS_TICK")
+			{
+				PHYSICS_TICK = stod(value);
+				cout << "PHYSICS_TICK set to: " << PHYSICS_TICK << endl;
+			}
+			else if (command == "PLAYER_SPEED")
+			{
+				PLAYER_JUMP_SPEED = stod(value);
+				cout << "PLAYER_SPEED set to: " << PLAYER_JUMP_SPEED << endl;
+			}
+			else if (command == "PLAYER_JUMP_SPEED")
+			{
+				PLAYER_JUMP_SPEED = stod(value);
+				cout << "PLAYER_JUMP_SPEED set to: " << PLAYER_JUMP_SPEED << endl;
+			}
+			else if (command == "PLAYER_BOUNCE_OFFSET")
+			{
+				PLAYER_BOUNCE_OFFSET = stod(value);
+				cout << "PLAYER_BOUNCE_OFFSET set to: " << PLAYER_BOUNCE_OFFSET << endl;
+			}
+			else if (command == "PLAYER_AIR_CONTROL")
+			{
+				PLAYER_AIR_CONTROL = stod(value);
+				cout << "PLAYER_AIR_CONTROL set to: " << PLAYER_AIR_CONTROL << endl;
+			}
+			else if (command == "PLAYER_AIR_CONTROL_BREAK")
+			{
+				PLAYER_AIR_CONTROL_BREAK = stod(value);
+				cout << "PLAYER_AIR_CONTROL_BREAK set to: " << PLAYER_AIR_CONTROL_BREAK << endl;
+			}
+			else if (command == "PLAYER_SIDE_UP_BOUNCE")
+			{
+				PLAYER_SIDE_UP_BOUNCE = stod(value);
+				cout << "PLAYER_SIDE_UP_BOUNCE set to: " << PLAYER_SIDE_UP_BOUNCE << endl;
+			}
+			else if (command == "PLAYER_SIDE_SIDE_BOUNCE")
+			{
+				PLAYER_SIDE_SIDE_BOUNCE = stod(value);
+				cout << "PLAYER_SIDE_SIDE_BOUNCE set to: " << PLAYER_SIDE_SIDE_BOUNCE << endl;
+			}
+			else if (command == "PROJECTILE_SPEED")
+			{
+				PROJECTILE_SPEED = stod(value);
+				cout << "PROJECTILE_SPEED set to: " << PROJECTILE_SPEED << endl;
+			}
+			else if (command == "PROJECTILE_SIZE")
+			{
+				PROJECTILE_SIZE = stod(value);
+				cout << "PROJECTILE_SIZE set to: " << PROJECTILE_SIZE << endl;
+			}
+			else if (command == "PROJECTILE_BOUNCINESS")
+			{
+				PROJECTILE_BOUNCINESS = stod(value);
+				cout << "PROJECTILE_BOUNCINESS set to: " << PROJECTILE_BOUNCINESS << endl;
+			}
+			else if (command == "MAX_ENTITIES")
+			{
+				MAX_ENTITIES = stod(value);
+				cout << "MAX_ENTITIES set to: " << MAX_ENTITIES << endl;
+			}
+			else if (command == "MAX_ENTITY_AGE")
+			{
+				MAX_ENTITY_AGE = stod(value);
+				cout << "MAX_ENTITY_AGE set to: " << MAX_ENTITY_AGE << endl;
+			}
+			else if (command == "MAX_ENTITY_VELOCITY")
+			{
+				MAX_ENTITY_VELOCITY = stod(value);
+				cout << "MAX_ENTITY_VELOCITY set to: " << MAX_ENTITY_VELOCITY << endl;
+			}
+			else if (command == "FRICTION")
+			{
+				FRICTION = stod(value);
+				cout << "FRICTION set to: " << FRICTION << endl;
+			}
+			else if (command == "FRICTION_STOP")
+			{
+				FRICTION_STOP = stod(value);
+				cout << "FRICTION_STOP set to: " << FRICTION_STOP << endl;
+			}
+			else
+			{
+				cout << "Command not found\n";
+			}
+
 		}
 		else
 		{
 			command = input;
-
-			if (command == "gravity")
+			
+			if (command == "help")
 			{
-				cout << "Gravity is: " << GRAVITY * FPS << endl;
+				cout << "Availabe commands are: \n" << "PHYSICS_TICK\nGRAVITY\nPLAYER_SPEED\nPLAYER_JUMP_SPEED\nPLAYER_BOUNCE_OFFSET\nPLAYER_AIR_CONTROL\nPLAYER_AIR_CONTROL_BREAK;\nPLAYER_SIDE_UP_BOUNCE\nPLAYER_SIDE_SIDE_BOUNCE\nPROJECTILE_SPEED\nPROJECTILE_SIZE\nPROJECTILE_TRAIL_LENGTH\nPROJECTILE_BOUNCINESS\nMAX_ENTITIES\nMAX_ENTITY_AGE\nMAX_ENTITY_VELOCITY\nFRICTION\nFRICTION_STOP\n\n";
+			}
+			else if (command == "GRAVITY")
+			{
+				cout << "GRAVITY is: " << GRAVITY * FPS << endl;
+			}
+			else if (command == "PHYSICS_TICK")
+			{
+				cout << "PHYSICS_TICK is: " << PHYSICS_TICK << endl;
+			}
+			else if (command == "PLAYER_SPEED")
+			{
+				cout << "PLAYER_SPEED is: " << PLAYER_SPEED << endl;
+			}
+			else if (command == "PLAYER_BOUNCE_OFFSET")
+			{
+				cout << "PLAYER_BOUNCE_OFFSET is: " << PLAYER_BOUNCE_OFFSET << endl;
+			}
+			else if (command == "PLAYER_JUMP_SPEED")
+			{
+				cout << "PLAYER_JUMP_SPEED is: " << PLAYER_JUMP_SPEED << endl;
+			}
+			else if (command == "PLAYER_AIR_CONTROL")
+			{
+				cout << "PLAYER_AIR_CONTROL is: " << PLAYER_AIR_CONTROL << endl;
+			}
+			else if (command == "PLAYER_AIR_CONTROL_BREAK")
+			{
+				cout << "PLAYER_AIR_CONTROL_BREAK is: " << PLAYER_AIR_CONTROL_BREAK << endl;
+			}
+			else if (command == "PLAYER_SIDE_UP_BOUNCE")
+			{
+				cout << "PLAYER_SIDE_UP_BOUNCE is: " << PLAYER_SIDE_UP_BOUNCE << endl;
+			}
+			else if (command == "PLAYER_SIDE_SIDE_BOUNCE")
+			{
+				cout << "PLAYER_SIDE_SIDE_BOUNCE is: " << PLAYER_SIDE_SIDE_BOUNCE << endl;
+			}
+			else if (command == "PROJECTILE_SPEED")
+			{
+				cout << "PROJECTILE_SPEED is: " << PROJECTILE_SPEED << endl;
+			}
+			else if (command == "PROJECTILE_SIZE")
+			{
+				cout << "PROJECTILE_SIZE is: " << PROJECTILE_SIZE << endl;
+			}
+			else if (command == "PROJECTILE_BOUNCINESS")
+			{
+				cout << "PROJECTILE_BOUNCINESS is: " << PROJECTILE_BOUNCINESS << endl;
+			}
+			else if (command == "MAX_ENTITIES")
+			{
+				cout << "MAX_ENTITIES is: " << MAX_ENTITIES << endl;
+			}
+			else if (command == "MAX_ENTITY_AGE")
+			{
+				cout << "MAX_ENTITY_AGE is: " << MAX_ENTITY_AGE << endl;
+			}
+			else if (command == "MAX_ENTITY_VELOCITY")
+			{
+				cout << "MAX_ENTITY_VELOCITY is: " << MAX_ENTITY_VELOCITY << endl;
+			}
+			else if (command == "FRICTION")
+			{
+				cout << "FRICTION is: " << FRICTION << endl;
+			}
+			else if (command == "FRICTION_STOP")
+			{
+				cout << "FRICTION_STOP is: " << FRICTION_STOP << endl;
+			}
+			else if (command == "FLY")
+			{
+				FLY = !FLY;
+
+				cout << "Flying " << (FLY ? "enabled" : "disabled") << ".\n";
+			}
+			else
+			{
+				cout << "Command not found\n";
 			}
 		}
 	}

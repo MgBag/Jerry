@@ -1,10 +1,12 @@
 #include "WorldBlock.h"
 
 
-WorldBlock::WorldBlock(double x1, double y1, double x2, double y2, ALLEGRO_COLOR color, ItemType type)
+WorldBlock::WorldBlock(double x, double y, double width, double height, ALLEGRO_COLOR color, ItemType type)
 {
-	m_A = Coordinates(x1, y1);
-	m_B = Coordinates(x2, y2);
+	m_A = Coordinates(x, y);
+	m_B = Coordinates(x + width, y + height);
+	m_Width = width;
+	m_Height = height;
 	m_Color = color;
 	m_Type = type;
 }
@@ -36,4 +38,14 @@ ALLEGRO_COLOR WorldBlock::GetColor()
 ItemType WorldBlock::GetType()
 {
 	return m_Type;
+}
+
+double WorldBlock::GetWidth()
+{
+	return m_Width;
+}
+
+double WorldBlock::GetHeight()
+{
+	return m_Height;
 }
