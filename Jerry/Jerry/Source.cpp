@@ -27,6 +27,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include <sstream>
 #include <mutex>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
@@ -35,20 +36,21 @@
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Physics.h"
-#include "Constants.h"
 
 using namespace std;
 
-void draw(list<Entity>* ent, list<WorldBlock>* world);
-void move(Entity* player);
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e);
+void Draw(list<Entity>* ent, list<WorldBlock>* world);
+void Move(Entity* player);
+void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 void AsyncPhysics(void* struc);
+void DevConsole();
 
 Physics phys;
 ALLEGRO_FONT *font = 0;
 bool quit = false;
 bool keys[5] = { false, false, false, false, false };
 string keyName[5] = { "R", "U", "L", "D", "LCTRL" };
+string collPosName[4] = { "LX", "RX", "UY", "DY" };
 bool mouseButtons[3] = { false, false, false };
 mutex mtx;
 
@@ -145,62 +147,35 @@ int main()
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
-	// world outlining
-	world->push_back(WorldBlock(0, 590, 1280, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(0, 0, 10, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(0, 0, 1280, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1270, 0, 1280, 600, WorldColor, WORLD));
-
-	world->push_back(WorldBlock(350, 500, 360, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(100, 589, 200, 600, BadWorldColor, BADWORLD));
-
-	////center bar
-	//world->push_back(WorldBlock(300, 300, 900, 310, WorldColor, WORLD));
-	//world->push_back(WorldBlock(400, 200, 500, 201, BadWorldColor, BADWORLD));
-	//world->push_back(WorldBlock(1095, 400, 1100, 600, WorldColor, WORLD));
-	//world->push_back(WorldBlock(900, 400, 905, 600, WorldColor, WORLD));
-
-	////center bar stripes
-	//world->push_back(WorldBlock(650, 280, 655, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(660, 280, 665, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(670, 280, 675, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(680, 280, 685, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(690, 280, 695, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(700, 280, 705, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(710, 280, 715, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(720, 280, 725, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(730, 280, 735, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(740, 280, 745, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(750, 280, 755, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(760, 280, 765, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(770, 280, 775, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(780, 280, 785, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(790, 280, 795, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(800, 280, 805, 330, WorldColor, WORLD));
-
-	//world->push_back(WorldBlock(340, 280, 345, 330, WorldColor, WORLD));
-	//world->push_back(WorldBlock(365, 280, 370, 330, WorldColor, WORLD));
-
-	////top left stripes
-	////x
-	//world->push_back(WorldBlock(30, 10, 35, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(40, 10, 45, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(50, 10, 55, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(60, 10, 65, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(70, 10, 75, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(80, 10, 85, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(90, 10, 95, 30, WorldColor, WORLD));
-	//world->push_back(WorldBlock(100, 10, 105, 30, WorldColor, WORLD));
-
-	////y
-	//world->push_back(WorldBlock(10, 30, 30, 35, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 40, 30, 45, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 50, 30, 55, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 60, 30, 65, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 70, 30, 75, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 80, 30, 85, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 90, 30, 95, WorldColor, WORLD));
-	//world->push_back(WorldBlock(10, 100, 30, 105, WorldColor, WORLD));
+	world->push_back(WorldBlock(300, 330, 240 + 300, 10 + 330, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(300, 230, 240 + 300, 10 + 230, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(640, 280, 30 + 640, 60 + 280, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(730, 280, 30 + 730, 60 + 280, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(820, 280, 30 + 820, 60 + 280, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(160, 590, 50 + 160, 10 + 590, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(1160, 340, 10 + 1160, 90 + 340, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 0, 1280 + 0, 10 + 0, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 590, 150 + 10, 10 + 590, WorldColor, WORLD));
+	world->push_back(WorldBlock(1270, 10, 10 + 1270, 580 + 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 340, 1150 + 10, 10 + 340, WorldColor, WORLD));
+	world->push_back(WorldBlock(0, 10, 10 + 0, 590 + 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(210, 590, 1070 + 210, 10 + 590, WorldColor, WORLD));
+	world->push_back(WorldBlock(540, 210, 730 + 540, 10 + 210, WorldColor, WORLD));
+	world->push_back(WorldBlock(300, 210, 240 + 300, 20 + 210, WorldColor, WORLD));
+	world->push_back(WorldBlock(250, 580, 10 + 250, 10 + 580, WorldColor, WORLD));
+	world->push_back(WorldBlock(310, 570, 10 + 310, 20 + 570, WorldColor, WORLD));
+	world->push_back(WorldBlock(370, 560, 10 + 370, 30 + 560, WorldColor, WORLD));
+	world->push_back(WorldBlock(430, 550, 10 + 430, 40 + 550, WorldColor, WORLD));
+	world->push_back(WorldBlock(490, 540, 10 + 490, 50 + 540, WorldColor, WORLD));
+	world->push_back(WorldBlock(550, 530, 10 + 550, 60 + 530, WorldColor, WORLD));
+	world->push_back(WorldBlock(610, 520, 10 + 610, 70 + 520, WorldColor, WORLD));
+	world->push_back(WorldBlock(670, 510, 10 + 670, 80 + 510, WorldColor, WORLD));
+	world->push_back(WorldBlock(730, 500, 10 + 730, 90 + 500, WorldColor, WORLD));
+	world->push_back(WorldBlock(790, 490, 10 + 790, 100 + 490, WorldColor, WORLD));
+	world->push_back(WorldBlock(850, 480, 10 + 850, 110 + 480, WorldColor, WORLD));
+	world->push_back(WorldBlock(910, 470, 10 + 910, 120 + 470, WorldColor, WORLD));
+	world->push_back(WorldBlock(1160, 470, 10 + 1160, 120 + 470, WorldColor, WORLD));
+	world->push_back(WorldBlock(540, 220, 10 + 540, 20 + 220, WorldColor, WORLD));
 
 	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
@@ -214,7 +189,8 @@ int main()
 	physVar.entities = entities;
 	physVar.world = world;
 
-	thread asyncPhys = thread(AsyncPhysics, (void*)&physVar);
+	thread physThread = thread(AsyncPhysics, (void*)&physVar);
+	thread consoleThread = thread(DevConsole);
 
 	// TODO: Meak pretti fix for this
 	al_grab_mouse(display);
@@ -229,14 +205,14 @@ int main()
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
-			draw(entities, world);
+			Draw(entities, world);
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
 			switch (e.mouse.button)
 			{
 			case 1:
-				shoot(entities, e);
+				Shoot(entities, e);
 				//mouseButtons[LMB] = true;
 				break;
 			case 2:
@@ -326,14 +302,15 @@ int main()
 
 	al_rest(0.1);
 
-	asyncPhys.detach();
+	physThread.detach();
+	consoleThread.detach();
 
 	delete world, entities;
 
 	return 0;
 }
 
-void draw(list<Entity> *entities, list<WorldBlock> *world)
+void Draw(list<Entity> *entities, list<WorldBlock> *world)
 {
 	al_clear_to_color(al_map_rgb(220, 220, 220));
 
@@ -437,13 +414,15 @@ void draw(list<Entity> *entities, list<WorldBlock> *world)
 	al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
 	al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
 	al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
+	al_draw_text(font, WorldColor, 1000, 85, 0, ("Is airborn: " + to_string(player->GetIsAirBorn())).c_str());
+	al_draw_text(font, WorldColor, 1000, 100, 0, ("Last CollPos: " + collPosName[player->GetLastColPos()]).c_str());
 
 
 	al_flip_display();
 
 }
 
-void move(Entity* ent)
+void Move(Entity* ent)
 {
 	Coordinates* offset = ent->GetOffset();
 
@@ -453,8 +432,11 @@ void move(Entity* ent)
 		{
 			offset->X *= PLAYER_AIR_CONTROL_BREAK;
 		}
-
-		offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+		
+		if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
+		{ 
+			offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+		}
 	}
 
 	if (keys[LEFT])
@@ -464,7 +446,10 @@ void move(Entity* ent)
 			offset->X *= PLAYER_AIR_CONTROL_BREAK;
 		}
 
-		offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+		if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
+		{ 
+			offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+		}
 	}
 
 	if (keys[UP])
@@ -487,7 +472,7 @@ void move(Entity* ent)
 
 // TODO : Check nececerity of convertions
 // TODO : Mang, dat copy of event
-void shoot(list<Entity>* entities, ALLEGRO_EVENT e)
+void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
 	if (entities->size() -1 < MAX_ENTITIES)
 	{
@@ -517,7 +502,7 @@ void AsyncPhysics(void* struc)
 		al_rest(1.0 / PHYSICS_TICK);
 		
 		mtx.lock();
-		move(player);
+		Move(player);
 		phys.ApplyPhysics(entities, world);
 		mtx.unlock();
 
@@ -530,6 +515,43 @@ void AsyncPhysics(void* struc)
 			}
 			mtx.unlock();
 			mouseButtons[RMB] = false;
+		}
+	}
+}
+
+void DevConsole()
+{
+	string input = "";
+
+	while (!quit)
+	{ 
+		cout << ">";
+		
+		getline(cin, input);
+
+		int splitIndex = input.find(" ");
+		string command = "";
+		string value = "";
+
+		if (splitIndex != -1)
+		{
+			command = input.substr(0, splitIndex);
+			value = input.substr(++splitIndex, input.length() - 1);
+
+			if (command == "gravity")
+			{
+				GRAVITY = stoi(value) / FPS;
+				cout << "Gravity set to " << value << endl;
+			}
+		}
+		else
+		{
+			command = input;
+
+			if (command == "gravity")
+			{
+				cout << "Gravity is: " << GRAVITY * FPS << endl;
+			}
 		}
 	}
 }

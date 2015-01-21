@@ -15,6 +15,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_InitialImpactSpeed = 0.0;
 	m_LastImpactType = WORLD;
 	m_Delete = false;
+	m_LastCollPos = UY;
 }
 
 Entity::~Entity()
@@ -195,4 +196,14 @@ bool Entity::operator == (const Entity& e)
 	if (&*this == &e)
 		return true;
 	return false;
+}
+
+CollPos Entity::GetLastColPos()
+{
+	return m_LastCollPos;
+}
+
+void Entity::SetLastColPos(CollPos collpos)
+{
+	m_LastCollPos = collpos;
 }

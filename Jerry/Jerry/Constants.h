@@ -4,31 +4,33 @@
 #include <allegro5/allegro.h>
 #include "Coordinates.h"
 
-const double FPS = 60;
-const double PHYSICS_TICK = 60;
-const int	 SCREEN_W = 1280;
-const int	 SCREEN_H = 600;
-const double GRAVITY = 9.8 / FPS;
-const double PLAYER_SPEED = 1.0;
-const double PLAYER_JUMP_SPEED = 3.0;
-const double PLAYER_BOUNCE_OFFSET = 6.0;
-const double PLAYER_AIR_CONTROL = 0.1;
-const double PLAYER_AIR_CONTROL_BREAK = 0.9;
-const double PROJECTILE_SPEED = 10.0;
-const double PROJECTILE_SIZE = 6.0;
-const int	 PROJECTILE_TRAIL_LENGTH = 2;
-const double PROJECTILE_BOUNCINESS = 1.0;
-const double MAX_ENTITIES = 5000;
-const double MAX_ENTITY_AGE = 999999.0 * PHYSICS_TICK;
-const double MAX_ENTITY_VELOCITY = 60.0;
-const int	 MAX_COLLISION_PREDICTION = 500;
-const double FRICTION = 0.8;
-const double FRICTION_STOP = 0.1;
-const double FM_PI_2 = 3.1415926535897932384626433832795 / 2;
-const double FM_3_PI_2 = 3 * FM_PI_2;
-const double FM_PI = 2 * FM_PI_2;
-const double PRECISION = 0.01;
-const int	 MAX_COLLISION_RECURSION = 10;
+extern double FPS;
+extern double PHYSICS_TICK;
+extern int    SCREEN_W;
+extern int    SCREEN_H;
+extern double GRAVITY;
+extern double PLAYER_SPEED;
+extern double PLAYER_JUMP_SPEED;
+extern double PLAYER_BOUNCE_OFFSET;
+extern double PLAYER_AIR_CONTROL;
+extern double PLAYER_AIR_CONTROL_BREAK;
+extern double PROJECTILE_SPEED;
+extern double PROJECTILE_SIZE;
+extern int    PROJECTILE_TRAIL_LENGTH;
+extern double PROJECTILE_BOUNCINESS;
+extern double MAX_ENTITIES;
+extern double MAX_ENTITY_AGE;
+extern double MAX_ENTITY_VELOCITY;
+extern int    MAX_COLLISION_PREDICTION;
+extern double FRICTION;
+extern double FRICTION_STOP;
+extern double FM_PI_2;
+extern double FM_3_PI_2;
+extern double FM_PI;
+extern double PRECISION;
+extern int    MAX_COLLISION_RECURSION;
+extern double PLAYER_SIDE_UP_BOUNCE;
+extern double PLAYER_SIDE_SIDE_BOUNCE;
 
 extern int ActiveParticles;
 extern int Particles;
@@ -39,6 +41,8 @@ extern ALLEGRO_COLOR BadWorldColor;
 extern int StackOverflowProtection;
 extern Coordinates Spawn;
 
+
+// Evaluated from enity
 enum CollPos 
 {
 	LX, RX, UY, DY
