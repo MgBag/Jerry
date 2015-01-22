@@ -106,10 +106,10 @@ int main()
 		return -1;
 	}
 
-	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
-	al_get_display_mode(0, &disp_data);
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
-	al_set_new_display_adapter(1);
+	//al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
+	//al_get_display_mode(0, &disp_data);
+	//al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	//al_set_new_display_adapter(1);
 	//display = al_create_display(disp_data.width, disp_data.height);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
@@ -360,6 +360,16 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 		}
 	}
 
+	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
+	{
+		al_draw_filled_rectangle(
+			wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wBlock->GetA()->Y,
+			wBlock->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wBlock->GetB()->Y,
+			wBlock->GetColor());
+	}
+
 	mtx.lock();
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
@@ -385,16 +395,6 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 		}
 	}
 	mtx.unlock();
-
-	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
-	{
-		al_draw_filled_rectangle(
-			wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
-			wBlock->GetA()->Y,
-			wBlock->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
-			wBlock->GetB()->Y,
-			wBlock->GetColor());
-	}
 
 	// Player
 	al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2, posA.Y, SCREEN_W / 2 - player->GetWidth() / 2 + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());

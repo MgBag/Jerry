@@ -13,8 +13,8 @@ Coordinates Spawn = Coordinates(20, 400);
 
 double	FPS = 60;
 double	PHYSICS_TICK = 60;
-int		SCREEN_W = 1680;
-int		SCREEN_H = 1050;
+int		SCREEN_W = 1280;
+int		SCREEN_H = 600;
 double	GRAVITY = 10 / FPS;
 double	PLAYER_SPEED = 1.0;
 double	PLAYER_JUMP_SPEED = 3.0;

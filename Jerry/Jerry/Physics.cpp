@@ -229,7 +229,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetHeight(ent->GetHeight() / 2);
 
 							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-							if (collisionPosition[closestY] == DY) ent->MoveToOffset(0.0, ent->GetHeight());
+
+							if (collisionPosition[closestY] == DY)
+								ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+							else
+								ent->MoveToOffset(0.0, ent->GetHeight() * -1);
 						}
 						else if (collisionType[closestY] == JELLY)
 						{
@@ -309,7 +313,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetWidth(ent->GetWidth() / 2);
 
 							ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-							if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
+
+							if (collisionPosition[closestX] == RX)
+								ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
+							else
+								ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
 						}
 						else if (collisionType[closestX] == JELLY)
 						{
@@ -359,7 +367,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetWidth(ent->GetWidth() / 2);
 
 							ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-							if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
+
+							if (collisionPosition[closestX] == RX)
+								ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
+							else
+								ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
 						}
 						else if (collisionType[closestY] == WORLD)
 						{
@@ -370,7 +382,12 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetHeight(ent->GetHeight() / 2);
 
 							ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-							if (collisionPosition[closestY] == DY) ent->MoveToOffset(0.0, ent->GetHeight());
+
+							if (collisionPosition[closestY] == DY)
+								ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+							else
+								ent->MoveToOffset(0.0, ent->GetHeight() * -1);
+
 						} 
 						else if (collisionType[closestY] == JELLY || collisionType[closestX] == JELLY)
 						{
@@ -440,7 +457,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetHeight(ent->GetHeight() / 2);
 
 						ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-						if (collisionPosition[closestY] == DY) ent->MoveToOffset(0.0, ent->GetHeight());
+
+						if (collisionPosition[closestY] == DY)
+							ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+						else
+							ent->MoveToOffset(0.0, ent->GetHeight() * -1);
 					}
 					else if (collisionType[closestY] == JELLY)
 					{
@@ -513,7 +534,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetWidth(ent->GetWidth() / 2);
 
 						ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-						if (collisionPosition[closestX] == RX) ent->MoveToOffset(ent->GetWidth(), 0.0);
+
+						if (collisionPosition[closestX] == RX)
+							ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
+						else
+							ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
 					}
 					else if (collisionType[closestX] == JELLY)
 					{
