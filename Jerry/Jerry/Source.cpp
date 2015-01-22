@@ -14,6 +14,7 @@
 // TODO : Find some crash in the drawing of the projectile trajectory
 // TODO : Preformance optimizing
 // TODO : Physics tick counter
+// TODO : Jelly into the wall
 
 // TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
@@ -63,6 +64,7 @@ struct PhysicsVariables
 int main()
 {
 	ALLEGRO_DISPLAY* display = 0;
+	ALLEGRO_DISPLAY_MODE disp_data;
 	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
 	ALLEGRO_TIMER* frame = 0;
 	list<WorldBlock>* world = new list<WorldBlock>();
@@ -104,8 +106,11 @@ int main()
 		return -1;
 	}
 
-
-	//al_set_new_display_adapter(1);
+	al_get_display_mode(al_get_num_display_modes() - 1, &disp_data);
+	al_get_display_mode(0, &disp_data);
+	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	al_set_new_display_adapter(1);
+	//display = al_create_display(disp_data.width, disp_data.height);
 	display = al_create_display(SCREEN_W, SCREEN_H);
 	if (!display)
 	{
@@ -114,6 +119,8 @@ int main()
 		system("pause");
 		return -1;
 	}
+
+
 
 	frame = al_create_timer(1.0 / FPS);
 	if (!frame)

@@ -144,12 +144,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 				Coordinates* worACo = wor->GetA();
 				Coordinates* worBCo = wor->GetB();
 
-				if (AreColliding(entACo, entBCo, worACo, worBCo))
-				{
-					cout << "Well, there is your problem!\n";
-				}
-
-
 				bool minXIsEnt = false, minYIsEnt = false;
 				double minX, minY, maxX, maxY;
 
@@ -460,7 +454,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						
 						if (collisionPosition[closestY] == DY)
 						{
-							ent->SetLastImpactType(WORLD);
 							ent->SetPreviousImpactHeight(possitions[closestY].Y);
 							ent->SetIsAirBorn(false);
 						}
@@ -469,44 +462,28 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetIsAirBorn(true);
 						}
 
+						ent->SetLastImpactType(WORLD);
 					}
 					else if (collisionType[closestY] == JELLY)
 					{
 						if (collisionPosition[closestY] == UY)
 						{
 							ent->SetOffset(entOff->X, entOff->Y * -1);
-							ent->SetLastImpactType(JELLY);
 						}
-						else if (ent->GetLastImpactType() == WORLD)
+						else if (ent->GetLastImpactType())
 						{
-							if (ent->GetPreviousImpactHeight() < possitions[closestY].Y && delta > ((pow(PLAYER_BOUNCE_OFFSET, 2) * pow(sin(OffsetToAngle(entOff->X, entOff->Y * -1) - FM_PI_2), 2)) / (2 * GRAVITY)))
-							{
-								ent->SetOffset(entOff->X, entOff->Y * -1 - 0.5);
-							}
-							else
+							if (entOff->Y < PLAYER_BOUNCE_OFFSET)
 							{
 								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
 							}
-
-							ent->SetPreviousImpactHeight(possitions[closestY].Y);
-							ent->SetLastImpactType(JELLY);
-						}
-						else
-						{
-							if (ent->GetPreviousImpactHeight() >= possitions[closestY].Y)
-							{
-								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
-								ent->SetPreviousImpactHeight(possitions[closestY].Y);
-								ent->SetLastImpactType(JELLY);
-							} 
 							else
 							{
 								ent->SetOffset(entOff->X, entOff->Y * -1);
-								ent->SetLastImpactType(JELLY);
 							}
+							ent->SetPreviousImpactHeight(possitions[closestY].Y);
+							ent->SetLastImpactType(JELLY);
 						}
 					}
-
 				}
 			}
 			else if (closestX != -1)
