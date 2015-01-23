@@ -220,7 +220,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 					if (ent->getType() == PROJECTILE)
 					{
-						if (collisionType[closestY] == WORLD)
+						if (collisionType[closestY] == JELLYWORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -298,7 +298,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						{
 							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
 						}
-						else if (collisionType[closestY] == BADWORLD)
+						else if (collisionType[closestY] == BADWORLD || collisionType[closestY] == WORLD)
 						{
 							ent->SetDelete(true);
 						}
@@ -312,7 +312,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetOffset(0.0, 0.0);
 							ent->SetCoordinates(Spawn.X, Spawn.Y);
 						}
-						else if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
+						else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD || ent->GetIsCrouching())
 						{
 							ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 
@@ -359,11 +359,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 					if (ent->getType() == PROJECTILE)
 					{
-						if (collisionType[closestX] == BADWORLD)
-						{
-							ent->SetDelete(true);
-						}
-						else if (collisionType[closestX] == WORLD)
+						if (collisionType[closestX] == JELLYWORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -439,10 +435,14 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						}
 						else if (collisionType[closestX] == JELLY)
 						{
-							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS * -1);
+							ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
+						}
+						else if (collisionType[closestX] == BADWORLD || collisionType[closestX] == WORLD)
+						{
+							ent->SetDelete(true);
 						}
 					}
-					else
+					else // Type is player
 					{
 						ent->SetLastColPos(collisionPosition[closestX]);
 
@@ -451,7 +451,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetOffset(0.0, 0.0);
 							ent->SetCoordinates(Spawn.X, Spawn.Y);
 						}
-						else if(collisionType[closestX] == WORLD || ent->GetIsCrouching())
+						else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD || ent->GetIsCrouching())
 						{
 							ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 							ent->SetLastImpactType(WORLD);
@@ -461,7 +461,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 							ent->SetLastImpactType(JELLY);
 						}
-
 					}
 				}
 				else
@@ -472,11 +471,11 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 					if (ent->getType() == PROJECTILE)
 					{
-						if (collisionType[closestX] == BADWORLD)
+						if (collisionType[closestX] == BADWORLD || collisionType[closestY] == BADWORLD || collisionType[closestX] == WORLD || collisionType[closestY] == WORLD)
 						{
 							ent->SetDelete(true);
 						}
-						else if(collisionType[closestX] == WORLD)
+						else if(collisionType[closestX] == JELLYWORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -550,7 +549,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 								}
 							}
 						}
-						else if (collisionType[closestY] == WORLD)
+						else if (collisionType[closestY] == JELLYWORLD)
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetHit(true);
@@ -623,7 +622,6 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 									ent->MoveToOffset(0.0, ent->GetHeight() * -1);
 								}
 							}
-
 						} 
 						else if (collisionType[closestY] == JELLY || collisionType[closestX] == JELLY)
 						{
@@ -639,17 +637,17 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 							ent->SetOffset(0.0, 0.0);
 							ent->SetCoordinates(Spawn.X, Spawn.Y);
 						}
-						else if ((collisionType[closestX] == WORLD && collisionType[closestY] == WORLD) || ent->GetIsCrouching())
+						else if (((collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD) && (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD)) || ent->GetIsCrouching())
 						{
 							ent->SetOffset(0.0, 0.0);
 							ent->SetIsAirBorn(false);
 						}
-						else if (collisionType[closestY] == WORLD)
+						else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD)
 						{
 							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 							ent->SetLastImpactType(JELLY);
 						}
-						else if (collisionType[closestX] == WORLD)
+						else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD)
 						{
 							ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 						}
@@ -684,7 +682,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 				if (ent->getType() == PROJECTILE)
 				{
-					if (collisionType[closestY] == WORLD)
+					if (collisionType[closestY] == JELLYWORLD)
 					{
 						ent->SetOffset(0.0, 0.0);
 						ent->SetHit(true);
@@ -762,7 +760,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					{
 						ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
 					}
-					else if (collisionType[closestY] == BADWORLD)
+					else if (collisionType[closestY] == BADWORLD || collisionType[closestY] == WORLD)
 					{
 						ent->SetDelete(true);
 					}
@@ -776,7 +774,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetOffset(0.0, 0.0);
 						ent->SetCoordinates(Spawn.X, Spawn.Y);
 					}
-					else if (collisionType[closestY] == WORLD || ent->GetIsCrouching())
+					else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 						
@@ -820,7 +818,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 				if (ent->getType() == PROJECTILE)
 				{
-					if (collisionType[closestX] == WORLD)
+					if (collisionType[closestX] == JELLYWORLD)
 					{
 						ent->SetOffset(0.0, 0.0);
 						ent->SetHit(true);
@@ -898,7 +896,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 					{
 						ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 					}
-					else if (collisionType[closestX] == BADWORLD)
+					else if (collisionType[closestX] == BADWORLD || collisionType[closestX] == WORLD)
 					{
 						ent->SetDelete(true);
 					}
@@ -912,7 +910,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetOffset(0.0, 0.0);
 						ent->SetCoordinates(Spawn.X, Spawn.Y);
 					}
-					else if(collisionType[closestX] == WORLD || ent->GetIsCrouching())
+					else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD || ent->GetIsCrouching())
 					{
 						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 						ent->SetLastImpactType(WORLD);

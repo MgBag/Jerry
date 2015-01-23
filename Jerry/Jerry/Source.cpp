@@ -150,12 +150,13 @@ int main()
 	JellyColor = al_map_rgb(20, 220, 20);
 	WorldColor = al_map_rgb(20, 20, 20);
 	BadWorldColor = al_map_rgb(220, 20, 20);
+	JellyWorldColor = al_map_rgb(20, 20, 220);
 
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
-	world->push_back(WorldBlock(300, 330, 240, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(300, 230, 240, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(300, 330, 240, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(300, 230, 240, 10, JellyWorldColor, JELLYWORLD));
 	world->push_back(WorldBlock(640, 280, 30, 60, BadWorldColor, BADWORLD));
 	world->push_back(WorldBlock(730, 280, 30, 60, BadWorldColor, BADWORLD));
 	world->push_back(WorldBlock(820, 280, 30, 60, BadWorldColor, BADWORLD));
