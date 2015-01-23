@@ -337,7 +337,7 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 
 	Coordinates last = Coordinates(-1, -1);
 
-	for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
+	/*for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 	{
 		phys.ApplyGravity(&*ghostShot);
 		phys.Collide(ghostShot, world, entities);
@@ -359,7 +359,7 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 			last.Y = ghostShot->GetACoordinates()->Y;
 		}
 	}
-
+*/
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
 		al_draw_filled_rectangle(

@@ -453,15 +453,76 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						ent->SetOffset(0.0, 0.0);
 						ent->SetHit(true);
 
-						ent->SetWidth(ent->GetWidth() * 4);
-						ent->SetHeight(ent->GetHeight() / 2);
-
-						ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+						WorldBlock* wor = ((WorldBlock*)collisionItem[closestY]);
 
 						if (collisionPosition[closestY] == DY)
-							ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+						{
+							if (wor->GetWidth() < ent->GetWidth() * 4)
+							{
+								ent->SetWidth(wor->GetWidth());
+								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+							}
+							else
+							{
+								ent->SetWidth(ent->GetWidth() * 4);
+								ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+								if (entACo->X < wor->GetA()->X)
+								{
+									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+								}
+								else if (entBCo->X > wor->GetB()->X)
+								{
+									ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+								}
+							}
+
+							if (wor->GetHeight() < ent->GetHeight() / 2)
+							{
+								ent->SetHeight(wor->GetHeight());
+								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+							}
+							else
+							{
+								ent->SetHeight(ent->GetHeight() / 2);
+								ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+							}
+						}
 						else
-							ent->MoveToOffset(0.0, ent->GetHeight() * -1);
+						{
+							if (wor->GetWidth() < ent->GetWidth() * 4)
+							{
+								ent->SetWidth(wor->GetWidth());
+								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+							}
+							else
+							{
+								ent->SetWidth(ent->GetWidth() * 4);
+								ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+								if (entACo->X < wor->GetA()->X)
+								{
+									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+								}
+								else if (entBCo->X > wor->GetB()->X)
+								{
+									ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+								}
+							}
+
+							if (wor->GetHeight() < ent->GetHeight() / 2)
+							{
+								ent->SetHeight(wor->GetHeight());
+								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+							}
+							else
+							{
+								ent->SetHeight(ent->GetHeight() / 2);
+								ent->MoveToOffset(0.0, ent->GetHeight() * -1);
+							}
+						}
+
+
 					}
 					else if (collisionType[closestY] == JELLY)
 					{

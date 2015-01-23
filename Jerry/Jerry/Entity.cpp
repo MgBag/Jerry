@@ -30,8 +30,8 @@ Coordinates* Entity::GetACoordinates()
 
 Coordinates* Entity::GetBCoordinates()
 {
-	m_BCoordinates.X = m_ACoordinates.X + m_Width;
-	m_BCoordinates.Y = m_ACoordinates.Y + m_Height;
+	//m_BCoordinates.X = m_ACoordinates.X + m_Width;
+	//m_BCoordinates.Y = m_ACoordinates.Y + m_Height;
 
 	return &m_BCoordinates;
 }
@@ -40,6 +40,8 @@ void Entity::SetCoordinates(double x, double y)
 {
 	m_ACoordinates.X = x;
 	m_ACoordinates.Y = y;
+	m_BCoordinates.X = x + m_Width;
+	m_BCoordinates.Y = y + m_Height;
 }
 
 double Entity::GetHeight()
@@ -77,13 +79,17 @@ ALLEGRO_COLOR Entity::GetColor()
 void Entity::MoveToOffset(double x, double y)
 {
 	m_ACoordinates.X += x;
-	m_ACoordinates.Y += y;	
+	m_ACoordinates.Y += y;
+	m_BCoordinates.X += x;
+	m_BCoordinates.Y += y;
 }
 
 void Entity::MoveToOffset()
 {
 	m_ACoordinates.X += m_Offset.X;
 	m_ACoordinates.Y += m_Offset.Y;
+	m_BCoordinates.X += m_Offset.X;
+	m_BCoordinates.Y += m_Offset.Y;
 }
 
 // Do not delete! This returns the object in the Entity
