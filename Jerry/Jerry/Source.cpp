@@ -71,6 +71,7 @@ struct PhysicsVariables
 {
 	list<Entity>* entities;
 	list<WorldBlock>* world;
+	list<WorldEntity>* worldEntities;
 };
 
 int main()
@@ -240,6 +241,7 @@ int main()
 	PhysicsVariables physVar;
 	physVar.entities = entities;
 	physVar.world = world;
+	physVar.worldEntities = worldEntities;
 
 	thread physThread = thread(AsyncPhysics, (void*)&physVar);
 	thread consoleThread = thread(DevConsole);
@@ -388,7 +390,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 		{
 			phys.ApplyGravity(&*ghostShot);
-			phys.Collide(ghostShot, world, entities);
+			phys.Collide(ghostShot, world, entities, worldEntities);
 			ghostShot->MoveToOffset();
 
 			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetDelete())
@@ -582,6 +584,7 @@ void AsyncPhysics(void* struc)
 {
 	list<WorldBlock>* world = ((PhysicsVariables*)struc)->world;
 	list<Entity>* entities = ((PhysicsVariables*)struc)->entities;
+	list<WorldEntity>* worldEntities = ((PhysicsVariables*)struc)->worldEntities;
 	Entity* player = &(*entities->begin());
 
 	while (!quit)
@@ -590,7 +593,7 @@ void AsyncPhysics(void* struc)
 		
 		mtx.lock();
 		Move(player);
-		phys.ApplyPhysics(entities, world);
+		phys.ApplyPhysics(entities, world, worldEntities);
 		mtx.unlock();
 
 		if (mouseButtons[RMB])

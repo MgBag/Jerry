@@ -5,7 +5,7 @@
 // TODO: Stop deleteing entOff
 // TODO: Meak air collision, might be easy?
 
-void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
+void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities)
 {
 	ActiveParticles = -1;
 
@@ -44,7 +44,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 		}
 
 		ApplyGravity(&(*ent));
-		Collide(ent, world, entities);
+		Collide(ent, world, entities, worldEntities);
 		ent->MoveToOffset();
 	}
 }
@@ -59,7 +59,7 @@ void Physics::ApplyGravity(Entity* ent)
 	}
 }
 
-void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<Entity>* entities)
+void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<Entity>* entities, list<WorldEntity>* worldEntities)
 {
 	Coordinates* entOff = ent->GetOffset();
 	
@@ -185,6 +185,55 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			}
 		}
 
+		for (list<WorldEntity>::iterator worE = worldEntities->begin(); worE != worldEntities->end(); ++worE)
+		{
+			// TODO: Add might collide
+			if (AreInRange(entOff, entACo, entBCo, worE->GetA(), worE->GetB()))
+			{
+				Coordinates* worACo = worE->GetA();
+				Coordinates* worBCo = worE->GetB();
+
+				bool minXIsEnt = false, minYIsEnt = false;
+				double minX, minY, maxX, maxY;
+
+				Coordinates* colOff = GetCollisionOffset(&*ent, worACo, worBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+				if (colOff != NULL)
+				{
+					if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
+					{
+						if (minXIsEnt)
+						{
+							possitions.push_back(Coordinates(worBCo->X, entACo->Y + colOff->Y));
+							collisionPosition.push_back(LX);
+						}
+						else
+						{
+							possitions.push_back(Coordinates(worACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
+							collisionPosition.push_back(RX);
+						}
+					}
+					else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
+					{
+						if (minYIsEnt)
+						{
+							possitions.push_back(Coordinates(entACo->X + colOff->X, worBCo->Y));
+							collisionPosition.push_back(UY);
+						}
+						else
+						{
+							possitions.push_back(Coordinates(entACo->X + colOff->X, worACo->Y - ent->GetHeight()));
+							collisionPosition.push_back(DY);
+						}
+					}
+
+					collisionItem.push_back((void*)&*worE);
+					collisions.push_back(colOff);
+					collisionType.push_back(worE->GetType());
+				}
+			}
+		}
+
 		if (collisions.size())
 		{
 			int closestX = -1;
@@ -278,12 +327,12 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			}
 
 			// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
-			if (WillCollide(&*ent, world, entities))
+			if (WillCollide(&*ent, world, entities, worldEntities))
 			{
 				if (StackOverflowProtection < MAX_COLLISION_RECURSION)
 				{
 					++StackOverflowProtection;
-					Collide(ent, world, entities);
+					Collide(ent, world, entities, worldEntities);
 				}
 				else
 				{
@@ -294,7 +343,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 	}
 }
 
-bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities)
+bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities, list<WorldEntity>* worldEntities)
 {
 	if (!entity->GetHit() && !entity->GetDelete())
 	{
@@ -338,7 +387,6 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 			}
 		}
 
-		// Check if the speed is 0 
 		for (list<WorldBlock>::reverse_iterator wor = world->rbegin(); wor != world->rend(); ++wor)
 		{
 			if (AreInRange(entOff, entACo, entBCo, wor->GetA(), wor->GetB()))
@@ -347,6 +395,24 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 				double minX, minY, maxX, maxY;
 
 				Coordinates* colOff = GetCollisionOffset(entity, wor->GetA(), wor->GetB(), xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+				if (colOff != NULL)
+				{
+					// TODO: use colOff so that it doesn't have to calculated again.
+					delete colOff;
+					return true;
+				}
+			}
+		}
+
+		for (list<WorldEntity>::iterator worE = worldEntities->begin(); worE != worldEntities->end(); ++worE)
+		{
+			if (AreInRange(entOff, entACo, entBCo, worE->GetA(), worE->GetB()))
+			{
+				bool minXIsEnt = false, minYIsEnt = false;
+				double minX, minY, maxX, maxY;
+
+				Coordinates* colOff = GetCollisionOffset(entity, worE->GetA(), worE->GetB(), xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
 				if (colOff != NULL)
 				{
