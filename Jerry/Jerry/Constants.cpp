@@ -10,7 +10,7 @@ ALLEGRO_COLOR WorldColor = al_map_rgb(20, 20, 20);
 ALLEGRO_COLOR BadWorldColor = al_map_rgb(220, 20, 20);
 ALLEGRO_COLOR JellyWorldColor = al_map_rgb(20, 20, 220);
 
-Coordinates Spawn = Coordinates(20, 400);
+Coordinates Spawn = Coordinates(40, 400);
 
 double	FPS = 60;
 double	PHYSICS_TICK = 60;
@@ -40,3 +40,5 @@ int		MAX_COLLISION_RECURSION = 10;
 double	PLAYER_SIDE_UP_BOUNCE = 1.5;
 double	PLAYER_SIDE_SIDE_BOUNCE = 1.5;
 bool	FLY = false;
+bool	CLEAR_DRAW = true;
+bool	DRAW_PREDICTION = false;

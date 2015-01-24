@@ -20,7 +20,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world)
 			list<Entity>::iterator temp = ent;
 			--ent;
 			entities->erase(temp);
-
+			--Particles;
 			continue;
 		}
 
@@ -208,719 +208,73 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 				}
 			}
 
+			// Check if it should be a flat collision due to several entities or world items at same height or width
 			if (closestX != -1 && closestY != -1)
 			{
-				if (entBCo->Y == ((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetA()->Y : ((Entity*)collisionItem[closestX])->GetACoordinates()->Y) ||
-					entACo->Y == ((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->Y : ((Entity*)collisionItem[closestX])->GetBCoordinates()->Y))
+				bool actualY = false;
+				bool actualX = false;
+
+				for (int i = 0; i < collisions.size(); ++i)
 				{
-					// X collision while the Y of the entity is the same as the item that will be collided with thus colliding with Y
-					// Calculate the offset at point of impact
-					entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
-					ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
-
-					if (ent->getType() == PROJECTILE)
+					if (closestX != i)
 					{
-						if (collisionType[closestY] == JELLYWORLD)
+						if (collisionPosition[i] == LX)
 						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetHit(true);
-
-							WorldBlock* wor = ((WorldBlock*)collisionItem[closestY]);
-
-							if (collisionPosition[closestY] == DY)
+							if (((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->X : ((Entity*)collisionItem[closestX])->GetBCoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->X : ((Entity*)collisionItem[i])->GetBCoordinates()->X))
 							{
-								if (wor->GetWidth() < ent->GetWidth() * 4)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() * 4);
-									ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-									if (entACo->X < wor->GetA()->X)
-									{
-										ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-									}
-									else if (entBCo->X > wor->GetB()->X)
-									{
-										ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-									}
-								}
-
-								if (wor->GetHeight() < ent->GetHeight() / 2)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() / 2);
-									ent->MoveToOffset(0.0, ent->GetHeight() * 2);
-								}
-							}
-							else
-							{
-								if (wor->GetWidth() < ent->GetWidth() * 4)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() * 4);
-									ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-									if (entACo->X < wor->GetA()->X)
-									{
-										ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-									}
-									else if (entBCo->X > wor->GetB()->X)
-									{
-										ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-									}
-								}
-
-								if (wor->GetHeight() < ent->GetHeight() / 2)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() / 2);
-									ent->MoveToOffset(0.0, ent->GetHeight() * -1);
-								}
+								actualX = true;
 							}
 						}
-						else if (collisionType[closestY] == JELLY)
+						else
 						{
-							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
-						}
-						else if (collisionType[closestY] == BADWORLD || collisionType[closestY] == WORLD)
-						{
-							ent->SetDelete(true);
+							if (((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetA()->X : ((Entity*)collisionItem[closestX])->GetACoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->X : ((Entity*)collisionItem[i])->GetACoordinates()->X))
+							{
+								actualX = true;
+							}
 						}
 					}
-					else // Type is player
+
+					if (closestY != i)
 					{
-						ent->SetLastColPos(collisionPosition[closestY]);
-
-						if (collisionType[closestY] == BADWORLD)
+						if (collisionPosition[i] == UY)
 						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetCoordinates(Spawn.X, Spawn.Y);
+							if (((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->Y : ((Entity*)collisionItem[closestY])->GetBCoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->Y : ((Entity*)collisionItem[i])->GetBCoordinates()->Y))
+							{
+								actualY = true;
+							}
 						}
-						else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD || ent->GetIsCrouching())
+						else
 						{
-							ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-
-							if (collisionPosition[closestY] == DY)
+							if (((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetA()->Y : ((Entity*)collisionItem[closestY])->GetACoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->Y : ((Entity*)collisionItem[i])->GetACoordinates()->Y))
 							{
-								ent->SetPreviousImpactHeight(possitions[closestY].Y);
-								ent->SetIsAirBorn(false);
-							}
-							else
-							{
-								ent->SetIsAirBorn(true);
-							}
-
-							ent->SetLastImpactType(WORLD);
-						}
-						else if (collisionType[closestY] == JELLY)
-						{
-							if (collisionPosition[closestY] == UY)
-							{
-								ent->SetOffset(entOff->X, entOff->Y * -1);
-							}
-							else
-							{
-								if (entOff->Y < PLAYER_BOUNCE_OFFSET)
-								{
-									ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
-								}
-								else
-								{
-									ent->SetOffset(entOff->X, entOff->Y * -1);
-								}
-								ent->SetPreviousImpactHeight(possitions[closestY].Y);
-								ent->SetLastImpactType(JELLY);
+								actualY = true;
 							}
 						}
 					}
 				}
-				else if (entBCo->X == ((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetA()->X : ((Entity*)collisionItem[closestY])->GetACoordinates()->X) ||
-						 entACo->X == ((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->X : ((Entity*)collisionItem[closestY])->GetBCoordinates()->X))
+
+				if (actualX && !actualY)
 				{
-					// Y collision while the X of the entity is the same as the item that will be collided with thus colliding with X
-					
-					ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
-
-					if (ent->getType() == PROJECTILE)
-					{
-						if (collisionType[closestX] == JELLYWORLD)
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetHit(true);
-
-							WorldBlock* wor = ((WorldBlock*)collisionItem[closestX]);
-
-							if (collisionPosition[closestX] == RX)
-							{
-								if (wor->GetHeight() < ent->GetHeight() * 4)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() * 4);
-									ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-									if (entACo->Y < wor->GetA()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-									}
-									else if (entBCo->Y > wor->GetB()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-									}
-								}
-
-								if (wor->GetWidth() < ent->GetWidth() / 2)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() / 2);
-									ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
-								}
-							}
-							else
-							{
-								if (wor->GetHeight() < ent->GetHeight() * 4)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() * 4);
-									ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-									if (entACo->Y < wor->GetA()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-									}
-									else if (entBCo->Y > wor->GetB()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-									}
-								}
-
-								if (wor->GetWidth() < ent->GetWidth() / 2)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() / 2);
-									ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
-								}
-							}
-						}
-						else if (collisionType[closestX] == JELLY)
-						{
-							ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
-						}
-						else if (collisionType[closestX] == BADWORLD || collisionType[closestX] == WORLD)
-						{
-							ent->SetDelete(true);
-						}
-					}
-					else // Type is player
-					{
-						ent->SetLastColPos(collisionPosition[closestX]);
-
-						if (collisionType[closestX] == BADWORLD)
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetCoordinates(Spawn.X, Spawn.Y);
-						}
-						else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD || ent->GetIsCrouching())
-						{
-							ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
-							ent->SetLastImpactType(WORLD);
-						}
-						else if (collisionType[closestX] == JELLY)
-						{
-							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
-							ent->SetLastImpactType(JELLY);
-						}
-					}
+					closestY = -1;
 				}
-				else
+				else if (!actualX && actualY)
 				{
-					// Inner corner collision
-					entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
-					ent->SetCoordinates(possitions[closestX].X, possitions[closestY].Y);
-
-					if (ent->getType() == PROJECTILE)
-					{
-						if (collisionType[closestX] == BADWORLD || collisionType[closestY] == BADWORLD || collisionType[closestX] == WORLD || collisionType[closestY] == WORLD)
-						{
-							ent->SetDelete(true);
-						}
-						else if(collisionType[closestX] == JELLYWORLD)
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetHit(true);
-
-							WorldBlock* wor = ((WorldBlock*)collisionItem[closestX]);
-
-							if (collisionPosition[closestX] == RX)
-							{
-								if (wor->GetHeight() < ent->GetHeight() * 4)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() * 4);
-									ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-									if (entACo->Y < wor->GetA()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-									}
-									else if (entBCo->Y > wor->GetB()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-									}
-								}
-
-								if (wor->GetWidth() < ent->GetWidth() / 2)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() / 2);
-									ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
-								}
-							}
-							else
-							{
-								if (wor->GetHeight() < ent->GetHeight() * 4)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() * 4);
-									ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-									if (entACo->Y < wor->GetA()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-									}
-									else if (entBCo->Y > wor->GetB()->Y)
-									{
-										ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-									}
-								}
-
-								if (wor->GetWidth() < ent->GetWidth() / 2)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() / 2);
-									ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
-								}
-							}
-						}
-						else if (collisionType[closestY] == JELLYWORLD)
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetHit(true);
-
-							WorldBlock* wor = ((WorldBlock*)collisionItem[closestY]);
-
-							if (collisionPosition[closestY] == DY)
-							{
-								if (wor->GetWidth() < ent->GetWidth() * 4)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() * 4);
-									ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-									if (entACo->X < wor->GetA()->X)
-									{
-										ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-									}
-									else if (entBCo->X > wor->GetB()->X)
-									{
-										ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-									}
-								}
-
-								if (wor->GetHeight() < ent->GetHeight() / 2)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() / 2);
-									ent->MoveToOffset(0.0, ent->GetHeight() * 2);
-								}
-							}
-							else
-							{
-								if (wor->GetWidth() < ent->GetWidth() * 4)
-								{
-									ent->SetWidth(wor->GetWidth());
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else
-								{
-									ent->SetWidth(ent->GetWidth() * 4);
-									ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-									if (entACo->X < wor->GetA()->X)
-									{
-										ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-									}
-									else if (entBCo->X > wor->GetB()->X)
-									{
-										ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-									}
-								}
-
-								if (wor->GetHeight() < ent->GetHeight() / 2)
-								{
-									ent->SetHeight(wor->GetHeight());
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else
-								{
-									ent->SetHeight(ent->GetHeight() / 2);
-									ent->MoveToOffset(0.0, ent->GetHeight() * -1);
-								}
-							}
-						} 
-						else if (collisionType[closestY] == JELLY || collisionType[closestX] == JELLY)
-						{
-							ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
-						}
-					}
-					else if (ent->getType() == PLAYER)
-					{
-						ent->SetLastColPos(collisionPosition[closestX]);
-
-						if (collisionType[closestX] == BADWORLD || collisionType[closestY] == BADWORLD)
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetCoordinates(Spawn.X, Spawn.Y);
-						}
-						else if (((collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD) && (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD)) || ent->GetIsCrouching())
-						{
-							ent->SetOffset(0.0, 0.0);
-							ent->SetIsAirBorn(false);
-						}
-						else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD)
-						{
-							ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
-							ent->SetLastImpactType(JELLY);
-						}
-						else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD)
-						{
-							ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
-						}
-						else if (collisionType[closestY] == JELLY || collisionType[closestX] == JELLY)
-						{
-							if (collisionPosition[closestY] == UY)
-							{
-								ent->SetOffset(entOff->X, entOff->Y * -1);
-							}
-							else
-							{
-								if (entOff->Y < PLAYER_BOUNCE_OFFSET)
-								{
-									ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
-								}
-								else
-								{
-									ent->SetOffset(entOff->X, entOff->Y * -1);
-								}
-								ent->SetPreviousImpactHeight(possitions[closestY].Y);
-								ent->SetLastImpactType(JELLY);
-							}
-						}
-					}
+					closestX = -1;
 				}
+			}
+
+			if (closestX != -1 && closestY != -1)
+			{
+				// Inner corner collision
+				XYCollisionBehaviour(closestX, closestY, &*ent, &possitions, &collisionPosition, &collisionType, &collisionItem);
 			}
 			else if (closestY != -1)
 			{
-				// Calculate the offset at point of impact
-				entOff->Y = entOff->Y - GRAVITY + (possitions[closestY].Y - entACo->Y) / entOff->Y * GRAVITY;
-				ent->SetCoordinates(possitions[closestY].X, possitions[closestY].Y);
-
-				if (ent->getType() == PROJECTILE)
-				{
-					if (collisionType[closestY] == JELLYWORLD)
-					{
-						ent->SetOffset(0.0, 0.0);
-						ent->SetHit(true);
-
-						WorldBlock* wor = ((WorldBlock*)collisionItem[closestY]);
-
-						if (collisionPosition[closestY] == DY)
-						{
-							if (wor->GetWidth() < ent->GetWidth() * 4)
-							{
-								ent->SetWidth(wor->GetWidth());
-								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-							}
-							else
-							{
-								ent->SetWidth(ent->GetWidth() * 4);
-								ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-								if (entACo->X < wor->GetA()->X)
-								{
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else if (entBCo->X > wor->GetB()->X)
-								{
-									ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-								}
-							}
-
-							if (wor->GetHeight() < ent->GetHeight() / 2)
-							{
-								ent->SetHeight(wor->GetHeight());
-								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-							}
-							else
-							{
-								ent->SetHeight(ent->GetHeight() / 2);
-								ent->MoveToOffset(0.0, ent->GetHeight() * 2);
-							}
-						}
-						else
-						{
-							if (wor->GetWidth() < ent->GetWidth() * 4)
-							{
-								ent->SetWidth(wor->GetWidth());
-								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-							}
-							else
-							{
-								ent->SetWidth(ent->GetWidth() * 4);
-								ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-								if (entACo->X < wor->GetA()->X)
-								{
-									ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-								}
-								else if (entBCo->X > wor->GetB()->X)
-								{
-									ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-								}
-							}
-
-							if (wor->GetHeight() < ent->GetHeight() / 2)
-							{
-								ent->SetHeight(wor->GetHeight());
-								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-							}
-							else
-							{
-								ent->SetHeight(ent->GetHeight() / 2);
-								ent->MoveToOffset(0.0, ent->GetHeight() * -1);
-							}
-						}
-					}
-					else if (collisionType[closestY] == JELLY)
-					{
-						ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
-					}
-					else if (collisionType[closestY] == BADWORLD || collisionType[closestY] == WORLD)
-					{
-						ent->SetDelete(true);
-					}
-				}
-				else // Type is player
-				{
-					ent->SetLastColPos(collisionPosition[closestY]);
-
-					if (collisionType[closestY] == BADWORLD)
-					{
-						ent->SetOffset(0.0, 0.0);
-						ent->SetCoordinates(Spawn.X, Spawn.Y);
-					}
-					else if (collisionType[closestY] == WORLD || collisionType[closestY] == JELLYWORLD || ent->GetIsCrouching())
-					{
-						ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
-						
-						if (collisionPosition[closestY] == DY)
-						{
-							ent->SetPreviousImpactHeight(possitions[closestY].Y);
-							ent->SetIsAirBorn(false);
-						}
-						else
-						{
-							ent->SetIsAirBorn(true);
-						}
-
-						ent->SetLastImpactType(WORLD);
-					}
-					else if (collisionType[closestY] == JELLY)
-					{
-						if (collisionPosition[closestY] == UY)
-						{
-							ent->SetOffset(entOff->X, entOff->Y * -1);
-						}
-						else
-						{
-							if (entOff->Y < PLAYER_BOUNCE_OFFSET)
-							{
-								ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
-							}
-							else
-							{
-								ent->SetOffset(entOff->X, entOff->Y * -1);
-							}
-							ent->SetPreviousImpactHeight(possitions[closestY].Y);
-							ent->SetLastImpactType(JELLY);
-						}
-					}
-				}
+				YCollisionBehaviour(closestY, &*ent, &possitions, &collisionPosition, &collisionType, &collisionItem);
 			}
 			else if (closestX != -1)
 			{
-				ent->SetCoordinates(possitions[closestX].X, possitions[closestX].Y);
-
-				if (ent->getType() == PROJECTILE)
-				{
-					if (collisionType[closestX] == JELLYWORLD)
-					{
-						ent->SetOffset(0.0, 0.0);
-						ent->SetHit(true);
-
-						WorldBlock* wor = ((WorldBlock*)collisionItem[closestX]);
-
-						if (collisionPosition[closestX] == RX)
-						{
-							if (wor->GetHeight() < ent->GetHeight() * 4)
-							{
-								ent->SetHeight(wor->GetHeight());
-								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-							}
-							else
-							{
-								ent->SetHeight(ent->GetHeight() * 4);
-								ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-								if (entACo->Y < wor->GetA()->Y)
-								{
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else if (entBCo->Y > wor->GetB()->Y)
-								{
-									ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-								}
-							}
-
-							if (wor->GetWidth() < ent->GetWidth() / 2)
-							{
-								ent->SetWidth(wor->GetWidth());
-								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-							}
-							else
-							{
-								ent->SetWidth(ent->GetWidth() / 2);
-								ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
-							}
-						}
-						else
-						{
-							if (wor->GetHeight() < ent->GetHeight() * 4)
-							{
-								ent->SetHeight(wor->GetHeight());
-								ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-							}
-							else
-							{
-								ent->SetHeight(ent->GetHeight() * 4);
-								ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-								if (entACo->Y < wor->GetA()->Y)
-								{
-									ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-								}
-								else if (entBCo->Y > wor->GetB()->Y)
-								{
-									ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-								}
-							}
-
-							if (wor->GetWidth() < ent->GetWidth() / 2)
-							{
-								ent->SetWidth(wor->GetWidth());
-								ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-							}
-							else
-							{
-								ent->SetWidth(ent->GetWidth() / 2);
-								ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
-							}
-						}
-					}
-					else if (collisionType[closestX] == JELLY)
-					{
-						ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
-					}
-					else if (collisionType[closestX] == BADWORLD || collisionType[closestX] == WORLD)
-					{
-						ent->SetDelete(true);
-					}
-				}
-				else // Type is player
-				{
-					ent->SetLastColPos(collisionPosition[closestX]);
-
-					if (collisionType[closestX] == BADWORLD)
-					{
-						ent->SetOffset(0.0, 0.0);
-						ent->SetCoordinates(Spawn.X, Spawn.Y);
-					}
-					else if (collisionType[closestX] == WORLD || collisionType[closestX] == JELLYWORLD || ent->GetIsCrouching())
-					{
-						ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
-						ent->SetLastImpactType(WORLD);
-					}
-					else if (collisionType[closestX] == JELLY)
-					{
-						ent->SetOffset(PLAYER_BOUNCE_OFFSET / (collisionPosition[closestX] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
-						ent->SetLastImpactType(JELLY);
-					}
-				}
+				XCollisionBehaviour(closestX, &*ent, &possitions, &collisionPosition, &collisionType, &collisionItem);
 			}
 
 			// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
@@ -1377,4 +731,476 @@ Coordinates* Physics::VectorToOffset(VelocityVector* vec)
 	}
 
 	return offset;
+}
+
+void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem)
+{
+	Coordinates* entOff = ent->GetOffset();
+	Coordinates* entACo = ent->GetACoordinates();
+	Coordinates* entBCo = ent->GetBCoordinates();
+
+	ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
+	if (ent->getType() == PROJECTILE)
+	{
+		if ((*collisionType)[xIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetHit(true);
+
+			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[xIndex]);
+
+			if ((*collisionPosition)[xIndex] == RX)
+			{
+				if (wor->GetHeight() < ent->GetHeight() * 4)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() * 4);
+					ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+
+					if (entACo->Y < wor->GetA()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+					}
+					else if (entBCo->Y > wor->GetB()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
+					}
+				}
+
+				if (wor->GetWidth() < ent->GetWidth() / 2)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() / 2);
+					ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
+				}
+			}
+			else
+			{
+				if (wor->GetHeight() < ent->GetHeight() * 4)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() * 4);
+					ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+
+					if (entACo->Y < wor->GetA()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+					}
+					else if (entBCo->Y > wor->GetB()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
+					}
+				}
+
+				if (wor->GetWidth() < ent->GetWidth() / 2)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() / 2);
+					ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
+				}
+			}
+		}
+		else if ((*collisionType)[xIndex] == JELLY)
+		{
+			ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
+		}
+		else if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD)
+		{
+			ent->SetDelete(true);
+		}
+	}
+	else // Type is player
+	{
+		ent->SetLastColPos((*collisionPosition)[xIndex]);
+
+		if ((*collisionType)[xIndex] == BADWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetCoordinates(Spawn.X, Spawn.Y);
+		}
+		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD || ent->GetIsCrouching())
+		{
+			ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+			ent->SetLastImpactType(WORLD);
+		}
+		else if ((*collisionType)[xIndex] == JELLY)
+		{
+			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
+			ent->SetLastImpactType(JELLY);
+		}
+	}
+}
+
+void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem)
+{
+	Coordinates* entOff = ent->GetOffset();
+	Coordinates* entACo = ent->GetACoordinates();
+	Coordinates* entBCo = ent->GetBCoordinates();
+
+	// Calculate the offset at point of impact
+	entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+	ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
+	if (ent->getType() == PROJECTILE)
+	{
+		if ((*collisionType)[yIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetHit(true);
+
+			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[yIndex]);
+
+			if ((*collisionPosition)[yIndex] == DY)
+			{
+				if (wor->GetWidth() < ent->GetWidth() * 4)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() * 4);
+					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+					if (entACo->X < wor->GetA()->X)
+					{
+						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+					}
+					else if (entBCo->X > wor->GetB()->X)
+					{
+						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+					}
+				}
+
+				if (wor->GetHeight() < ent->GetHeight() / 2)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() / 2);
+					ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+				}
+			}
+			else
+			{
+				if (wor->GetWidth() < ent->GetWidth() * 4)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() * 4);
+					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+					if (entACo->X < wor->GetA()->X)
+					{
+						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+					}
+					else if (entBCo->X > wor->GetB()->X)
+					{
+						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+					}
+				}
+
+				if (wor->GetHeight() < ent->GetHeight() / 2)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() / 2);
+					ent->MoveToOffset(0.0, ent->GetHeight() * -1);
+				}
+			}
+		}
+		else if ((*collisionType)[yIndex] == JELLY)
+		{
+			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
+		}
+		else if ((*collisionType)[yIndex] == BADWORLD || (*collisionType)[yIndex] == WORLD)
+		{
+			ent->SetDelete(true);
+		}
+	}
+	else // Type is player
+	{
+		ent->SetLastColPos((*collisionPosition)[yIndex]);
+
+		if ((*collisionType)[yIndex] == BADWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetCoordinates(Spawn.X, Spawn.Y);
+		}
+		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD || ent->GetIsCrouching())
+		{
+			ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
+
+			if ((*collisionPosition)[yIndex] == DY)
+			{
+				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
+				ent->SetIsAirBorn(false);
+			}
+			else
+			{
+				ent->SetIsAirBorn(true);
+			}
+
+			ent->SetLastImpactType(WORLD);
+		}
+		else if ((*collisionType)[yIndex] == JELLY)
+		{
+			if ((*collisionPosition)[yIndex] == UY)
+			{
+				ent->SetOffset(entOff->X, entOff->Y * -1);
+			}
+			else
+			{
+				if (entOff->Y < PLAYER_BOUNCE_OFFSET)
+				{
+					ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+				}
+				else
+				{
+					ent->SetOffset(entOff->X, entOff->Y * -1);
+				}
+				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
+				ent->SetLastImpactType(JELLY);
+			}
+		}
+	}
+}
+
+void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem)
+{
+	Coordinates* entOff = ent->GetOffset();
+	Coordinates* entACo = ent->GetACoordinates();
+	Coordinates* entBCo = ent->GetBCoordinates();
+
+	entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+	ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[yIndex].Y);
+
+	if (ent->getType() == PROJECTILE)
+	{
+		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
+		{
+			ent->SetDelete(true);
+		}
+		else if ((*collisionType)[xIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetHit(true);
+
+			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[xIndex]);
+
+			if ((*collisionPosition)[yIndex] == RX)
+			{
+				if (wor->GetHeight() < ent->GetHeight() * 4)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() * 4);
+					ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+
+					if (entACo->Y < wor->GetA()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+					}
+					else if (entBCo->Y > wor->GetB()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
+					}
+				}
+
+				if (wor->GetWidth() < ent->GetWidth() / 2)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() / 2);
+					ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
+				}
+			}
+			else
+			{
+				if (wor->GetHeight() < ent->GetHeight() * 4)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() * 4);
+					ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
+
+					if (entACo->Y < wor->GetA()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+					}
+					else if (entBCo->Y > wor->GetB()->Y)
+					{
+						ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
+					}
+				}
+
+				if (wor->GetWidth() < ent->GetWidth() / 2)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() / 2);
+					ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
+				}
+			}
+		}
+		else if ((*collisionType)[yIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetHit(true);
+
+			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[yIndex]);
+
+			if ((*collisionPosition)[yIndex] == DY)
+			{
+				if (wor->GetWidth() < ent->GetWidth() * 4)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() * 4);
+					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+					if (entACo->X < wor->GetA()->X)
+					{
+						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+					}
+					else if (entBCo->X > wor->GetB()->X)
+					{
+						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+					}
+				}
+
+				if (wor->GetHeight() < ent->GetHeight() / 2)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() / 2);
+					ent->MoveToOffset(0.0, ent->GetHeight() * 2);
+				}
+			}
+			else
+			{
+				if (wor->GetWidth() < ent->GetWidth() * 4)
+				{
+					ent->SetWidth(wor->GetWidth());
+					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+				}
+				else
+				{
+					ent->SetWidth(ent->GetWidth() * 4);
+					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
+
+					if (entACo->X < wor->GetA()->X)
+					{
+						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
+					}
+					else if (entBCo->X > wor->GetB()->X)
+					{
+						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
+					}
+				}
+
+				if (wor->GetHeight() < ent->GetHeight() / 2)
+				{
+					ent->SetHeight(wor->GetHeight());
+					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
+				}
+				else
+				{
+					ent->SetHeight(ent->GetHeight() / 2);
+					ent->MoveToOffset(0.0, ent->GetHeight() * -1);
+				}
+			}
+		}
+		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
+		{
+			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
+		}
+	}
+	else if (ent->getType() == PLAYER)
+	{
+		ent->SetLastColPos((*collisionPosition)[xIndex]);
+
+		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD)
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetCoordinates(Spawn.X, Spawn.Y);
+		}
+		else if ((((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD) && ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)) || ent->GetIsCrouching())
+		{
+			ent->SetOffset(0.0, 0.0);
+			ent->SetIsAirBorn(false);
+		}
+		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
+			ent->SetLastImpactType(JELLY);
+		}
+		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD)
+		{
+			ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
+		}
+		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
+		{
+			if ((*collisionPosition)[yIndex] == UY)
+			{
+				ent->SetOffset(entOff->X, entOff->Y * -1);
+			}
+			else
+			{
+				if (entOff->Y < PLAYER_BOUNCE_OFFSET)
+				{
+					ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
+				}
+				else
+				{
+					ent->SetOffset(entOff->X, entOff->Y * -1);
+				}
+				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
+				ent->SetLastImpactType(JELLY);
+			}
+		}
+	}
 }

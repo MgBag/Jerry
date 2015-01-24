@@ -32,6 +32,8 @@ extern double FM_PI;
 extern double PRECISION;
 extern int    MAX_COLLISION_RECURSION;
 extern bool   FLY;
+extern bool   CLEAR_DRAW;
+extern bool   DRAW_PREDICTION;
 
 extern int ActiveParticles;
 extern int Particles;
