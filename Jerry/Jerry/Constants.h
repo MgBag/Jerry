@@ -42,6 +42,7 @@ extern ALLEGRO_COLOR JellyColor;
 extern ALLEGRO_COLOR WorldColor;
 extern ALLEGRO_COLOR BadWorldColor;
 extern ALLEGRO_COLOR JellyWorldColor;
+extern ALLEGRO_COLOR CoinColor;
 extern int StackOverflowProtection;
 extern Coordinates Spawn;
 
@@ -54,7 +55,7 @@ enum CollPos
 
 enum ItemType 
 {
-	PLAYER, PROJECTILE, WORLD, JELLY, BADWORLD, JELLYWORLD
+	PLAYER, PROJECTILE, WORLD, JELLY, BADWORLD, JELLYWORLD, COIN
 };
 
 enum KEYS

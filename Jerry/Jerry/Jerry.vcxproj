@@ -18,6 +18,7 @@
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="VelocityVector.cpp" />
     <ClCompile Include="WorldBlock.cpp" />
+    <ClCompile Include="WorldEntity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
@@ -26,6 +27,7 @@
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Coordinates.h" />
     <ClInclude Include="WorldBlock.h" />
+    <ClInclude Include="WorldEntity.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E1EEBA91-0F0F-4A5D-B253-238E18579E4D}</ProjectGuid>

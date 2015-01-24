@@ -48,10 +48,11 @@
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Physics.h"
+#include "WorldEntity.h"
 
 using namespace std;
 
-void Draw(list<Entity>* ent, list<WorldBlock>* world);
+void Draw(list<Entity>* ent, list<WorldBlock>* world, list<WorldEntity>* worldEntities);
 void Move(Entity* player);
 void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 void AsyncPhysics(void* struc);
@@ -80,6 +81,7 @@ int main()
 	ALLEGRO_TIMER* frame = 0;
 	list<WorldBlock>* world = new list<WorldBlock>();
 	list<Entity>* entities = new list<Entity>();
+	list<WorldEntity>* worldEntities = new list<WorldEntity>();
 
 	if (!al_init())
 	{
@@ -162,150 +164,70 @@ int main()
 	WorldColor = al_map_rgb(20, 20, 20);
 	BadWorldColor = al_map_rgb(220, 20, 20);
 	JellyWorldColor = al_map_rgb(20, 20, 220);
+	CoinColor = al_map_rgb(255, 140, 0);
 
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 
 	world->push_back(WorldBlock(0, 0, 4000, 10, WorldColor, WORLD));
 	world->push_back(WorldBlock(0, 0, 10, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(0, 590, 4000, 10, WorldColor, WORLD));
 	world->push_back(WorldBlock(3990, 0, 10, 600, WorldColor, WORLD));
-	world->push_back(WorldBlock(20, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(40, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(60, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(80, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(100, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(120, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(140, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(160, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(180, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(200, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(220, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(240, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(260, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(280, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(300, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(320, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(340, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(360, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(380, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(400, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(420, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(440, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(460, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(480, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(500, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(520, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(540, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(560, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(580, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(600, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(620, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(640, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(660, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(680, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(700, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(720, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(740, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(760, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(780, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(800, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(820, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(840, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(860, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(880, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(900, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(920, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(940, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(960, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(980, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1000, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1020, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1040, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1060, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1080, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1100, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1120, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1140, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1160, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1180, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1200, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1220, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1240, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1260, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1280, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1300, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1320, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1340, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1360, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1380, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1400, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1420, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1440, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1460, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1480, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1500, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1520, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1540, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1560, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1580, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1600, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1620, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1640, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1660, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1680, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1700, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1720, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1740, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1760, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1780, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1800, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1820, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1840, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1860, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1880, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1900, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(1920, 580, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 570, 1920, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(20, 10, 10, 570, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(1930, 570, 40, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(1930, 570, 40, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(2010, 570, 40, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(2090, 570, 40, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(2170, 570, 40, 10, BadWorldColor, BADWORLD));
-	world->push_back(WorldBlock(1970, 570, 40, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(2050, 570, 40, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(2130, 570, 40, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(2210, 570, 40, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 570, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 550, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 530, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 510, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 490, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 470, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 450, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 430, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 410, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 390, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 370, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 350, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 330, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 310, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 290, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 270, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 250, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 230, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 210, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 190, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 170, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 150, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 130, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 110, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 90, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 70, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 50, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 30, 10, 10, WorldColor, WORLD));
-	world->push_back(WorldBlock(10, 10, 10, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(10, 500, 280, 100, WorldColor, WORLD));
+	world->push_back(WorldBlock(330, 500, 380, 100, WorldColor, WORLD));
+	world->push_back(WorldBlock(420, 480, 20, 20, WorldColor, WORLD));
+	world->push_back(WorldBlock(510, 440, 20, 60, WorldColor, WORLD));
+	world->push_back(WorldBlock(650, 480, 20, 20, WorldColor, WORLD));
+	world->push_back(WorldBlock(910, 500, 3080, 100, WorldColor, WORLD));
+	world->push_back(WorldBlock(1270, 380, 190, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(1160, 330, 20, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(1600, 380, 130, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(1900, 470, 20, 10, WorldColor, WORLD));
+	world->push_back(WorldBlock(1960, 460, 20, 20, WorldColor, WORLD));
+	world->push_back(WorldBlock(2020, 450, 20, 30, WorldColor, WORLD));
+	world->push_back(WorldBlock(2080, 440, 20, 40, WorldColor, WORLD));
+	world->push_back(WorldBlock(2140, 430, 20, 50, WorldColor, WORLD));
+	world->push_back(WorldBlock(2200, 420, 20, 60, WorldColor, WORLD));
+	world->push_back(WorldBlock(2260, 410, 20, 70, WorldColor, WORLD));
+	world->push_back(WorldBlock(2320, 400, 20, 80, WorldColor, WORLD));
+	world->push_back(WorldBlock(2380, 390, 20, 90, WorldColor, WORLD));
+	world->push_back(WorldBlock(2440, 380, 20, 100, WorldColor, WORLD));
+	world->push_back(WorldBlock(2500, 370, 20, 110, WorldColor, WORLD));
+	world->push_back(WorldBlock(2560, 360, 20, 120, WorldColor, WORLD));
+	world->push_back(WorldBlock(2620, 350, 20, 130, WorldColor, WORLD));
+	world->push_back(WorldBlock(2680, 340, 20, 140, WorldColor, WORLD));
+	world->push_back(WorldBlock(2740, 330, 20, 150, WorldColor, WORLD));
+	world->push_back(WorldBlock(2800, 320, 20, 160, WorldColor, WORLD));
+	world->push_back(WorldBlock(2860, 310, 20, 170, WorldColor, WORLD));
+	world->push_back(WorldBlock(290, 590, 40, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(710, 590, 200, 10, BadWorldColor, BADWORLD));
+	world->push_back(WorldBlock(1870, 500, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2080, 440, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2320, 400, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2560, 360, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2860, 310, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1900, 470, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1960, 460, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2020, 450, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2140, 430, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2200, 420, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2260, 410, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2380, 390, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2440, 380, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2500, 370, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2620, 350, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2680, 340, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2740, 330, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(2800, 320, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1520, 500, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1250, 500, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1270, 480, 10, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1170, 430, 10, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1270, 380, 10, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(1170, 330, 10, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(660, 480, 10, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(490, 500, 20, 10, JellyWorldColor, JELLYWORLD));
+
+	worldEntities->push_back(WorldEntity(100, 400, 5, 5, CoinColor, COIN));
 
 	// User input and drawing
 	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
@@ -335,7 +257,7 @@ int main()
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
-			Draw(entities, world);
+			Draw(entities, world, worldEntities);
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
@@ -440,7 +362,7 @@ int main()
 	return 0;
 }
 
-void Draw(list<Entity> *entities, list<WorldBlock> *world)
+void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities)
 {
 	if (CLEAR_DRAW) al_clear_to_color(al_map_rgb(220, 220, 220));
 
@@ -486,6 +408,7 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 			}
 		}
 	}
+
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
 		al_draw_filled_rectangle(
@@ -519,6 +442,16 @@ void Draw(list<Entity> *entities, list<WorldBlock> *world)
 				lastY += (ent->GetOffset()->Y - (GRAVITY * i));
 			}
 		}
+	}
+
+	for (list<WorldEntity>::iterator wEntity = worldEntities->begin(); wEntity != worldEntities->end(); ++wEntity)
+	{
+		al_draw_filled_rectangle(
+			wEntity->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wEntity->GetA()->Y,
+			wEntity->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+			wEntity->GetB()->Y,
+			wEntity->GetColor());
 	}
 	mtx.unlock();
 

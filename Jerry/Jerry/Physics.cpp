@@ -136,7 +136,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			}
 		}
 
-		for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
+		for (list<WorldBlock>::reverse_iterator wor = world->rbegin(); wor != world->rend(); ++wor)
 		{
 			// TODO: Add might collide
 			if (AreInRange(entOff, entACo, entBCo, wor->GetA(), wor->GetB()))
@@ -216,7 +216,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 				for (int i = 0; i < collisions.size(); ++i)
 				{
-					if (closestX != i)
+					if (closestX != i && collisionPosition[i] != collisionPosition[closestX])
 					{
 						if (collisionPosition[i] == LX)
 						{
@@ -234,7 +234,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 						}
 					}
 
-					if (closestY != i)
+					if (closestY != i && collisionPosition[i] != collisionPosition[closestY])
 					{
 						if (collisionPosition[i] == UY)
 						{
@@ -307,25 +307,6 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 		double xStep = (entOff->Y == 0 ? (entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0))) : entOff->X) / ceil(entVel);
 		double yStep = (entOff->X == 0 ? (entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0))) : entOff->Y) / ceil(entVel);
 
-		// Check if the speed is 0 
-		for (list<WorldBlock>::iterator wor = world->begin(); wor != world->end(); ++wor)
-		{
-			if (AreInRange(entOff, entACo, entBCo, wor->GetA(), wor->GetB()))
-			{
-				bool minXIsEnt = false, minYIsEnt = false;
-				double minX, minY, maxX, maxY;
-
-				Coordinates* colOff = GetCollisionOffset(entity, wor->GetA(), wor->GetB(), xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
-
-				if (colOff != NULL)
-				{
-					// TODO: use colOff so that it doesn't have to calculated again.
-					delete colOff;
-					return true;
-				}
-			}
-		}
-
 		//TODO: Add the isHit conditions and shit
 		for (list<Entity>::iterator jel = entities->begin(); jel != entities->end(); ++jel)
 		{
@@ -353,6 +334,25 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 						delete colOff;
 						return true;
 					}
+				}
+			}
+		}
+
+		// Check if the speed is 0 
+		for (list<WorldBlock>::reverse_iterator wor = world->rbegin(); wor != world->rend(); ++wor)
+		{
+			if (AreInRange(entOff, entACo, entBCo, wor->GetA(), wor->GetB()))
+			{
+				bool minXIsEnt = false, minYIsEnt = false;
+				double minX, minY, maxX, maxY;
+
+				Coordinates* colOff = GetCollisionOffset(entity, wor->GetA(), wor->GetB(), xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
+
+				if (colOff != NULL)
+				{
+					// TODO: use colOff so that it doesn't have to calculated again.
+					delete colOff;
+					return true;
 				}
 			}
 		}
