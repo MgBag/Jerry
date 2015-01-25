@@ -24,7 +24,7 @@ private:
 	bool m_IsCrouching;
 	ItemType m_LastImpactType;
 	double m_PreviousImpactHeight;
-	bool m_Delete;
+	bool m_Remove;
 	CollPos m_LastCollPos;
 
 public:
@@ -73,8 +73,8 @@ public:
 	double GetPreviousImpactHeight();
 	void SetPreviousImpactHeight(double preImpactHeight);
 
-	bool GetDelete();
-	void SetDelete(bool del);
+	bool GetRemove();
+	void SetRemove(bool r);
 
 	bool operator==(const Entity& e);
 

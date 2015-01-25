@@ -16,7 +16,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 		StackOverflowProtection = 0;
 
 		// TODO : Move this to into the the collision
-		if (ent->GetDelete())
+		if (ent->GetRemove())
 		{
 			list<Entity>::iterator temp = ent;
 			--ent;
@@ -346,7 +346,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 
 bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities, list<WorldEntity>* worldEntities)
 {
-	if (!entity->GetHit() && !entity->GetDelete())
+	if (!entity->GetHit() && !entity->GetRemove())
 	{
 		Coordinates* entACo = entity->GetACoordinates();
 		Coordinates* entBCo = entity->GetBCoordinates();
@@ -417,6 +417,23 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 				if (colOff != NULL)
 				{
+					if (worE->GetRemove())
+					{
+						worE = worldEntities->erase(worE);
+
+						if (worE == worldEntities->end())
+						{
+							++Score;
+							break;
+						}
+
+						++Score;
+						continue;
+					}
+
+					if (entity->getType() == PROJECTILE && worE->GetType() == COIN)
+						continue;
+
 					// TODO: use colOff so that it doesn't have to calculated again.
 					delete colOff;
 					return true;
@@ -894,16 +911,9 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		{
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
 
-			ent->SetDelete(true);
+			ent->SetRemove(true);
 		}
-		else if ((*collisionType)[xIndex] == COIN)
-		{
-			//list<WorldEntity>* worldEntities = new list<WorldEntity>();
 
-			worldEntities->remove(*((WorldEntity*)(*collisionItem)[xIndex]));
-
-			ent->MoveToOffset();
-		}
 	}
 	else // Type is player
 	{
@@ -930,6 +940,10 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 			ent->SetLastImpactType(JELLY);
 		}
+		else if ((*collisionType)[xIndex] == COIN)
+		{
+			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
+		}
 	}
 }
 
@@ -938,8 +952,6 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 	Coordinates* entOff = ent->GetOffset();
 	Coordinates* entACo = ent->GetACoordinates();
 	Coordinates* entBCo = ent->GetBCoordinates();
-
-
 
 	if (ent->getType() == PROJECTILE)
 	{
@@ -1031,7 +1043,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[yIndex] == BADWORLD || (*collisionType)[yIndex] == WORLD)
 		{
-			ent->SetDelete(true);
+			ent->SetRemove(true);
 		}
 	}
 	else // Type is player
@@ -1091,6 +1103,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 				ent->SetLastImpactType(JELLY);
 			}
 		}
+		else if ((*collisionType)[yIndex] == COIN)
+		{
+			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
+		}
 	}
 }
 
@@ -1107,7 +1123,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 	{
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
 		{
-			ent->SetDelete(true);
+			ent->SetRemove(true);
 		}
 		else if ((*collisionType)[xIndex] == JELLYWORLD)
 		{
@@ -1270,6 +1286,18 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		{
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
+		}
+		else if ((*collisionType)[xIndex] == COIN || (*collisionType)[yIndex] == COIN)
+		{
+			if ((*collisionType)[xIndex] == COIN)
+			{
+				((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
+			}
+
+			if ((*collisionType)[yIndex] == COIN)
+			{
+				((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
+			}
 		}
 		else if ((((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD) && ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)) || ent->GetIsCrouching())
 		{

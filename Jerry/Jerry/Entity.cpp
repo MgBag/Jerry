@@ -14,7 +14,7 @@ Entity::Entity(double x, double y, double width, double height, double xOffset, 
 	m_IsAirBorn = true;
 	m_InitialImpactSpeed = 0.0;
 	m_LastImpactType = WORLD;
-	m_Delete = false;
+	m_Remove = false;
 	m_LastCollPos = UY;
 }
 
@@ -187,14 +187,14 @@ void Entity::SetPreviousImpactHeight(double preImpactHeight)
 	m_PreviousImpactHeight = preImpactHeight;
 }
 
-bool Entity::GetDelete()
+bool Entity::GetRemove()
 {
-	return m_Delete;
+	return m_Remove;
 }
 
-void Entity::SetDelete(bool del)
+void Entity::SetRemove(bool r)
 {
-	m_Delete = del;
+	m_Remove = r;
 }
 
 bool Entity::operator == (const Entity& e)

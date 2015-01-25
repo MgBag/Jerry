@@ -9,6 +9,7 @@ WorldEntity::WorldEntity(double x, double y, double width, double height, ALLEGR
 	m_Height = height;
 	m_Color = color;
 	m_Type = type;
+	m_Remove = false;
 }
 
 
@@ -56,4 +57,14 @@ bool WorldEntity::operator == (const WorldEntity& w)
 	if (this == &w)
 		return true;
 	return false;
+}
+
+bool WorldEntity::GetRemove()
+{
+	return m_Remove;
+}
+
+void WorldEntity::SetRemove(bool r)
+{
+	m_Remove = r;
 }

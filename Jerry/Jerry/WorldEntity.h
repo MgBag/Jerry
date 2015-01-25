@@ -13,6 +13,8 @@ private:
 	double m_Height;
 	ALLEGRO_COLOR m_Color;
 	ItemType m_Type;
+	bool m_Remove;
+
 public:
 	WorldEntity(double x, double y, double width, double height, ALLEGRO_COLOR color, ItemType type);
 	~WorldEntity();
@@ -28,4 +30,7 @@ public:
 	ALLEGRO_COLOR GetColor();
 
 	bool operator==(const WorldEntity& w);
+
+	bool GetRemove();
+	void SetRemove(bool r);
 };
