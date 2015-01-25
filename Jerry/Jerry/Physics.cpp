@@ -15,6 +15,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 	{
 		StackOverflowProtection = 0;
 
+		// TODO : Move this to into the the collision
 		if (ent->GetDelete())
 		{
 			list<Entity>::iterator temp = ent;
@@ -805,12 +806,12 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 	Coordinates* entACo = ent->GetACoordinates();
 	Coordinates* entBCo = ent->GetBCoordinates();
 
-	ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
-
 	if (ent->getType() == PROJECTILE)
 	{
 		if ((*collisionType)[xIndex] == JELLYWORLD)
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetOffset(0.0, 0.0);
 			ent->SetHit(true);
 
@@ -885,11 +886,23 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[xIndex] == JELLY)
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 		}
 		else if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD)
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetDelete(true);
+		}
+		else if ((*collisionType)[xIndex] == COIN)
+		{
+			//list<WorldEntity>* worldEntities = new list<WorldEntity>();
+
+			worldEntities->remove(*((WorldEntity*)(*collisionItem)[xIndex]));
+
+			ent->MoveToOffset();
 		}
 	}
 	else // Type is player
@@ -898,16 +911,22 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 
 		if ((*collisionType)[xIndex] == BADWORLD)
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
 		}
 		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD || ent->GetIsCrouching())
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 			ent->SetLastImpactType(WORLD);
 		}
 		else if ((*collisionType)[xIndex] == JELLY)
 		{
+			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 			ent->SetLastImpactType(JELLY);
 		}
@@ -920,14 +939,16 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 	Coordinates* entACo = ent->GetACoordinates();
 	Coordinates* entBCo = ent->GetBCoordinates();
 
-	// Calculate the offset at point of impact
-	entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
-	ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 
 	if (ent->getType() == PROJECTILE)
 	{
 		if ((*collisionType)[yIndex] == JELLYWORLD)
 		{
+			// Calculate the offset at point of impact
+			entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 			ent->SetOffset(0.0, 0.0);
 			ent->SetHit(true);
 
@@ -1002,6 +1023,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[yIndex] == JELLY)
 		{
+			// Calculate the offset at point of impact
+			entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
 		}
 		else if ((*collisionType)[yIndex] == BADWORLD || (*collisionType)[yIndex] == WORLD)
@@ -1015,11 +1040,19 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 
 		if ((*collisionType)[yIndex] == BADWORLD)
 		{
+			// Calculate the offset at point of impact
+			entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
 		}
 		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD || ent->GetIsCrouching())
 		{
+			// Calculate the offset at point of impact
+			entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 			ent->SetOffset(entOff->X < FRICTION_STOP && entOff->X > FRICTION_STOP * -1 ? 0.0 : entOff->X * FRICTION, 0.0);
 
 			if ((*collisionPosition)[yIndex] == DY)
@@ -1036,6 +1069,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[yIndex] == JELLY)
 		{
+			// Calculate the offset at point of impact
+			entOff->Y = entOff->Y - GRAVITY + ((*possitions)[yIndex].Y - entACo->Y) / entOff->Y * GRAVITY;
+			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
+
 			if ((*collisionPosition)[yIndex] == UY)
 			{
 				ent->SetOffset(entOff->X, entOff->Y * -1);

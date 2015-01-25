@@ -50,3 +50,10 @@ double WorldEntity::GetHeight()
 {
 	return m_Height;
 }
+
+bool WorldEntity::operator == (const WorldEntity& w)
+{
+	if (this == &w)
+		return true;
+	return false;
+}

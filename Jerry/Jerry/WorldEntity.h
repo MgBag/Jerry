@@ -26,4 +26,6 @@ public:
 
 	void SetColor(ALLEGRO_COLOR color);
 	ALLEGRO_COLOR GetColor();
+
+	bool operator==(const WorldEntity& w);
 };
