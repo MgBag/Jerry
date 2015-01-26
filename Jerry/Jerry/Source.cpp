@@ -42,6 +42,8 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Physics.h"
@@ -79,6 +81,11 @@ int main()
 	list<WorldBlock>* world = new list<WorldBlock>();
 	list<Entity>* entities = new list<Entity>();
 	list<WorldEntity>* worldEntities = new list<WorldEntity>();
+
+	ALLEGRO_SAMPLE* audio_click001 = NULL;
+	ALLEGRO_SAMPLE* audio_click002 = NULL;
+	ALLEGRO_SAMPLE* audio_arpeggio107 = NULL;
+	ALLEGRO_SAMPLE* audio_frogbass001 = NULL;
 
 	if (!al_init())
 	{
@@ -130,8 +137,6 @@ int main()
 		return -1;
 	}
 
-
-
 	frame = al_create_timer(1.0 / FPS);
 	if (!frame)
 	{
@@ -142,17 +147,43 @@ int main()
 		return -1;
 	}
 
-
-	// TODO: Do these
 	al_init_font_addon();
-	al_init_ttf_addon();
-
+	if (!al_init_ttf_addon()){
+		fprintf(stderr, "failed to initialize ttf addon!\n");
+		return -1;
+	}
 	font = al_load_ttf_font("fonts/coolvetica.ttf", 17, 0);
 
 	if (!font)
 	{
 		fprintf(stderr, "Failed to load font\n");
 		system("pause");
+		return -1;
+	}
+
+	if (!al_install_audio()){
+		fprintf(stderr, "failed to initialize audio!\n");
+		return -1;
+	}
+
+	if (!al_init_acodec_addon()){
+		fprintf(stderr, "failed to initialize audio codecs!\n");
+		return -1;
+	}
+
+	if (!al_reserve_samples(4)){
+		fprintf(stderr, "failed to reserve samples!\n");
+		return -1;
+	}
+
+	audio_click001 = al_load_sample("audio/click001.wav");
+	audio_click002 = al_load_sample("audio/click002.wav");
+	audio_arpeggio107 = al_load_sample("audio/arpeggio107.wav");
+	audio_frogbass001 = al_load_sample("audio/frogbass001.wav");
+	
+	if (!(audio_click001 && audio_click002 && audio_arpeggio107 && audio_frogbass001))
+	{
+		printf("An audio clip did not load!\n");
 		return -1;
 	}
 
@@ -274,8 +305,8 @@ int main()
 
 	// TODO: Meak pretti fix for this
 	al_grab_mouse(display);
-
 	al_start_timer(frame);
+	al_play_sample(audio_arpeggio107, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 
 	while (!quit)
 	{
@@ -380,7 +411,39 @@ int main()
 		}
 		else if (ALLEGRO_EVENT_TYPE_IS_USER(e.type))
 		{
-			cout << e.type << endl;
+			switch (e.user.data1)
+			{
+			case PLAYER_WORD:
+
+				break;
+
+			case PLAYER_JELLY:
+				al_play_sample(audio_click001, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				break;
+
+			case PLAYER_BADWORLD:
+
+				break;
+
+			case JELLY_JELLY:
+				al_play_sample(audio_click002, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				break;
+
+			case JELLY_JELLYWORLD:
+				al_play_sample(audio_click002, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				break;
+
+			case JELLY_NOTJELLYWORLD:
+
+				break;
+
+			case PLAYER_COIN:
+				al_play_sample(audio_frogbass001, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				break;
+			default:
+				
+				break;
+			}
 		}
 	}
 

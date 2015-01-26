@@ -911,6 +911,10 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 					ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
 				}
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[xIndex] == JELLY)
 		{
@@ -941,6 +945,9 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		else if ((*collisionType)[xIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_COIN;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD || ent->GetIsCrouching())
 		{
@@ -1049,6 +1056,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 					ent->MoveToOffset(0.0, ent->GetHeight() * -1);
 				}
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == JELLY)
 		{
@@ -1083,6 +1094,9 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 		else if ((*collisionType)[yIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_COIN;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD || ent->GetIsCrouching())
 		{
@@ -1146,15 +1160,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 
 	if (ent->getType() == PROJECTILE)
 	{
-		if ((*collisionType)[xIndex] == COIN) 
-		{
-			YCollisionBehaviour(yIndex, ent, possitions, collisionPosition, collisionType, collisionItem);
-		}
-		else if ((*collisionType)[yIndex] == COIN)
-		{
-			XCollisionBehaviour(xIndex, ent, possitions, collisionPosition, collisionType, collisionItem);
-		}
-		else if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
+		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
 		{
 			ent->SetRemove(true);
 		}
@@ -1231,6 +1237,10 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 					ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
 				}
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == JELLYWORLD)
 		{
@@ -1305,6 +1315,10 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 					ent->MoveToOffset(0.0, ent->GetHeight() * -1);
 				}
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
 		{
@@ -1328,11 +1342,21 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		if ((*collisionType)[xIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_COIN;
+			al_emit_user_event(&UserEventSource, &e, 0);
+
 			YCollisionBehaviour(yIndex, ent, possitions, collisionPosition, collisionType, collisionItem);
 		}
 		else if ((*collisionType)[yIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_COIN;
+			al_emit_user_event(&UserEventSource, &e, 0);
+
 			XCollisionBehaviour(xIndex, ent, possitions, collisionPosition, collisionType, collisionItem);
 		}
 		else if ((((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD) && ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)) || ent->GetIsCrouching())
