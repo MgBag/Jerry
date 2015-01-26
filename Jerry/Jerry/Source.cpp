@@ -10,11 +10,8 @@
 // TODO : Level
 // TODO : Naming and names mang. Projectile particle etc....
 // TODO : Use the recursion in Collision() so that it doesn't need recalulation later on
-// TODO : In air Entity collision
-// TODO : Find some crash in the drawing of the projectile trajectory
 // TODO : Preformance optimizing
 // TODO : Physics tick counter
-// TODO : Jelly into the wall
 // TODO : Only draw in range
 // TODO : Coins or something alike
 // TODO : Checkpoints
@@ -23,7 +20,7 @@
 
 // TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
-// Ranges:
+// Ranges: 
 // ----------
 // Side: 220
 // Side up: 65
@@ -231,6 +228,12 @@ int main()
 	world->push_back(WorldBlock(710, 590, 140, 10, BadWorldColor, BADWORLD));
 	world->push_back(WorldBlock(290, 590, 40, 10, BadWorldColor, BADWORLD));
 
+	world->push_back(WorldBlock(370, 210, 140, 130, WorldColor, WORLD));
+	world->push_back(WorldBlock(370, 210, 20, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(370, 320, 20, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(490, 320, 20, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(490, 210, 20, 20, JellyWorldColor, JELLYWORLD));
+
 	worldEntities->push_back(WorldEntity(520, 400, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(430, 470, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(770, 440, 5, 5, CoinColor, COIN));
@@ -403,6 +406,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Coordinates* entOff = player->GetOffset();
 	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
 
+	mtx.lock();
 	if (DRAW_PREDICTION && CLEAR_DRAW)
 	{
 		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE) };
@@ -433,6 +437,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 			}
 		}
 	}
+	mtx.unlock();
 
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
@@ -529,27 +534,31 @@ void Move(Entity* ent)
 	{
 		if (keys[RIGHT])
 		{
-			if (offset->X < 0.0 && ent->GetIsAirBorn())
-			{
-				offset->X *= PLAYER_AIR_CONTROL_BREAK;
-			}
-
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
-				offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+				if (offset->X < 0.0 && ent->GetIsAirBorn())
+				{
+					offset->X = offset->X > -PLAYER_AIR_CONTROL_STOP ? 0.0 : offset->X * PLAYER_AIR_CONTROL_BREAK;
+				}
+				else
+				{
+					offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+				}
 			}
 		}
 
 		if (keys[LEFT])
 		{
-			if (offset->X > 0.0 && ent->GetIsAirBorn())
-			{
-				offset->X *= PLAYER_AIR_CONTROL_BREAK;
-			}
-
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
-				offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+				if (offset->X > 0.0 && ent->GetIsAirBorn())
+				{
+					offset->X = offset->X < PLAYER_AIR_CONTROL_STOP ? 0.0 : offset->X * PLAYER_AIR_CONTROL_BREAK;
+				}
+				else
+				{
+					offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+				}
 			}
 		}
 

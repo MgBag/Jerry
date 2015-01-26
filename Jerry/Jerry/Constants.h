@@ -14,6 +14,7 @@ extern double PLAYER_JUMP_SPEED;
 extern double PLAYER_BOUNCE_OFFSET;
 extern double PLAYER_AIR_CONTROL;
 extern double PLAYER_AIR_CONTROL_BREAK; 
+extern double PLAYER_AIR_CONTROL_STOP;
 extern double PLAYER_SIDE_UP_BOUNCE;
 extern double PLAYER_SIDE_SIDE_BOUNCE;
 extern double PROJECTILE_SPEED;
