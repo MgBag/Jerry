@@ -75,7 +75,6 @@ int main()
 {
 	ALLEGRO_DISPLAY* display = 0;
 	ALLEGRO_DISPLAY_MODE disp_data;
-	ALLEGRO_EVENT_QUEUE* eventQueue = 0;
 	ALLEGRO_TIMER* frame = 0;
 	list<WorldBlock>* world = new list<WorldBlock>();
 	list<Entity>* entities = new list<Entity>();
@@ -109,8 +108,8 @@ int main()
 		return -1;
 	}
 
-	eventQueue = al_create_event_queue();
-	if (!eventQueue)
+	EventQueue = al_create_event_queue();
+	if (!EventQueue)
 	{
 		cout << "Failed to initiate event queue\n";
 		system("pause");
@@ -126,7 +125,7 @@ int main()
 	if (!display)
 	{
 		cout << "Failed to initiate display \n";
-		al_destroy_event_queue(eventQueue);
+		al_destroy_event_queue(EventQueue);
 		system("pause");
 		return -1;
 	}
@@ -138,7 +137,7 @@ int main()
 	{
 		cout << "Failed to initiate frame \n";
 		al_destroy_display(display);
-		al_destroy_event_queue(eventQueue);
+		al_destroy_event_queue(EventQueue);
 		system("pause");
 		return -1;
 	}
@@ -148,7 +147,7 @@ int main()
 	al_init_font_addon();
 	al_init_ttf_addon();
 
-	font = al_load_ttf_font("coolvetica.ttf", 17, 0);
+	font = al_load_ttf_font("fonts/coolvetica.ttf", 17, 0);
 
 	if (!font)
 	{
@@ -257,11 +256,12 @@ int main()
 	worldEntities->push_back(WorldEntity(1870, 210, 5, 5, CoinColor, COIN));
 
 	// User input and drawing
-	al_register_event_source(eventQueue, al_get_timer_event_source(frame));
-	al_register_event_source(eventQueue, al_get_display_event_source(display));
-	al_register_event_source(eventQueue, al_get_keyboard_event_source());
-	al_register_event_source(eventQueue, al_get_mouse_event_source());
-
+	al_init_user_event_source(&UserEventSource);
+	al_register_event_source(EventQueue, &UserEventSource);
+	al_register_event_source(EventQueue, al_get_timer_event_source(frame));
+	al_register_event_source(EventQueue, al_get_display_event_source(display));
+	al_register_event_source(EventQueue, al_get_keyboard_event_source());
+	al_register_event_source(EventQueue, al_get_mouse_event_source());
 
 	//void AsyncPhysics(void* void_tickQueue, void* void_entities, void* void_world)
 	PhysicsVariables physVar;
@@ -281,7 +281,7 @@ int main()
 	{
 		ALLEGRO_EVENT e;
 
-		al_wait_for_event(eventQueue, &e);
+		al_wait_for_event(EventQueue, &e);
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
@@ -377,6 +377,10 @@ int main()
 		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
 			quit = true;
+		}
+		else if (ALLEGRO_EVENT_TYPE_IS_USER(e.type))
+		{
+			cout << e.type << endl;
 		}
 	}
 
@@ -490,7 +494,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 
 	// Gun of player
 	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, gunVec->X +      SCREEN_W / 2, gunVec->Y      + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
-	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, blankGunVec->X + SCREEN_W / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, PlayerColor, 5.0);
+	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, blankGunVec->X + SCREEN_W / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(100, 100, 255), 5.0);
 
 	mtx.lock();
 	// Gun Charge
@@ -758,7 +762,7 @@ void DevConsole()
 			
 			if (command == "help")
 			{
-				cout << "Availabe commands are: \n" << "PHYSICS_TICK\nGRAVITY\nPLAYER_SPEED\nPLAYER_JUMP_SPEED\nPLAYER_BOUNCE_OFFSET\nPLAYER_AIR_CONTROL\nPLAYER_AIR_CONTROL_BREAK;\nPLAYER_SIDE_UP_BOUNCE\nPLAYER_SIDE_SIDE_BOUNCE\nPROJECTILE_SPEED\nPROJECTILE_SIZE\nPROJECTILE_TRAIL_LENGTH\nPROJECTILE_BOUNCINESS\nMAX_ENTITIES\nMAX_ENTITY_AGE\nMAX_ENTITY_VELOCITY\nFRICTION\nFRICTION_STOP\n\n";
+				cout << "Availabe commands are: \n" << "PHYSICS_TICK\nGRAVITY\nPLAYER_SPEED\nPLAYER_JUMP_SPEED\nPLAYER_BOUNCE_OFFSET\nPLAYER_AIR_CONTROL\nPLAYER_AIR_CONTROL_BREAK;\nPLAYER_SIDE_UP_BOUNCE\nPLAYER_SIDE_SIDE_BOUNCE\nPROJECTILE_SPEED\nPROJECTILE_SIZE\nPROJECTILE_TRAIL_LENGTH\nPROJECTILE_BOUNCINESS\nMAX_ENTITIES\nMAX_ENTITY_AGE\nMAX_ENTITY_VELOCITY\nFRICTION\nFRICTION_STOP\nDRAW_PREDICTION\nCLEAR_DRAW\n";
 			}
 			else if (command == "GRAVITY")
 			{

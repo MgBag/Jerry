@@ -47,7 +47,8 @@ extern ALLEGRO_COLOR JellyWorldColor;
 extern ALLEGRO_COLOR CoinColor;
 extern int StackOverflowProtection;
 extern Coordinates Spawn;
-
+extern ALLEGRO_EVENT_QUEUE* EventQueue;
+extern ALLEGRO_EVENT_SOURCE UserEventSource;
 
 // Evaluated from enity
 enum CollPos 
@@ -68,4 +69,9 @@ enum KEYS
 enum MOUSEBUTTONS
 {
 	LMB, RMB, MIDDLEMOUSE
+};
+
+enum AUDIOTYPES
+{
+	PLAYER_WORD, PLAYER_JELLY, PLAYER_BADWORLD, JELLY_JELLY, JELLY_JELLYWORLD, JELLY_NOTJELLYWORLD, PLAYER_COIN
 };

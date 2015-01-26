@@ -917,6 +917,10 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
 
 			ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD)
 		{
@@ -952,8 +956,11 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 			ent->SetLastImpactType(JELLY);
-		}
 
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
+		}
 	}
 }
 
@@ -1050,6 +1057,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetCoordinates((*possitions)[yIndex].X, (*possitions)[yIndex].Y);
 
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == BADWORLD || (*collisionType)[yIndex] == WORLD)
 		{
@@ -1116,6 +1127,10 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
 				ent->SetLastImpactType(JELLY);
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 	}
 }
@@ -1293,7 +1308,12 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
 		{
+			// TODO: Wat is deze g, was met jou
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = JELLY_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 	}
 	else if (ent->getType() == PLAYER)
@@ -1348,6 +1368,10 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
 				ent->SetLastImpactType(JELLY);
 			}
+
+			ALLEGRO_EVENT e;
+			e.user.data1 = PLAYER_JELLY;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 	}
 }
