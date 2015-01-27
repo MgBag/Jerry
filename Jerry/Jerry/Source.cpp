@@ -311,18 +311,18 @@ int main()
 	world->push_back(WorldBlock(4010, 380, 60, 10, JellyWorldColor, JELLYWORLD));
 	world->push_back(WorldBlock(4010, 220, 60, 10, JellyWorldColor, JELLYWORLD));
 	world->push_back(WorldBlock(4010, 90, 60, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4560, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4570, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4580, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4590, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4600, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4620, 480, 10, 20, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 470, 20, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 460, 20, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 450, 20, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 440, 20, 10, JellyWorldColor, JELLYWORLD));
-	world->push_back(WorldBlock(4610, 430, 20, 10, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4560, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4570, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4580, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4590, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4600, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4620, 480, 5, 20, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 470, 20, 5, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 460, 20, 5, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 450, 20, 5, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 440, 20, 5, JellyWorldColor, JELLYWORLD));
+	world->push_back(WorldBlock(4610, 430, 20, 5, JellyWorldColor, JELLYWORLD));
 
 	worldEntities->push_back(WorldEntity(520, 400, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(430, 470, 5, 5, CoinColor, COIN));
@@ -427,6 +427,7 @@ int main()
 	worldEntities->push_back(WorldEntity(1865, 495, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(1885, 495, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(1905, 495, 5, 5, CoinColor, COIN));
+
 	// User input and drawing
 	al_init_user_event_source(&UserEventSource);
 	al_register_event_source(EventQueue, &UserEventSource);
