@@ -72,7 +72,7 @@ void Physics::ApplyGravity(Entity* ent)
 void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<Entity>* entities, list<WorldEntity>* worldEntities)
 {
 	Coordinates* entOff = ent->GetOffset();
-	
+
 	if (!ent->GetHit() && (entOff->X != 0.0 || entOff->Y != 0.0))
 	{
 		Coordinates* entACo = ent->GetACoordinates();
@@ -251,7 +251,7 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 		{
 			int closestX = -1;
 			int closestY = -1;
- 
+
 			for (int i = 0; i < collisions.size(); ++i)
 			{
 				if (collisionPosition[i] == LX || collisionPosition[i] == RX)
@@ -475,39 +475,39 @@ Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordi
 	for (double x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X - PRECISION : x <= entOff->X + PRECISION) && (yStep < 0.0 ? y >= entOff->Y - PRECISION : y <= entOff->Y + PRECISION); x += xStep, y += yStep)
 	{
 		// X with Offset					
-		if (xA->X < entACo->X + x)			
-		{									
-			*minX = entACo->X + x;			
-			*minXIsEnt = true;				
-											
-			*maxX = xB->X;					
-		}									
-		else								
-		{									
-			*minX = xA->X;					
+		if (xA->X < entACo->X + x)
+		{
+			*minX = entACo->X + x;
+			*minXIsEnt = true;
+
+			*maxX = xB->X;
+		}
+		else
+		{
+			*minX = xA->X;
 			*minXIsEnt = false;
 
-			*maxX = entBCo->X + x;			
-		}									
-											
+			*maxX = entBCo->X + x;
+		}
+
 		//Y	with offset						
-		if (xA->Y < entACo->Y + y)			
-		{									
-			*minY = entACo->Y + y;			
-			*minYIsEnt = true;				
-											
-			*maxY = xB->Y;					
-		}									
-		else								
-		{									
-			*minY = xA->Y;					
+		if (xA->Y < entACo->Y + y)
+		{
+			*minY = entACo->Y + y;
+			*minYIsEnt = true;
+
+			*maxY = xB->Y;
+		}
+		else
+		{
+			*minY = xA->Y;
 			*minYIsEnt = false;
 
-			*maxY = entBCo->Y + y;			
-		}									
-											
-		if (*maxX > *minX && *maxY > *minY)	
-		{									
+			*maxY = entBCo->Y + y;
+		}
+
+		if (*maxX > *minX && *maxY > *minY)
+		{
 			// TODO: Delete this
 			return new Coordinates(x, y);
 		}

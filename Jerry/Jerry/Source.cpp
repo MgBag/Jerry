@@ -73,6 +73,13 @@ struct PhysicsVariables
 	list<WorldEntity>* worldEntities;
 };
 
+struct WorldText
+{
+	string text;
+	int fontSize;
+};
+
+
 int main()
 {
 	ALLEGRO_DISPLAY* display = 0;
@@ -188,7 +195,7 @@ int main()
 	audio_shot_start = al_load_sample("audio/shot_start.wav");
 	audio_shot_end = al_load_sample("audio/shot_end.wav");
 	audio_drone = al_load_sample("audio/drone.wav");
-	
+
 	if (!(audio_click001 && audio_click002 && audio_bounce && audio_coin && audio_land && audio_shot_start && audio_shot_end && audio_drone))
 	{
 		printf("An audio clip did not load!\n");
@@ -688,11 +695,6 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 		++Particles;
 
 		delete shotOff;
-
-		ALLEGRO_EVENT e;
-		e.type = 555;
-		e.user.data1 = PLAYER_SHOOT;
-		al_emit_user_event(&UserEventSource, &e, 0);
 	}
 }
 
