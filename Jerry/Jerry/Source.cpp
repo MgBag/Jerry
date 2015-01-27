@@ -53,7 +53,7 @@
 
 using namespace std;
 
-void Draw(list<Entity>* ent, list<WorldBlock>* world, list<WorldEntity>* worldEntities);
+void Draw(list<Entity>* ent, list<WorldBlock>* world, list<WorldEntity>* worldEntities, list<WorldScenery>* worldScenery);
 void Move(Entity* player);
 void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 void AsyncPhysics(void* struc);
@@ -79,6 +79,7 @@ struct WorldText
 {
 	string text;
 	int fontSize;
+	ALLEGRO_COLOR color;
 };
 
 
@@ -185,7 +186,7 @@ int main()
 		return -1;
 	}
 
-	if (!al_reserve_samples(8)){
+	if (!al_reserve_samples(999)){
 		fprintf(stderr, "failed to reserve samples!\n");
 		return -1;
 	}
@@ -428,6 +429,28 @@ int main()
 	worldEntities->push_back(WorldEntity(1885, 495, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(1905, 495, 5, 5, CoinColor, COIN));
 
+	WorldText welcome;
+	welcome.fontSize = 16;
+	welcome.text = "The fastest one to collect all the coins will get the highscore and a highfive!";
+	welcome.color = al_map_rgb(100, 100, 100);
+	worldScenery->push_back(WorldScenery(700, 250, SCENETEXT, (void*)&welcome));
+
+	WorldText controls1;
+	controls1.fontSize = 16;
+	controls1.color = al_map_rgb(100, 100, 100);
+	controls1.text = "Movement with WASD and the arrow keys";
+	worldScenery->push_back(WorldScenery(50, 375, SCENETEXT, (void*)&controls1));
+	WorldText controls2;
+	controls2.fontSize = 16;
+	controls2.color = al_map_rgb(100, 100, 100);
+	controls2.text = "Jumping also possible with space";
+	worldScenery->push_back(WorldScenery(50, 400, SCENETEXT, (void*)&controls2));
+	WorldText controls3;
+	controls3.fontSize = 16;
+	controls3.color = al_map_rgb(100, 100, 100);
+	controls3.text = "Press R to go back to spawn";
+	worldScenery->push_back(WorldScenery(50, 425, SCENETEXT, (void*)&controls3));
+
 	// User input and drawing
 	al_init_user_event_source(&UserEventSource);
 	al_register_event_source(EventQueue, &UserEventSource);
@@ -458,7 +481,7 @@ int main()
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
-			Draw(entities, world, worldEntities);
+			Draw(entities, world, worldEntities, worldScenery);
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 		{
@@ -602,7 +625,7 @@ int main()
 	return 0;
 }
 
-void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities)
+void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities, list<WorldScenery>* worldScenery)
 {
 	if (CLEAR_DRAW) al_clear_to_color(al_map_rgb(220, 220, 220));
 
@@ -617,8 +640,23 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
 	Coordinates* entOff = player->GetOffset();
 	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
-	Coordinates viewPortA = Coordinates(posA.X - (SCREEN_W / 2 - player->GetWidth() / 2), 0.0);
-	Coordinates viewPortB = Coordinates(posA.X + (SCREEN_W / 2 - player->GetWidth() / 2), SCREEN_H);
+	Coordinates viewPortA = Coordinates(posA.X - (SCREEN_W / 2 + player->GetWidth() / 2), 0.0);
+	Coordinates viewPortB = Coordinates(posA.X + (SCREEN_W / 2 + player->GetWidth() / 2), SCREEN_H);
+
+	for (list<WorldScenery>::iterator wScene = worldScenery->begin(); wScene != worldScenery->end(); ++wScene)
+	{
+		if (wScene->GetType() == SCENETEXT)
+		{
+			Coordinates wSceneBCo = Coordinates(wScene->GetCoordinates()->X + 600, wScene->GetCoordinates()->Y + 20);
+
+			if (phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo))
+			{
+				WorldText* wData = (WorldText*)wScene->GetData();
+
+				al_draw_text(font, wData->color, wScene->GetCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, wScene->GetCoordinates()->Y, 0, (wData->text).c_str());
+			}
+		}
+	}
 
 	mtx.lock();
 	if (DRAW_PREDICTION && CLEAR_DRAW)
@@ -739,15 +777,16 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		}
 	}
 
+
 	// Jelly amount
-	al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-	al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-	al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-	al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
-	al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
-	al_draw_text(font, WorldColor, 1000, 85, 0, ("Is airborn: " + to_string(player->GetIsAirBorn())).c_str());
-	al_draw_text(font, WorldColor, 1000, 100, 0, ("Last CollPos: " + collPosName[player->GetLastColPos()]).c_str());
-	al_draw_text(font, WorldColor, 1000, 115, 0, ("Score: " + to_string(Score)).c_str());
+	//al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
+	//al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
+	//al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
+	//al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
+	//al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
+	//al_draw_text(font, WorldColor, 1000, 85, 0, ("Is airborn: " + to_string(player->GetIsAirBorn())).c_str());
+	//al_draw_text(font, WorldColor, 1000, 100, 0, ("Last CollPos: " + collPosName[player->GetLastColPos()]).c_str());
+	al_draw_text(font, WorldColor, 1000, 10, 0, ("Score: " + to_string(Score)).c_str());
 
 	al_flip_display();
 }
@@ -822,26 +861,30 @@ void Move(Entity* ent)
 // TODO : Mang, dat copy of event
 void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
-	if (entities->size() -1 < MAX_ENTITIES)
+	if (entities->size() - 1 == MAX_ENTITIES)
 	{
-		Entity* player = &*entities->begin();
-		Coordinates* entPos = player->GetACoordinates();
-		Coordinates* entOff = player->GetOffset();
-		double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-		double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-		Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
-
-		entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
-
-		++Particles;
-
-		delete shotOff;
-
-		ALLEGRO_EVENT e;
-		e.type = 555;
-		e.user.data1 = PLAYER_SHOOT;
-		al_emit_user_event(&UserEventSource, &e, 0);
+		mtx.lock();
+		entities->pop_back();
+		mtx.unlock();
 	}
+
+	Entity* player = &*entities->begin();
+	Coordinates* entPos = player->GetACoordinates();
+	Coordinates* entOff = player->GetOffset();
+	double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
+
+	entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
+
+	++Particles;
+
+	delete shotOff;
+
+	ALLEGRO_EVENT es;
+	es.type = 555;
+	es.user.data1 = PLAYER_SHOOT;
+	al_emit_user_event(&UserEventSource, &es, 0);
 }
 
 void AsyncPhysics(void* struc)
@@ -959,8 +1002,8 @@ void DevConsole()
 			}
 			else if (command == "MAX_ENTITY_AGE")
 			{
-				MAX_ENTITY_AGE = stod(value);
-				cout << "MAX_ENTITY_AGE set to: " << MAX_ENTITY_AGE << endl;
+				MAX_ENTITY_AGE = stod(value) * PHYSICS_TICK;
+				cout << "MAX_ENTITY_AGE set to: " << MAX_ENTITY_AGE / PHYSICS_TICK<< endl;
 			}
 			else if (command == "MAX_ENTITY_VELOCITY")
 			{
@@ -1045,7 +1088,7 @@ void DevConsole()
 			}
 			else if (command == "MAX_ENTITY_AGE")
 			{
-				cout << "MAX_ENTITY_AGE is: " << MAX_ENTITY_AGE << endl;
+				cout << "MAX_ENTITY_AGE is: " << MAX_ENTITY_AGE / PHYSICS_TICK << endl;
 			}
 			else if (command == "MAX_ENTITY_VELOCITY")
 			{

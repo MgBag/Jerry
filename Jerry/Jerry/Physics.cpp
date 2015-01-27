@@ -1389,7 +1389,17 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			e.user.data1 = PLAYER_BADWORLD;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
-		if ((*collisionType)[xIndex] == COIN)
+		else if ((*collisionType)[xIndex] == COIN && (*collisionType)[yIndex] == COIN)
+		{
+			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
+			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = PLAYER_COIN;
+			al_emit_user_event(&UserEventSource, &e, 0);
+		}
+		else if ((*collisionType)[xIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 
