@@ -273,49 +273,43 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			// Check if it should be a flat collision due to several entities or world items at same height or width
 			if (closestX != -1 && closestY != -1)
 			{
-				//(collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->SetColor(al_map_rgb(220, 220, 20)) : ((Entity*)collisionItem[closestX])->SetColor(al_map_rgb(220, 220, 20));
-				//(collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->SetColor(al_map_rgb(220, 220, 20)) : ((Entity*)collisionItem[closestY])->SetColor(al_map_rgb(220, 220, 20));
-				bool actualY = false;
-				bool actualX = false;
+				bool actualY = true;
+				bool actualX = true;
 
-				int c1 = count(collisionPosition.begin(), collisionPosition.end(), collisionPosition[closestX]);
-				int c2 = count(collisionPosition.begin(), collisionPosition.end(), collisionPosition[closestY]);
-				
-				if (!(c1 > 1 && c2 > 1))
 				for (int i = 0; i < collisions.size(); ++i)
 				{
-					if (closestX != i && collisionPosition[i] != collisionPosition[closestX])
+					if (closestX != i)
 					{
 						if (collisionPosition[closestX] == LX)
 						{
-							if (((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->X : ((Entity*)collisionItem[closestX])->GetBCoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->X : ((Entity*)collisionItem[i])->GetBCoordinates()->X))
+							if (!(((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->X : ((Entity*)collisionItem[closestX])->GetBCoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->X : ((Entity*)collisionItem[i])->GetBCoordinates()->X)))
 							{
-								actualX = true;
+								actualX = false;
 							}
 						}
 						else if (collisionPosition[closestX] == RX)
 						{
-							if (((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetA()->X : ((Entity*)collisionItem[closestX])->GetACoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->X : ((Entity*)collisionItem[i])->GetACoordinates()->X))
+							if (!(((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetA()->X : ((Entity*)collisionItem[closestX])->GetACoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->X : ((Entity*)collisionItem[i])->GetACoordinates()->X)))
 							{
-								actualX = true;
+								actualX = false;
 							}
 						}
 					}
 
-					if (closestY != i && collisionPosition[i] != collisionPosition[closestY])
+					if (closestY != i)
 					{
 						if (collisionPosition[closestY] == UY)
 						{
-							if (((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->Y : ((Entity*)collisionItem[closestY])->GetBCoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->Y : ((Entity*)collisionItem[i])->GetBCoordinates()->Y))
+							if (!(((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->Y : ((Entity*)collisionItem[closestY])->GetBCoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->Y : ((Entity*)collisionItem[i])->GetBCoordinates()->Y)))
 							{
-								actualY = true;
+								actualY = false;
 							}
 						}
 						else if (collisionPosition[closestY] == DY)
 						{
-							if (((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetA()->Y : ((Entity*)collisionItem[closestY])->GetACoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->Y : ((Entity*)collisionItem[i])->GetACoordinates()->Y))
+							if (!(((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetA()->Y : ((Entity*)collisionItem[closestY])->GetACoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetA()->Y : ((Entity*)collisionItem[i])->GetACoordinates()->Y)))
 							{
-								actualY = true;
+								actualY = false;
 							}
 						}
 					}
