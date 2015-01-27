@@ -273,9 +273,15 @@ void Physics::Collide(list<Entity>::iterator ent, list<WorldBlock>* world, list<
 			// Check if it should be a flat collision due to several entities or world items at same height or width
 			if (closestX != -1 && closestY != -1)
 			{
+				//(collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->SetColor(al_map_rgb(220, 220, 20)) : ((Entity*)collisionItem[closestX])->SetColor(al_map_rgb(220, 220, 20));
+				//(collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->SetColor(al_map_rgb(220, 220, 20)) : ((Entity*)collisionItem[closestY])->SetColor(al_map_rgb(220, 220, 20));
 				bool actualY = false;
 				bool actualX = false;
 
+				int c1 = count(collisionPosition.begin(), collisionPosition.end(), collisionPosition[closestX]);
+				int c2 = count(collisionPosition.begin(), collisionPosition.end(), collisionPosition[closestY]);
+				
+				if (!(c1 > 1 && c2 > 1))
 				for (int i = 0; i < collisions.size(); ++i)
 				{
 					if (closestX != i && collisionPosition[i] != collisionPosition[closestX])
@@ -951,7 +957,6 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 	}
 	else // Type is player
 	{
-		ent->SetLastColPos((*collisionPosition)[xIndex]);
 
 		if ((*collisionType)[xIndex] == BADWORLD)
 		{
@@ -977,6 +982,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 
 			//ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
 			ent->SetOffset(0.0, entOff->Y);
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetLastImpactType(WORLD);
 		}
 		else if ((*collisionType)[xIndex] == JELLY)
@@ -984,6 +990,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
 
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetLastImpactType(JELLY);
 
 			ALLEGRO_EVENT e;
@@ -1109,7 +1116,6 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 	}
 	else // Type is player
 	{
-		ent->SetLastColPos((*collisionPosition)[yIndex]);
 
 		if ((*collisionType)[yIndex] == BADWORLD)
 		{
@@ -1151,6 +1157,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 				ent->SetIsAirBorn(true);
 			}
 
+			ent->SetLastColPos((*collisionPosition)[yIndex]);
 			ent->SetLastImpactType(WORLD);
 		}
 		else if ((*collisionType)[yIndex] == JELLY)
@@ -1174,6 +1181,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 					ent->SetOffset(entOff->X, entOff->Y * -1);
 				}
 				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
+				ent->SetLastColPos((*collisionPosition)[yIndex]);
 				ent->SetLastImpactType(JELLY);
 			}
 
@@ -1376,7 +1384,6 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 	}
 	else if (ent->getType() == PLAYER)
 	{
-		ent->SetLastColPos((*collisionPosition)[xIndex]);
 
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD)
 		{
@@ -1413,15 +1420,18 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		else if ((((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD) && ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)) || ent->GetIsCrouching())
 		{
 			ent->SetOffset(0.0, 0.0);
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetIsAirBorn(false);
 		}
 		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)
 		{
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetLastImpactType(JELLY);
 		}
 		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD)
 		{
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 		}
 		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
@@ -1443,6 +1453,8 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
 				ent->SetLastImpactType(JELLY);
 			}
+
+			ent->SetLastColPos((*collisionPosition)[xIndex]);
 
 			ALLEGRO_EVENT e;
 			e.type = 555;

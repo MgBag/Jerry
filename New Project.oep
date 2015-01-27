@@ -13,10 +13,10 @@
     <Height>600</Height>
   </LevelMinimumSize>
   <LevelMaximumSize>
-    <Width>4000</Width>
+    <Width>40000</Width>
     <Height>600</Height>
   </LevelMaximumSize>
-  <Filename>D:\GitShit\Jerry\New Project.oep</Filename>
+  <Filename>C:\GitHub\Jerry\Jerry\New Project.oep</Filename>
   <AngleMode>Radians</AngleMode>
   <CameraEnabled>false</CameraEnabled>
   <CameraSize>

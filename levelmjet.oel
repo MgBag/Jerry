@@ -1,8 +1,8 @@
-<level width="4000" height="600">
+<level width="4640" height="600">
   <level>
     <WORLD id="0" x="0" y="0" width="4000" height="10" />
     <WORLD id="1" x="0" y="0" width="10" height="600" />
-    <WORLD id="3" x="3990" y="0" width="10" height="600" />
+    <WORLD id="3" x="3990" y="0" width="10" height="480" />
     <WORLD id="2" x="10" y="500" width="280" height="100" />
     <BADWORLD id="4" x="290" y="590" width="40" height="10" />
     <WORLD id="5" x="330" y="500" width="380" height="100" />
@@ -12,74 +12,203 @@
     <WORLD id="9" x="640" y="480" width="20" height="20" />
     <JELLYWORLD id="10" x="660" y="480" width="10" height="20" />
     <BADWORLD id="12" x="710" y="590" width="140" height="10" />
-    <WORLD id="11" x="850" y="500" width="3140" height="100" />
+    <WORLD id="11" x="850" y="500" width="3790" height="100" />
     <WORLD id="13" x="1270" y="380" width="190" height="120" />
     <WORLD id="14" x="1160" y="340" width="20" height="110" />
     <JELLYWORLD id="15" x="1270" y="480" width="10" height="20" />
     <JELLYWORLD id="16" x="1170" y="430" width="10" height="20" />
     <JELLYWORLD id="17" x="1270" y="380" width="10" height="20" />
     <JELLYWORLD id="18" x="1170" y="340" width="10" height="20" />
-    <WORLD id="19" x="1600" y="380" width="130" height="120" />
-    <JELLYWORLD id="20" x="1520" y="500" width="20" height="10" />
-    <JELLYWORLD id="21" x="1250" y="500" width="20" height="10" />
-    <WORLD id="22" x="1900" y="470" width="20" height="10" />
-    <WORLD id="23" x="1960" y="460" width="20" height="20" />
-    <WORLD id="24" x="2020" y="450" width="20" height="30" />
-    <WORLD id="25" x="2080" y="440" width="20" height="40" />
-    <WORLD id="26" x="2140" y="430" width="20" height="50" />
-    <WORLD id="27" x="2200" y="420" width="20" height="60" />
-    <WORLD id="28" x="2260" y="410" width="20" height="70" />
-    <WORLD id="29" x="2320" y="400" width="20" height="80" />
-    <WORLD id="30" x="2380" y="390" width="20" height="90" />
-    <WORLD id="31" x="2440" y="380" width="20" height="100" />
-    <WORLD id="32" x="2500" y="370" width="20" height="110" />
-    <WORLD id="33" x="2560" y="360" width="20" height="120" />
-    <WORLD id="34" x="2620" y="350" width="20" height="130" />
-    <WORLD id="35" x="2680" y="340" width="20" height="140" />
-    <WORLD id="36" x="2740" y="330" width="20" height="150" />
-    <WORLD id="37" x="2800" y="320" width="20" height="160" />
-    <WORLD id="38" x="2860" y="310" width="20" height="170" />
-    <JELLYWORLD id="39" x="1870" y="500" width="20" height="10" />
-    <JELLYWORLD id="40" x="2080" y="440" width="20" height="10" />
-    <JELLYWORLD id="41" x="2320" y="400" width="20" height="10" />
-    <JELLYWORLD id="42" x="2560" y="360" width="20" height="10" />
-    <JELLYWORLD id="43" x="2860" y="310" width="20" height="10" />
-    <JELLYWORLD id="44" x="1900" y="470" width="20" height="10" />
-    <JELLYWORLD id="45" x="1960" y="460" width="20" height="10" />
-    <JELLYWORLD id="46" x="2020" y="450" width="20" height="10" />
-    <JELLYWORLD id="47" x="2140" y="430" width="20" height="10" />
-    <JELLYWORLD id="48" x="2200" y="420" width="20" height="10" />
-    <JELLYWORLD id="49" x="2260" y="410" width="20" height="10" />
-    <JELLYWORLD id="50" x="2380" y="390" width="20" height="10" />
-    <JELLYWORLD id="51" x="2440" y="380" width="20" height="10" />
-    <JELLYWORLD id="52" x="2500" y="370" width="20" height="10" />
-    <JELLYWORLD id="53" x="2620" y="350" width="20" height="10" />
-    <JELLYWORLD id="54" x="2680" y="340" width="20" height="10" />
-    <JELLYWORLD id="55" x="2740" y="330" width="20" height="10" />
-    <JELLYWORLD id="56" x="2800" y="320" width="20" height="10" />
-    <WORLD id="57" x="1520" y="320" width="20" height="40" />
+    <WORLD id="19" x="1720" y="380" width="130" height="120" />
+    <JELLYWORLD id="20" x="1510" y="500" width="210" height="10" />
+    <WORLD id="22" x="2380" y="470" width="20" height="10" />
+    <WORLD id="23" x="2440" y="460" width="20" height="20" />
+    <WORLD id="24" x="2500" y="450" width="20" height="30" />
+    <WORLD id="25" x="2560" y="440" width="20" height="40" />
+    <WORLD id="26" x="2620" y="430" width="20" height="50" />
+    <WORLD id="27" x="2680" y="420" width="20" height="60" />
+    <WORLD id="28" x="2740" y="410" width="20" height="70" />
+    <WORLD id="29" x="2800" y="400" width="20" height="80" />
+    <WORLD id="30" x="2860" y="390" width="20" height="90" />
+    <WORLD id="31" x="2920" y="380" width="20" height="100" />
+    <WORLD id="32" x="2980" y="370" width="20" height="110" />
+    <WORLD id="33" x="3040" y="360" width="20" height="120" />
+    <WORLD id="34" x="3100" y="350" width="20" height="130" />
+    <WORLD id="35" x="3160" y="340" width="20" height="140" />
+    <WORLD id="36" x="3220" y="330" width="20" height="150" />
+    <WORLD id="37" x="3280" y="320" width="20" height="160" />
+    <WORLD id="38" x="3340" y="310" width="20" height="170" />
+    <JELLYWORLD id="39" x="2350" y="500" width="20" height="10" />
+    <JELLYWORLD id="40" x="2560" y="440" width="20" height="10" />
+    <JELLYWORLD id="41" x="2800" y="400" width="20" height="10" />
+    <JELLYWORLD id="42" x="3040" y="360" width="20" height="10" />
+    <JELLYWORLD id="43" x="3340" y="310" width="20" height="10" />
+    <JELLYWORLD id="44" x="2380" y="470" width="20" height="10" />
+    <JELLYWORLD id="45" x="2440" y="460" width="20" height="10" />
+    <JELLYWORLD id="46" x="2500" y="450" width="20" height="10" />
+    <JELLYWORLD id="47" x="2620" y="430" width="20" height="10" />
+    <JELLYWORLD id="48" x="2680" y="420" width="20" height="10" />
+    <JELLYWORLD id="49" x="2740" y="410" width="20" height="10" />
+    <JELLYWORLD id="50" x="2860" y="390" width="20" height="10" />
+    <JELLYWORLD id="51" x="2920" y="380" width="20" height="10" />
+    <JELLYWORLD id="52" x="2980" y="370" width="20" height="10" />
+    <JELLYWORLD id="53" x="3100" y="350" width="20" height="10" />
+    <JELLYWORLD id="54" x="3160" y="340" width="20" height="10" />
+    <JELLYWORLD id="55" x="3220" y="330" width="20" height="10" />
+    <JELLYWORLD id="56" x="3280" y="320" width="20" height="10" />
     <WORLD id="58" x="630" y="490" width="10" height="10" />
-    <WORLD id="59" x="650" y="450" width="20" height="10" />
     <COIN id="60" x="520" y="400" />
     <COIN id="61" x="430" y="470" />
     <COIN id="62" x="770" y="440" />
     <COIN id="63" x="780" y="440" />
     <COIN id="64" x="790" y="440" />
-    <COIN id="65" x="1260" y="430" />
     <COIN id="66" x="1190" y="440" />
     <COIN id="67" x="1260" y="390" />
     <COIN id="68" x="1190" y="350" />
     <COIN id="69" x="1260" y="490" />
-    <COIN id="70" x="1910" y="460" />
-    <COIN id="71" x="2030" y="440" />
-    <COIN id="72" x="2150" y="420" />
-    <COIN id="73" x="2270" y="400" />
-    <COIN id="74" x="2390" y="380" />
-    <COIN id="75" x="2510" y="360" />
-    <COIN id="76" x="2630" y="340" />
-    <COIN id="77" x="2750" y="320" />
-    <COIN id="78" x="2870" y="300" />
-    <COIN id="79" x="2870" y="210" />
-    <COIN id="80" x="1870" y="210" />
+    <COIN id="70" x="2390" y="460" />
+    <COIN id="71" x="2510" y="440" />
+    <COIN id="72" x="2630" y="420" />
+    <COIN id="73" x="2750" y="400" />
+    <COIN id="74" x="2870" y="380" />
+    <COIN id="75" x="2990" y="360" />
+    <COIN id="76" x="3110" y="340" />
+    <COIN id="77" x="3230" y="320" />
+    <COIN id="78" x="3350" y="300" />
+    <COIN id="79" x="3350" y="210" />
+    <COIN id="80" x="2350" y="210" />
+    <COIN id="81" x="2340" y="220" />
+    <COIN id="82" x="2350" y="220" />
+    <COIN id="83" x="2340" y="210" />
+    <COIN id="84" x="2360" y="210" />
+    <COIN id="85" x="2360" y="220" />
+    <COIN id="86" x="2360" y="230" />
+    <COIN id="87" x="2350" y="230" />
+    <COIN id="88" x="2340" y="230" />
+    <COIN id="89" x="2340" y="240" />
+    <COIN id="90" x="2350" y="240" />
+    <COIN id="91" x="2360" y="240" />
+    <COIN id="92" x="2370" y="230" />
+    <COIN id="93" x="2370" y="240" />
+    <COIN id="94" x="2370" y="220" />
+    <COIN id="95" x="2360" y="210" />
+    <COIN id="96" x="2370" y="210" />
+    <COIN id="97" x="2380" y="210" />
+    <COIN id="98" x="2380" y="220" />
+    <COIN id="99" x="2380" y="230" />
+    <COIN id="100" x="2380" y="240" />
+    <COIN id="101" x="2340" y="250" />
+    <COIN id="102" x="2350" y="250" />
+    <COIN id="103" x="2360" y="250" />
+    <COIN id="104" x="2370" y="250" />
+    <COIN id="105" x="2380" y="250" />
+    <COIN id="106" x="2380" y="250" />
+    <COIN id="107" x="2450" y="450" />
+    <COIN id="108" x="2570" y="430" />
+    <COIN id="109" x="2690" y="410" />
+    <COIN id="110" x="2810" y="390" />
+    <COIN id="111" x="2930" y="370" />
+    <COIN id="112" x="3050" y="350" />
+    <COIN id="113" x="3170" y="330" />
+    <COIN id="114" x="3290" y="310" />
+    <WORLD id="57" x="1460" y="400" width="10" height="100" />
+    <WORLD id="115" x="1470" y="420" width="10" height="80" />
+    <WORLD id="116" x="1480" y="440" width="10" height="60" />
+    <WORLD id="117" x="1490" y="460" width="10" height="40" />
+    <WORLD id="118" x="1500" y="480" width="10" height="20" />
+    <WORLD id="21" x="760" y="470" width="10" height="50" />
+    <WORLD id="59" x="760" y="320" width="10" height="100" />
+    <WORLD id="65" x="3650" y="130" width="20" height="320" />
+    <JELLYWORLD id="119" x="3660" y="430" width="10" height="20" />
+    <JELLYWORLD id="121" x="3660" y="330" width="10" height="20" />
+    <JELLYWORLD id="123" x="3660" y="230" width="10" height="20" />
+    <JELLYWORLD id="125" x="3660" y="130" width="10" height="20" />
+    <WORLD id="126" x="3760" y="130" width="20" height="320" />
+    <JELLYWORLD id="120" x="3760" y="380" width="10" height="20" />
+    <JELLYWORLD id="122" x="3760" y="280" width="10" height="20" />
+    <JELLYWORLD id="124" x="3760" y="180" width="10" height="20" />
+    <COIN id="127" x="3680" y="440" />
+    <COIN id="128" x="3750" y="390" />
+    <COIN id="129" x="3680" y="340" />
+    <COIN id="130" x="3750" y="290" />
+    <COIN id="131" x="3680" y="240" />
+    <COIN id="132" x="3750" y="190" />
+    <COIN id="133" x="3680" y="140" />
+    <WORLD id="134" x="3780" y="130" width="110" height="20" />
+    <WORLD id="135" x="3870" y="80" width="20" height="50" />
+    <COIN id="136" x="3780" y="100" />
+    <COIN id="137" x="3780" y="90" />
+    <COIN id="138" x="3790" y="90" />
+    <COIN id="139" x="3790" y="100" />
+    <COIN id="140" x="3780" y="110" />
+    <COIN id="141" x="3780" y="120" />
+    <COIN id="142" x="3790" y="120" />
+    <COIN id="143" x="3790" y="110" />
+    <COIN id="144" x="3800" y="120" />
+    <COIN id="145" x="3800" y="100" />
+    <COIN id="146" x="3800" y="110" />
+    <COIN id="147" x="3800" y="90" />
+    <COIN id="148" x="3810" y="100" />
+    <COIN id="149" x="3810" y="90" />
+    <COIN id="150" x="3820" y="90" />
+    <COIN id="151" x="3820" y="100" />
+    <COIN id="152" x="3810" y="110" />
+    <COIN id="153" x="3810" y="120" />
+    <COIN id="154" x="3820" y="120" />
+    <COIN id="155" x="3820" y="110" />
+    <COIN id="156" x="3830" y="120" />
+    <COIN id="157" x="3830" y="100" />
+    <COIN id="158" x="3830" y="110" />
+    <COIN id="159" x="3830" y="90" />
+    <COIN id="160" x="3840" y="100" />
+    <COIN id="161" x="3840" y="90" />
+    <COIN id="162" x="3850" y="90" />
+    <COIN id="163" x="3850" y="100" />
+    <COIN id="164" x="3840" y="110" />
+    <COIN id="165" x="3840" y="120" />
+    <COIN id="166" x="3850" y="120" />
+    <COIN id="167" x="3850" y="110" />
+    <COIN id="168" x="3860" y="120" />
+    <COIN id="169" x="3860" y="100" />
+    <COIN id="170" x="3860" y="110" />
+    <COIN id="171" x="3860" y="90" />
+    <JELLYWORLD id="172" x="3670" y="500" width="90" height="10" />
+    <COIN id="173" x="1854" y="485" />
+    <COIN id="174" x="1854" y="464" />
+    <COIN id="175" x="1854" y="445" />
+    <COIN id="176" x="1865" y="495" />
+    <COIN id="177" x="1885" y="495" />
+    <COIN id="178" x="1905" y="495" />
+    <JELLYWORLD id="179" x="1850" y="430" width="10" height="10" />
+    <JELLYWORLD id="180" x="1850" y="450" width="10" height="10" />
+    <JELLYWORLD id="181" x="1850" y="470" width="10" height="10" />
+    <JELLYWORLD id="182" x="1850" y="490" width="10" height="10" />
+    <JELLYWORLD id="183" x="1870" y="490" width="10" height="10" />
+    <JELLYWORLD id="184" x="1890" y="490" width="10" height="10" />
+    <JELLYWORLD id="185" x="1910" y="490" width="10" height="10" />
+    <JELLYWORLD id="186" x="4000" y="0" width="640" height="10" />
+    <JELLYWORLD id="187" x="4000" y="0" width="10" height="480" />
+    <JELLYWORLD id="188" x="4000" y="500" width="640" height="10" />
+    <JELLYWORLD id="189" x="4630" y="0" width="10" height="510" />
+    <JELLYWORLD id="190" x="4220" y="250" width="200" height="10" />
+    <JELLYWORLD id="191" x="4010" y="40" width="60" height="10" />
+    <JELLYWORLD id="192" x="4010" y="150" width="60" height="10" />
+    <JELLYWORLD id="193" x="4010" y="290" width="60" height="10" />
+    <JELLYWORLD id="194" x="4010" y="380" width="60" height="10" />
+    <JELLYWORLD id="195" x="4010" y="220" width="60" height="10" />
+    <JELLYWORLD id="196" x="4010" y="90" width="60" height="10" />
+    <JELLYWORLD id="197" x="4560" y="480" width="10" height="20" />
+    <JELLYWORLD id="198" x="4570" y="480" width="10" height="20" />
+    <JELLYWORLD id="199" x="4580" y="480" width="10" height="20" />
+    <JELLYWORLD id="200" x="4590" y="480" width="10" height="20" />
+    <JELLYWORLD id="201" x="4600" y="480" width="10" height="20" />
+    <JELLYWORLD id="202" x="4610" y="480" width="10" height="20" />
+    <JELLYWORLD id="203" x="4620" y="480" width="10" height="20" />
+    <JELLYWORLD id="204" x="4610" y="470" width="20" height="10" />
+    <JELLYWORLD id="205" x="4610" y="460" width="20" height="10" />
+    <JELLYWORLD id="206" x="4610" y="450" width="20" height="10" />
+    <JELLYWORLD id="207" x="4610" y="440" width="20" height="10" />
+    <JELLYWORLD id="208" x="4610" y="430" width="20" height="10" />
+    <JELLYWORLD id="209" x="550" y="270" width="10" height="10" />
   </level>
 </level>
