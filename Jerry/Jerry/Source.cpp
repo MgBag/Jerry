@@ -84,8 +84,12 @@ int main()
 
 	ALLEGRO_SAMPLE* audio_click001 = NULL;
 	ALLEGRO_SAMPLE* audio_click002 = NULL;
-	ALLEGRO_SAMPLE* audio_arpeggio107 = NULL;
-	ALLEGRO_SAMPLE* audio_frogbass001 = NULL;
+	ALLEGRO_SAMPLE* audio_bounce = NULL;
+	ALLEGRO_SAMPLE* audio_coin = NULL;
+	ALLEGRO_SAMPLE* audio_land = NULL;
+	ALLEGRO_SAMPLE* audio_shot_start = NULL;
+	ALLEGRO_SAMPLE* audio_shot_end = NULL;
+	ALLEGRO_SAMPLE* audio_drone = NULL;
 
 	if (!al_init())
 	{
@@ -171,17 +175,21 @@ int main()
 		return -1;
 	}
 
-	if (!al_reserve_samples(4)){
+	if (!al_reserve_samples(8)){
 		fprintf(stderr, "failed to reserve samples!\n");
 		return -1;
 	}
 
 	audio_click001 = al_load_sample("audio/click001.wav");
 	audio_click002 = al_load_sample("audio/click002.wav");
-	audio_arpeggio107 = al_load_sample("audio/arpeggio107.wav");
-	audio_frogbass001 = al_load_sample("audio/frogbass001.wav");
+	audio_bounce = al_load_sample("audio/bounce.wav");
+	audio_coin = al_load_sample("audio/coin.wav");
+	audio_land = al_load_sample("audio/land.wav");
+	audio_shot_start = al_load_sample("audio/shot_start.wav");
+	audio_shot_end = al_load_sample("audio/shot_end.wav");
+	audio_drone = al_load_sample("audio/drone.wav");
 	
-	if (!(audio_click001 && audio_click002 && audio_arpeggio107 && audio_frogbass001))
+	if (!(audio_click001 && audio_click002 && audio_bounce && audio_coin && audio_land && audio_shot_start && audio_shot_end && audio_drone))
 	{
 		printf("An audio clip did not load!\n");
 		return -1;
@@ -306,7 +314,7 @@ int main()
 	// TODO: Meak pretti fix for this
 	al_grab_mouse(display);
 	al_start_timer(frame);
-	al_play_sample(audio_arpeggio107, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
+	al_play_sample(audio_drone, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 
 	while (!quit)
 	{
@@ -409,39 +417,42 @@ int main()
 		{
 			quit = true;
 		}
-		else if (ALLEGRO_EVENT_TYPE_IS_USER(e.type))
+		else if (e.type == 555)
 		{
 			switch (e.user.data1)
 			{
-			case PLAYER_WORD:
-
+			case PLAYER_WORLD:
+				al_play_sample(audio_land, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case PLAYER_JELLY:
-				al_play_sample(audio_click001, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				al_play_sample(audio_bounce, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case PLAYER_BADWORLD:
-
+				al_play_sample(audio_click002, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case JELLY_JELLY:
-				al_play_sample(audio_click002, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				al_play_sample(audio_bounce, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case JELLY_JELLYWORLD:
-				al_play_sample(audio_click002, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				al_play_sample(audio_shot_end, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case JELLY_NOTJELLYWORLD:
-
+				al_play_sample(audio_click001, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 
 			case PLAYER_COIN:
-				al_play_sample(audio_frogbass001, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				al_play_sample(audio_coin, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+				break;
+
+			case PLAYER_SHOOT:
+				al_play_sample(audio_shot_start, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			default:
-				
 				break;
 			}
 		}
@@ -677,6 +688,11 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 		++Particles;
 
 		delete shotOff;
+
+		ALLEGRO_EVENT e;
+		e.type = 555;
+		e.user.data1 = PLAYER_SHOOT;
+		al_emit_user_event(&UserEventSource, &e, 0);
 	}
 }
 

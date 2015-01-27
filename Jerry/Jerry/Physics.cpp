@@ -9,6 +9,7 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 {
 	ActiveParticles = -1;
 
+	bool wasAirBorn = entities->begin()->GetIsAirBorn();
 	entities->begin()->SetIsAirBorn(true);
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
@@ -47,6 +48,14 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 		ApplyGravity(&(*ent));
 		Collide(ent, world, entities, worldEntities);
 		ent->MoveToOffset();
+	}
+
+	if (entities->begin()->GetLastColPos() == DY && wasAirBorn && !entities->begin()->GetIsAirBorn())
+	{
+		ALLEGRO_EVENT e;
+		e.type = 555;
+		e.user.data1 = PLAYER_WORLD;
+		al_emit_user_event(&UserEventSource, &e, 0);
 	}
 }
 
@@ -913,6 +922,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLYWORLD;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -923,6 +933,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -931,6 +942,11 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
 
 			ent->SetRemove(true);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = JELLY_NOTJELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 	}
 	else // Type is player
@@ -941,11 +957,17 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		{
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = PLAYER_BADWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[xIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_COIN;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -965,6 +987,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetLastImpactType(JELLY);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1058,6 +1081,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLYWORLD;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1070,12 +1094,17 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS, entOff->Y * -1 * PROJECTILE_BOUNCINESS);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == BADWORLD || (*collisionType)[yIndex] == WORLD)
 		{
 			ent->SetRemove(true);
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = JELLY_NOTJELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 	}
 	else // Type is player
@@ -1090,11 +1119,17 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = PLAYER_BADWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[yIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_COIN;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1143,6 +1178,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1163,6 +1199,11 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
 		{
 			ent->SetRemove(true);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = JELLY_NOTJELLYWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		else if ((*collisionType)[xIndex] == JELLYWORLD)
 		{
@@ -1239,6 +1280,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLYWORLD;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1317,6 +1359,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLYWORLD;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1326,6 +1369,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = JELLY_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
@@ -1338,12 +1382,18 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		{
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
+
+			ALLEGRO_EVENT e;
+			e.type = 555;
+			e.user.data1 = PLAYER_BADWORLD;
+			al_emit_user_event(&UserEventSource, &e, 0);
 		}
 		if ((*collisionType)[xIndex] == COIN)
 		{
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_COIN;
 			al_emit_user_event(&UserEventSource, &e, 0);
 
@@ -1354,6 +1404,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_COIN;
 			al_emit_user_event(&UserEventSource, &e, 0);
 
@@ -1394,6 +1445,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 			}
 
 			ALLEGRO_EVENT e;
+			e.type = 555;
 			e.user.data1 = PLAYER_JELLY;
 			al_emit_user_event(&UserEventSource, &e, 0);
 		}
