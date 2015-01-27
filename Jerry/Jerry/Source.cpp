@@ -1,23 +1,10 @@
-// TOD? : Add noclip
-// TOD? : Maek returns const so that they cannot be eddited
-// DONE : Fix roation twitch
-// DONE : Remove the vucking fector
-// DONE : Stop in mind air on direction change
-// DONE : Following trail
-// DONE : Air controls
-// DONE : Projectile trajectory
-// DONE : Bounce
-// TODO : Level
-// TODO : Naming and names mang. Projectile particle etc....
-// TODO : Use the recursion in Collision() so that it doesn't need recalulation later on
 // TODO : Preformance optimizing
-// TODO : Physics tick counter
-// TODO : Coins or something alike
-// TODO : Checkpoints
-// TODO : Level end
-// TODO : Load new level
-// TODO : FIX CORNER IMPACT MULTIPLE HEIGHTS
-// TODO : CORNER IMPACT COIN
+// TODO : Level fixes
+// TODO : Naming and names mang. Projectile particle etc....
+// TODO : Comment
+// TODO : Coins clipping
+// TODO : Weird jelly placement right bottom
+// TODO : Trail audio fix
 
 // TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
@@ -222,7 +209,7 @@ int main()
 
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
-
+	
 	world->push_back(WorldBlock(710, 590, 140, 10, BadWorldColor, BADWORLD));
 	world->push_back(WorldBlock(290, 590, 40, 10, BadWorldColor, BADWORLD));
 
@@ -434,24 +421,24 @@ int main()
 
 	WorldText welcome;
 	welcome.font = Font;
-	welcome.text = "The fastest one to collect all the coins will get the highscore and a highfive!";
+	welcome.text = "The fastest to collect all the coins will get the highscore and a highfive!";
 	welcome.color = al_map_rgb(100, 100, 100);
 	worldScenery->push_back(WorldScenery(700, 250, SCENETEXT, (void*)&welcome));
 
 	WorldText controls1;
 	welcome.font = Font;
 	controls1.color = al_map_rgb(100, 100, 100);
-	controls1.text = "Movement with WASD and the arrow keys";
+	controls1.text = "Movement with WASD and arrow keys";
 	worldScenery->push_back(WorldScenery(40, 375, SCENETEXT, (void*)&controls1));
 	WorldText controls2;
 	welcome.font = Font;
 	controls2.color = al_map_rgb(100, 100, 100);
-	controls2.text = "Jumping also possible with space, to stop bouncing hold CTRL";
+	controls2.text = "Jumping is also possible with space, to stop bouncing hold CTRL";
 	worldScenery->push_back(WorldScenery(40, 400, SCENETEXT, (void*)&controls2));
 	WorldText controls3;
 	welcome.font = Font;
 	controls3.color = al_map_rgb(100, 100, 100);
-	controls3.text = "Shoot with Mouse1 and use Mouse2 to remove all Jelly";
+	controls3.text = "Use Mouse1 to shoot and use Mouse2 to remove all Jelly";
 	worldScenery->push_back(WorldScenery(40, 425, SCENETEXT, (void*)&controls3));
 	WorldText controls4;
 	welcome.font = Font;
@@ -473,7 +460,6 @@ int main()
 	al_register_event_source(EventQueue, al_get_keyboard_event_source());
 	al_register_event_source(EventQueue, al_get_mouse_event_source());
 
-	//void AsyncPhysics(void* void_tickQueue, void* void_entities, void* void_world)
 	PhysicsVariables physVar;
 	physVar.entities = entities;
 	physVar.world = world;
@@ -482,7 +468,6 @@ int main()
 	thread physThread = thread(AsyncPhysics, (void*)&physVar);
 	thread consoleThread = thread(DevConsole);
 
-	// TODO: Meak pretti fix for this
 	al_grab_mouse(display);
 	al_start_timer(frame);
 	al_play_sample(audio_drone, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
