@@ -1,21 +1,5 @@
 #include "Constants.h"
 
-int ActiveParticles = 0;
-int Particles = 0;
-int StackOverflowProtection = 0;
-int Score = 0;
-
-ALLEGRO_COLOR PlayerColor = al_map_rgb(20, 20, 220);
-ALLEGRO_COLOR JellyColor = al_map_rgb(20, 220, 20);
-ALLEGRO_COLOR WorldColor = al_map_rgb(20, 20, 20);
-ALLEGRO_COLOR BadWorldColor = al_map_rgb(220, 20, 20);
-ALLEGRO_COLOR JellyWorldColor = al_map_rgb(20, 20, 220);
-ALLEGRO_COLOR CoinColor = al_map_rgb(255, 140, 0);
-ALLEGRO_EVENT_QUEUE* EventQueue = 0;
-ALLEGRO_EVENT_SOURCE UserEventSource;
-
-
-Coordinates Spawn = Coordinates(40, 400);
 
 double	FPS = 60;
 double	PHYSICS_TICK = 60;
@@ -48,3 +32,23 @@ double	PLAYER_SIDE_SIDE_BOUNCE = 1.5;
 bool	FLY = false;
 bool	CLEAR_DRAW = true;
 bool	DRAW_PREDICTION = false;
+
+int ScoreShow = 25 * FPS;
+
+int ActiveParticles = 0;
+int Particles = 0;
+int StackOverflowProtection = 0;
+int Score = 0;
+
+
+ALLEGRO_COLOR PlayerColor = al_map_rgb(20, 20, 220);
+ALLEGRO_COLOR JellyColor = al_map_rgb(20, 220, 20);
+ALLEGRO_COLOR WorldColor = al_map_rgb(20, 20, 20);
+ALLEGRO_COLOR BadWorldColor = al_map_rgb(220, 20, 20);
+ALLEGRO_COLOR JellyWorldColor = al_map_rgb(20, 20, 220);
+ALLEGRO_COLOR CoinColor = al_map_rgb(255, 140, 0);
+ALLEGRO_EVENT_QUEUE* EventQueue = 0;
+ALLEGRO_EVENT_SOURCE UserEventSource;
+
+
+Coordinates Spawn = Coordinates(40, 400);

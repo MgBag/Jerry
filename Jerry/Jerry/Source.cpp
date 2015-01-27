@@ -45,6 +45,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
+#include <fstream>
 #include "Entity.h"
 #include "WorldBlock.h"
 #include "Physics.h"
@@ -59,14 +60,19 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
 void AsyncPhysics(void* struc);
 void DevConsole();
 
-Physics phys;
-ALLEGRO_FONT *font = 0;
-bool quit = false;
-bool keys[5] = { false, false, false, false, false };
-string keyName[5] = { "R", "U", "L", "D", "LCTRL" };
-string collPosName[4] = { "LX", "RX", "UY", "DY" };
-bool mouseButtons[3] = { false, false, false };
-mutex mtx;
+Physics Phys;
+ALLEGRO_FONT* Font = 0;
+ALLEGRO_FONT* FontBig = 0;
+bool Quit = false;
+bool Keys[5] = { false, false, false, false, false };
+string KeyName[5] = { "R", "U", "L", "D", "LCTRL" };
+string CollPosName[4] = { "LX", "RX", "UY", "DY" };
+bool MouseButtons[3] = { false, false, false };
+string HighScore = "";
+mutex Mtx;
+int TotalCoins;
+bool Collected = false;
+unsigned int TimeScore = 0;
 
 struct PhysicsVariables
 {
@@ -78,7 +84,7 @@ struct PhysicsVariables
 struct WorldText
 {
 	string text;
-	int fontSize;
+	ALLEGRO_FONT* font;
 	ALLEGRO_COLOR color;
 };
 
@@ -167,9 +173,10 @@ int main()
 		fprintf(stderr, "failed to initialize ttf addon!\n");
 		return -1;
 	}
-	font = al_load_ttf_font("fonts/coolvetica.ttf", 17, 0);
+	Font = al_load_ttf_font("fonts/coolvetica.ttf", 17, 0);
+	FontBig = al_load_ttf_font("fonts/coolvetica.ttf", 24, 0);
 
-	if (!font)
+	if (!(Font && FontBig))
 	{
 		fprintf(stderr, "Failed to load font\n");
 		system("pause");
@@ -422,34 +429,41 @@ int main()
 	worldEntities->push_back(WorldEntity(3860, 100, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(3860, 110, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(3860, 90, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1854, 485, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1854, 464, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1854, 445, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1865, 495, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1885, 495, 5, 5, CoinColor, COIN));
-	worldEntities->push_back(WorldEntity(1905, 495, 5, 5, CoinColor, COIN));
+
+	TotalCoins = worldEntities->size();
 
 	WorldText welcome;
-	welcome.fontSize = 16;
+	welcome.font = Font;
 	welcome.text = "The fastest one to collect all the coins will get the highscore and a highfive!";
 	welcome.color = al_map_rgb(100, 100, 100);
 	worldScenery->push_back(WorldScenery(700, 250, SCENETEXT, (void*)&welcome));
 
 	WorldText controls1;
-	controls1.fontSize = 16;
+	welcome.font = Font;
 	controls1.color = al_map_rgb(100, 100, 100);
 	controls1.text = "Movement with WASD and the arrow keys";
-	worldScenery->push_back(WorldScenery(50, 375, SCENETEXT, (void*)&controls1));
+	worldScenery->push_back(WorldScenery(40, 375, SCENETEXT, (void*)&controls1));
 	WorldText controls2;
-	controls2.fontSize = 16;
+	welcome.font = Font;
 	controls2.color = al_map_rgb(100, 100, 100);
-	controls2.text = "Jumping also possible with space";
-	worldScenery->push_back(WorldScenery(50, 400, SCENETEXT, (void*)&controls2));
+	controls2.text = "Jumping also possible with space, to stop bouncing hold CTRL";
+	worldScenery->push_back(WorldScenery(40, 400, SCENETEXT, (void*)&controls2));
 	WorldText controls3;
-	controls3.fontSize = 16;
+	welcome.font = Font;
 	controls3.color = al_map_rgb(100, 100, 100);
-	controls3.text = "Press R to go back to spawn";
-	worldScenery->push_back(WorldScenery(50, 425, SCENETEXT, (void*)&controls3));
+	controls3.text = "Shoot with Mouse1 and use Mouse2 to remove all Jelly";
+	worldScenery->push_back(WorldScenery(40, 425, SCENETEXT, (void*)&controls3));
+	WorldText controls4;
+	welcome.font = Font;
+	controls4.color = al_map_rgb(100, 100, 100);
+	controls4.text = "Press R to go back to spawn";
+	worldScenery->push_back(WorldScenery(40, 450, SCENETEXT, (void*)&controls4));
+
+	WorldText credits;
+	credits.font = FontBig;
+	credits.color = al_map_rgb(100, 100, 100);
+	credits.text = "All audio by Aljoscha Christenhusz";
+	worldScenery->push_back(WorldScenery(4175, 220, SCENETEXT, (void*)&credits));
 
 	// User input and drawing
 	al_init_user_event_source(&UserEventSource);
@@ -473,7 +487,7 @@ int main()
 	al_start_timer(frame);
 	al_play_sample(audio_drone, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 
-	while (!quit)
+	while (!Quit)
 	{
 		ALLEGRO_EVENT e;
 
@@ -481,6 +495,34 @@ int main()
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
+			if (!Collected)
+				++TimeScore;
+			if (Score == TotalCoins)
+			{
+				Collected = true;
+
+				std::ifstream scoreI;
+				scoreI.open("score.txt");
+				getline(scoreI, HighScore);
+				scoreI.close();
+
+				if (HighScore == "")
+				{
+					ofstream scoreO;
+					scoreO.open("score.txt");
+					scoreO << to_string(TimeScore) << endl;
+					HighScore = TimeScore;
+					scoreO.close();
+				}
+				else if (TimeScore < stoi(HighScore))
+				{
+					ofstream scoreO;
+					scoreO.open("score.txt");
+					scoreO << to_string(TimeScore) << endl;
+					scoreO.close();
+				}
+			}
+
 			Draw(entities, world, worldEntities, worldScenery);
 		}
 		else if (e.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
@@ -492,7 +534,7 @@ int main()
 				//mouseButtons[LMB] = true;
 				break;
 			case 2:
-				mouseButtons[RMB] = true;
+				MouseButtons[RMB] = true;
 				Particles = 0;
 				break;
 			}
@@ -503,31 +545,31 @@ int main()
 			{
 			case ALLEGRO_KEY_D:
 			case ALLEGRO_KEY_RIGHT:
-				keys[RIGHT] = true;
+				Keys[RIGHT] = true;
 				break;
 
 			case ALLEGRO_KEY_A:
 			case ALLEGRO_KEY_LEFT:
-				keys[LEFT] = true;
+				Keys[LEFT] = true;
 				break;
 
 			case ALLEGRO_KEY_SPACE:
 			case ALLEGRO_KEY_W:
 			case ALLEGRO_KEY_UP:
-				keys[UP] = true;
+				Keys[UP] = true;
 				break;
 
 			case ALLEGRO_KEY_S:
 			case ALLEGRO_KEY_DOWN:
-				keys[DOWN] = true;
+				Keys[DOWN] = true;
 				break;
 
 			case ALLEGRO_KEY_LCTRL:
-				keys[LCTRL] = true;
+				Keys[LCTRL] = true;
 				break;
 
 			case ALLEGRO_KEY_ESCAPE:
-				quit = true;
+				Quit = true;
 				break;
 
 			case ALLEGRO_KEY_R:
@@ -546,33 +588,33 @@ int main()
 			{
 			case ALLEGRO_KEY_D:
 			case ALLEGRO_KEY_RIGHT:
-				keys[RIGHT] = false;
+				Keys[RIGHT] = false;
 				break;
 
 			case ALLEGRO_KEY_SPACE:
 			case ALLEGRO_KEY_W:
 			case ALLEGRO_KEY_UP:
-				keys[UP] = false;
+				Keys[UP] = false;
 				break;
 
 			case ALLEGRO_KEY_A:
 			case ALLEGRO_KEY_LEFT:
-				keys[LEFT] = false;
+				Keys[LEFT] = false;
 				break;
 
 			case ALLEGRO_KEY_S:
 			case ALLEGRO_KEY_DOWN:
-				keys[DOWN] = false;
+				Keys[DOWN] = false;
 				break;
 
 			case ALLEGRO_KEY_LCTRL:
-				keys[LCTRL] = false;
+				Keys[LCTRL] = false;
 				break;
 			}
 		}
 		else if (e.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
-			quit = true;
+			Quit = true;
 		}
 		else if (e.type == 555)
 		{
@@ -620,7 +662,7 @@ int main()
 	physThread.detach();
 	consoleThread.detach();
 
-	delete world, entities;
+	delete world, entities, worldEntities, worldScenery;
 
 	return 0;
 }
@@ -635,11 +677,11 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Coordinates posA = *player->GetACoordinates();
 	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	double angle = phys.OffsetToAngle((player->GetWidth() / 2 - PROJECTILE_SIZE / 2 - mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - mouse.y + PROJECTILE_SIZE / 2) * -1);
-	Coordinates* gunVec = phys.VectorToOffset(15.0, angle);
-	Coordinates* blankGunVec = phys.VectorToOffset(5.0, angle);
+	double angle = Phys.OffsetToAngle((player->GetWidth() / 2 - PROJECTILE_SIZE / 2 - mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - mouse.y + PROJECTILE_SIZE / 2) * -1);
+	Coordinates* gunVec = Phys.VectorToOffset(15.0, angle);
+	Coordinates* blankGunVec = Phys.VectorToOffset(5.0, angle);
 	Coordinates* entOff = player->GetOffset();
-	Coordinates* shotVec = phys.VectorToOffset(PROJECTILE_SPEED, angle);
+	Coordinates* shotVec = Phys.VectorToOffset(PROJECTILE_SPEED, angle);
 	Coordinates viewPortA = Coordinates(posA.X - (SCREEN_W / 2 + player->GetWidth() / 2), 0.0);
 	Coordinates viewPortB = Coordinates(posA.X + (SCREEN_W / 2 + player->GetWidth() / 2), SCREEN_H);
 
@@ -649,16 +691,16 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		{
 			Coordinates wSceneBCo = Coordinates(wScene->GetCoordinates()->X + 600, wScene->GetCoordinates()->Y + 20);
 
-			if (phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo))
+			if (Phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo))
 			{
 				WorldText* wData = (WorldText*)wScene->GetData();
-
-				al_draw_text(font, wData->color, wScene->GetCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, wScene->GetCoordinates()->Y, 0, (wData->text).c_str());
+				// TODO : Fix dynamic fonts
+				al_draw_text(Font, wData->color, wScene->GetCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, wScene->GetCoordinates()->Y, 0, (wData->text).c_str());
 			}
 		}
 	}
 
-	mtx.lock();
+	Mtx.lock();
 	if (DRAW_PREDICTION && CLEAR_DRAW)
 	{
 		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE) };
@@ -668,8 +710,8 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 
 		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 		{
-			phys.ApplyGravity(&*ghostShot);
-			phys.Collide(ghostShot, world, entities, worldEntities);
+			Phys.ApplyGravity(&*ghostShot);
+			Phys.Collide(ghostShot, world, entities, worldEntities);
 			ghostShot->MoveToOffset();
 
 			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetRemove())
@@ -678,7 +720,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 			}
 			else
 			{
-				if (phys.AreColliding(&viewPortA, &viewPortB, ghostShot->GetACoordinates(), ghostShot->GetBCoordinates()))
+				if (Phys.AreColliding(&viewPortA, &viewPortB, ghostShot->GetACoordinates(), ghostShot->GetBCoordinates()))
 				{
 					al_draw_filled_rectangle(
 						ghostShot->GetACoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
@@ -692,11 +734,11 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 			}
 		}
 	}
-	mtx.unlock();
+	Mtx.unlock();
 
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
-		if (phys.AreColliding(&viewPortA, &viewPortB, wBlock->GetA(), wBlock->GetB()))
+		if (Phys.AreColliding(&viewPortA, &viewPortB, wBlock->GetA(), wBlock->GetB()))
 		{
 			al_draw_filled_rectangle(
 				wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
@@ -707,12 +749,12 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		}
 	}
 
-	mtx.lock();
+	Mtx.lock();
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* entA = ent->GetACoordinates();
 
-		if (phys.AreColliding(&viewPortA, &viewPortB, entA, ent->GetBCoordinates()))
+		if (Phys.AreColliding(&viewPortA, &viewPortB, entA, ent->GetBCoordinates()))
 		{
 			al_draw_filled_rectangle(entA->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y, entA->X + ent->GetWidth() + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y + ent->GetHeight(), ent->GetColor());
 
@@ -737,7 +779,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 
 	for (list<WorldEntity>::iterator wEntity = worldEntities->begin(); wEntity != worldEntities->end(); ++wEntity)
 	{
-		if (phys.AreColliding(&viewPortA, &viewPortB, wEntity->GetA(), wEntity->GetB()))
+		if (Phys.AreColliding(&viewPortA, &viewPortB, wEntity->GetA(), wEntity->GetB()))
 		{
 			al_draw_filled_rectangle(
 				wEntity->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
@@ -747,7 +789,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 				wEntity->GetColor());
 		}
 	}
-	mtx.unlock();
+	Mtx.unlock();
 
 	// Player
 	al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2, posA.Y, SCREEN_W / 2 - player->GetWidth() / 2 + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
@@ -756,7 +798,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, gunVec->X +      SCREEN_W / 2, gunVec->Y      + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
 	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, blankGunVec->X + SCREEN_W / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(100, 100, 255), 5.0);
 
-	mtx.lock();
+	Mtx.lock();
 	// Gun Charge
 	struct ts { int i; list<Entity>::iterator ent; };
 
@@ -765,28 +807,40 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + 5, posA.Y - 5, JellyColor);
 		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
 	}
-	mtx.unlock();
+	Mtx.unlock();
 
 	string pressed = "";
 
-	for (int i = 0; i < sizeof(keys) / sizeof(*keys); ++i)
+	for (int i = 0; i < sizeof(Keys) / sizeof(*Keys); ++i)
 	{
-		if (keys[i])
+		if (Keys[i])
 		{
-			pressed += keyName[i] + ", ";
+			pressed += KeyName[i] + ", ";
 		}
 	}
 
+	al_draw_text(Font, WorldColor, 1000, 10, 0, ("Coins: " + to_string(Score) + "/" + to_string(TotalCoins)).c_str());
+	al_draw_text(Font, WorldColor, 1000, 25, 0, ("Time: " + to_string(TimeScore)).c_str());
 
-	// Jelly amount
-	//al_draw_text(font, WorldColor, 1000, 10, 0, ("Total particles: " + to_string(Particles)).c_str());
-	//al_draw_text(font, WorldColor, 1000, 25, 0, ("Active particles: " + to_string(ActiveParticles)).c_str());
-	//al_draw_text(font, WorldColor, 1000, 40, 0, ("Player X: " + to_string(player->GetOffset()->X)).c_str());
-	//al_draw_text(font, WorldColor, 1000, 55, 0, ("Player Y: " + to_string(player->GetOffset()->Y)).c_str());
-	//al_draw_text(font, WorldColor, 1000, 70, 0, ("Pressed keys: " + pressed).c_str());
-	//al_draw_text(font, WorldColor, 1000, 85, 0, ("Is airborn: " + to_string(player->GetIsAirBorn())).c_str());
-	//al_draw_text(font, WorldColor, 1000, 100, 0, ("Last CollPos: " + collPosName[player->GetLastColPos()]).c_str());
-	al_draw_text(font, WorldColor, 1000, 10, 0, ("Score: " + to_string(Score)).c_str());
+	if (Collected && ScoreShow != 0)
+	{
+		--ScoreShow;
+
+		if (TimeScore == stoi(HighScore))
+		{
+			al_draw_text(FontBig, WorldColor, 400, 200, 0, "New Highscore!");
+			al_draw_text(Font, al_map_rgb(40, 40, 40), 400, 240, 0, ("Your score: " + to_string(TimeScore)).c_str());
+			al_draw_text(Font, al_map_rgb(40, 40, 40), 400, 265, 0, "Restart the game to start over or play around with the console and testing area");
+		}
+		else
+		{
+			al_draw_text(FontBig, WorldColor, 400, 200, 0, "You finished the game!");
+			al_draw_text(Font, al_map_rgb(40, 40, 40), 400, 240, 0, ("Your score: " + to_string(TimeScore)).c_str());
+			al_draw_text(Font, al_map_rgb(40, 40, 40), 400, 265, 0, ("Highscore: " + HighScore).c_str());
+			al_draw_text(Font, al_map_rgb(40, 40, 40), 400, 290, 0, "Restart the game to start over or play around with the console and testing area");
+
+		}
+	}
 
 	al_flip_display();
 }
@@ -797,7 +851,7 @@ void Move(Entity* ent)
 
 	if (!FLY)
 	{
-		if (keys[RIGHT])
+		if (Keys[RIGHT])
 		{
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
@@ -812,7 +866,7 @@ void Move(Entity* ent)
 			}
 		}
 
-		if (keys[LEFT])
+		if (Keys[LEFT])
 		{
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
@@ -827,7 +881,7 @@ void Move(Entity* ent)
 			}
 		}
 
-		if (keys[UP])
+		if (Keys[UP])
 		{
 			if (!ent->GetIsAirBorn())
 			{
@@ -837,17 +891,17 @@ void Move(Entity* ent)
 	}
 	else
 	{
-		if (keys[UP])
+		if (Keys[UP])
 			--offset->Y;
-		if (keys[DOWN])
+		if (Keys[DOWN])
 			++offset->Y;
-		if (keys[RIGHT])
+		if (Keys[RIGHT])
 			++offset->X;
-		if (keys[LEFT])
+		if (Keys[LEFT])
 			--offset->X;
 	}
 
-	if (keys[LCTRL])
+	if (Keys[LCTRL])
 	{
 		ent->SetIsCrouching(true);
 	}
@@ -863,9 +917,9 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 {
 	if (entities->size() - 1 == MAX_ENTITIES)
 	{
-		mtx.lock();
+		Mtx.lock();
 		entities->pop_back();
-		mtx.unlock();
+		Mtx.unlock();
 	}
 
 	Entity* player = &*entities->begin();
@@ -873,7 +927,7 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
 	Coordinates* entOff = player->GetOffset();
 	double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	Coordinates* shotOff = phys.VectorToOffset(PROJECTILE_SPEED, phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
+	Coordinates* shotOff = Phys.VectorToOffset(PROJECTILE_SPEED, Phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
 	entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
 
@@ -894,24 +948,23 @@ void AsyncPhysics(void* struc)
 	list<WorldEntity>* worldEntities = ((PhysicsVariables*)struc)->worldEntities;
 	Entity* player = &(*entities->begin());
 
-	while (!quit)
+	while (!Quit)
 	{
 		al_rest(1.0 / PHYSICS_TICK);
-		
-		mtx.lock();
+		Mtx.lock();
 		Move(player);
-		phys.ApplyPhysics(entities, world, worldEntities);
-		mtx.unlock();
+		Phys.ApplyPhysics(entities, world, worldEntities);
+		Mtx.unlock();
 
-		if (mouseButtons[RMB])
+		if (MouseButtons[RMB])
 		{
-			mtx.lock();
+			Mtx.lock();
 			while (entities->size() > 1)
 			{
 				entities->pop_back();
 			}
-			mtx.unlock();
-			mouseButtons[RMB] = false;
+			Mtx.unlock();
+			MouseButtons[RMB] = false;
 		}
 	}
 }
@@ -920,7 +973,7 @@ void DevConsole()
 {
 	string input = "";
 
-	while (!quit)
+	while (!Quit)
 	{ 
 		cout << ">";
 		

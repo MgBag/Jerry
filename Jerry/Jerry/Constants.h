@@ -36,6 +36,7 @@ extern bool   FLY;
 extern bool   CLEAR_DRAW;
 extern bool   DRAW_PREDICTION;
 
+extern int ScoreShow;
 extern int Score;
 extern int ActiveParticles;
 extern int Particles;
