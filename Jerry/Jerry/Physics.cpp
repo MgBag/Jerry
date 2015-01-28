@@ -42,7 +42,8 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 			{
 				// Increase the age by one tick and set his color to accordingly
 				ent->IncAge();
-				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_ENTITY_AGE * ent->GetAge()), 20));
+				//185, 44, 136
+				ent->SetColor(al_map_rgb(185 - (165 / MAX_ENTITY_AGE * ent->GetAge()), 44 - (24 / MAX_ENTITY_AGE * ent->GetAge()), 136 - (116 / MAX_ENTITY_AGE * ent->GetAge())));
 			}
 		}
 

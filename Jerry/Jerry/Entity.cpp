@@ -30,9 +30,6 @@ Coordinates* Entity::GetACoordinates()
 
 Coordinates* Entity::GetBCoordinates()
 {
-	//m_BCoordinates.X = m_ACoordinates.X + m_Width;
-	//m_BCoordinates.Y = m_ACoordinates.Y + m_Height;
-
 	return &m_BCoordinates;
 }
 

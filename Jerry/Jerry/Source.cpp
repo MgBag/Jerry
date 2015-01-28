@@ -1,9 +1,4 @@
-// TODO : Preformance optimizing
 // TODO : Level fixes
-// TODO : Comment
-// TODO : Coins clipping
-
-// TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
 // Ranges: 
 // ----------
@@ -210,10 +205,10 @@ int main()
 
 	// Program wide set color variables
 	PlayerColor = al_map_rgb(20, 20, 220);
-	JellyColor = al_map_rgb(20, 220, 20);
-	WorldColor = al_map_rgb(20, 20, 20);
+	JellyColor = al_map_rgb(185, 44, 136);
+	WorldColor = al_map_rgb(62, 52, 25);
 	BadWorldColor = al_map_rgb(220, 20, 20);
-	JellyWorldColor = al_map_rgb(20, 20, 220);
+	JellyWorldColor = al_map_rgb(85, 169, 81);
 	CoinColor = al_map_rgb(255, 140, 0);
 
 	// The first item in the list is always the player
@@ -596,7 +591,7 @@ int main()
 
 			case ALLEGRO_KEY_T:
 				// To clear the screen if CLEAR_DRAW == false
-				al_clear_to_color(al_map_rgb(220, 220, 220));
+				al_clear_to_color(al_map_rgb(103, 233, 246));
 				break;
 			
 			case ALLEGRO_KEY_LSHIFT:
@@ -700,7 +695,7 @@ int main()
 
 void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities, list<WorldScenery>* worldScenery)
 {
-	if (CLEAR_DRAW) al_clear_to_color(al_map_rgb(220, 220, 220));
+	if (CLEAR_DRAW) al_clear_to_color(al_map_rgb(103, 233, 246));
 
 	Entity* player = &*entities->begin();
 	ALLEGRO_MOUSE_STATE mouse;
@@ -1015,6 +1010,7 @@ void Shoot(list<Entity>* entities, ALLEGRO_EVENT* e)
 
 void AsyncPhysics(void* struc)
 {
+	// Setting up local varibles casted from the void struct
 	list<WorldBlock>* world = ((PhysicsVariables*)struc)->world;
 	list<Entity>* entities = ((PhysicsVariables*)struc)->entities;
 	list<WorldEntity>* worldEntities = ((PhysicsVariables*)struc)->worldEntities;
