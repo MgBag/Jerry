@@ -1,6 +1,5 @@
 // TODO : Preformance optimizing
 // TODO : Level fixes
-// TODO : Naming and names mang. Projectile particle etc....
 // TODO : Comment
 // TODO : Coins clipping
 

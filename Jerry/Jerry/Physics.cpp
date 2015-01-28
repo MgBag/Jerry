@@ -1,24 +1,22 @@
 #include "Physics.h"
 
-// TODO: Memory leaks mang
-// TODO: Check logics mang, flows and flaws
-// TODO: Stop deleteing entOff
-// TODO: Meak air collision, might be easy?
-
 void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* worldEntities)
 {
 	ActiveParticles = -1;
 
+	// Bool used to get if the player just landed used to trigger landing audio effect
 	bool wasAirBorn = entities->begin()->GetIsAirBorn();
+	// Asume that the player is airborn otherwise might be proven in the collisionbehavour
 	entities->begin()->SetIsAirBorn(true);
 
 	for (list<Entity>::iterator ent = entities->begin(); ent != entities->end(); ++ent)
 	{
+		// Overflow protection so that no infinite loops can occur
 		StackOverflowProtection = 0;
 
-		// TODO : Move this to into the the collision
 		if (ent->GetRemove())
 		{
+			// Remove the entity from the list if it's set to remove
 			list<Entity>::iterator temp = ent;
 			--ent;
 			entities->erase(temp);
@@ -26,12 +24,14 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 			continue;
 		}
 
+		// Debug value stores the amount of active particles
 		if (!ent->GetHit()) ++ActiveParticles;
 
 		if (ent->getType() == PROJECTILE)
 		{
 			if (ent->GetAge() == MAX_ENTITY_AGE)
 			{
+				// Remove the entity if it's to old - it's by definition the last one
 				entities->pop_back();
 
 				--Particles;
@@ -40,16 +40,21 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 			}
 			else
 			{
+				// Increase the age by one tick and set his color to accordingly
 				ent->IncAge();
 				ent->SetColor(al_map_rgb(20, 220 - (200.0 / MAX_ENTITY_AGE * ent->GetAge()), 20));
 			}
 		}
 
+		// Apply gravity offset to entity
 		ApplyGravity(&*ent);
+		// Collide the entities if the will
 		Collide(&*ent, world, entities, worldEntities);
+		// Move the entity
 		ent->MoveToOffset();
 	}
 
+	// Player just landed
 	if (entities->begin()->GetLastColPos() == DY && wasAirBorn && !entities->begin()->GetIsAirBorn())
 	{
 		ALLEGRO_EVENT e;
@@ -61,10 +66,10 @@ void Physics::ApplyPhysics(list<Entity>* entities, list<WorldBlock>* world, list
 
 void Physics::ApplyGravity(Entity* ent)
 {
-	if (ent->getType() == PLAYER || !ent->GetHit())
+	if ((ent->getType() == PLAYER && !FLY )|| !ent->GetHit())
 	{
 		Coordinates* offset = ent->GetOffset();
-
+		// Move set offset including gravity per tic
 		ent->SetOffset(offset->X, offset->Y + GRAVITY);
 	}
 }
@@ -78,22 +83,30 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 		Coordinates* entACo = ent->GetACoordinates();
 		Coordinates* entBCo = ent->GetBCoordinates();
 		double entVel = sqrt(entOff->X * entOff->X + entOff->Y * entOff->Y);
+		
+		// Stores the delta between the current ent position and where it will collide
+		// Used to find the nearest collision
 		vector<Coordinates*> collisions;
+		// Stores the position where the collision occured
 		vector<Coordinates> possitions;
+		// Stores the ColPos, on what side the collision happens, evaluated from ent
 		vector<CollPos> collisionPosition;
+		// Stores the ItemType that is being collided with
 		vector<ItemType> collisionType;
+		// Stores the actual object that is being collided with
+		// Dereffernce happens based on collisionType
 		vector<void*> collisionItem;
 
+		// Steps made inbetween the current location and the offset
+		double xStep = (entOff->Y == 0 ? (entOff->X < 0.0 ? entVel * -0.1 : entVel * 0.1) : entOff->X) / ceil(entVel);
+		double yStep = (entOff->X == 0 ? (entOff->Y < 0.0 ? entVel * -0.1 : entVel * 0.1) : entOff->Y) / ceil(entVel);
 
-		// To make sure that a step isn't 1.0 if the offset is equal to teh velocity
-		double xStep = (entOff->Y == 0 ? (entOff->X / (entOff->X * (entOff->X < 0.0 ? -10.0 : 10.0))) : entOff->X) / ceil(entVel);
-		double yStep = (entOff->X == 0 ? (entOff->Y / (entOff->Y * (entOff->Y < 0.0 ? -10.0 : 10.0))) : entOff->Y) / ceil(entVel);
-
+		// Check collision with the current ent with all other entities
 		for (list<Entity>::iterator jel = entities->begin(); jel != entities->end(); ++jel)
 		{
-			if (&*ent == &*jel)
+			if (&*ent == &*jel) // Skip self
 				continue;
-			if (!jel->GetHit())
+			if (!jel->GetHit()) // Skip all entities that are not hit
 				continue;
 
 			Coordinates* jelACo = jel->GetACoordinates();
@@ -101,45 +114,57 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 			if (AreInRange(entOff, entACo, entBCo, jelACo, jelBCo))
 			{
+				// Only run this if ent en jel are within range
 				if (!AreColliding(entACo, entBCo, jelACo, jelBCo))
 				{
+					// Do not run if ent and jel are already colliding
 					double minX, minY, maxX, maxY;
 					bool minXIsEnt = false, minYIsEnt = false;
 
+					// Get excact collision location, returns NULL if there is no collision 
 					Coordinates* colOff = GetCollisionOffset(&*ent, jelACo, jelBCo, xStep, yStep, &minX, &minY, &maxX, &maxY, &minXIsEnt, &minYIsEnt);
 
 					if (colOff != NULL)
 					{
+						// Check if it's an X collision by checking if X is no longer colliding if on step back is made on the X axis
+						// Hard to read due to PRECISION (implemented because of DFP)
 						if (!(maxX - (minXIsEnt ? 0.0 : (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION)) > minX - (minXIsEnt ? (xStep < 0.0 ? xStep - PRECISION : xStep + PRECISION) : 0.0)) && maxY > minY)
 						{
 							if (minXIsEnt)
 							{
+								// Left X collision
 								possitions.push_back(Coordinates(jelBCo->X, entACo->Y + colOff->Y));
 								collisionPosition.push_back(LX);
 							}
 							else
 							{
+								// Right X collision
 								possitions.push_back(Coordinates(jelACo->X - ent->GetWidth(), entACo->Y + colOff->Y));
 								collisionPosition.push_back(RX);
 							}
-
 						}
-						else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
+						// Asumpsion is made that the following is an Y collision
+						else
 						{
 							if (minYIsEnt)
 							{
+								// Upper Y collision
 								possitions.push_back(Coordinates(entACo->X + colOff->X, jelBCo->Y));
 								collisionPosition.push_back(UY);
 							}
 							else
 							{
+								// Lower y collision
 								possitions.push_back(Coordinates(entACo->X + colOff->X, jelACo->Y - ent->GetHeight()));
 								collisionPosition.push_back(DY);
 							}
 						}
 
+						// Store the jel that is being collided with
 						collisionItem.push_back((void*)&*jel);
+						// Store the collision offset
 						collisions.push_back(colOff);
+						// Store the collision type
 						collisionType.push_back(JELLY);
 					}
 				}
@@ -148,7 +173,6 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 		for (list<WorldBlock>::reverse_iterator wor = world->rbegin(); wor != world->rend(); ++wor)
 		{
-			// TODO: Add might collide
 			if (AreInRange(entOff, entACo, entBCo, wor->GetA(), wor->GetB()))
 			{
 				Coordinates* worACo = wor->GetA();
@@ -174,7 +198,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							collisionPosition.push_back(RX);
 						}
 					}
-					else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
+					else
 					{
 						if (minYIsEnt)
 						{
@@ -197,10 +221,10 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 		for (list<WorldEntity>::iterator worE = worldEntities->begin(); worE != worldEntities->end(); ++worE)
 		{
+			// Don't run if ent is a projectile and worE a coin
 			if (ent->getType() == PROJECTILE && worE->GetType() == COIN)
 				continue;
 
-			// TODO: Add might collide
 			if (AreInRange(entOff, entACo, entBCo, worE->GetA(), worE->GetB()))
 			{
 				Coordinates* worACo = worE->GetA();
@@ -226,7 +250,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 							collisionPosition.push_back(RX);
 						}
 					}
-					else /*if (maxX > minX && !(maxY - (minYIsEnt ? 0.0 : (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION)) > minY - (minYIsEnt ? (yStep < 0.0 ? yStep - PRECISION : yStep + PRECISION) : 0.0)))*/
+					else
 					{
 						if (minYIsEnt)
 						{
@@ -249,6 +273,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 		if (collisions.size())
 		{
+			// Closest collision index
 			int closestX = -1;
 			int closestY = -1;
 
@@ -256,6 +281,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 			{
 				if (collisionPosition[i] == LX || collisionPosition[i] == RX)
 				{
+					// Find the closest collision on the X axis based on the total distance of the collision (Pythagorean theorem)
 					if (closestX == -1 ? true : (sqrt(pow(collisions[i]->X, 2) + pow(collisions[i]->Y, 2)) < sqrt(pow(collisions[closestX]->X, 2) + pow(collisions[closestX]->Y, 2))))
 					{
 						closestX = i;
@@ -263,6 +289,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else if (collisionPosition[i] == UY || collisionPosition[i] == DY)
 				{
+					// Find the closest collision on the Y axis based on the total distance of the collision (Pythagorean theorem)
 					if (closestY == -1 ? true : (sqrt(pow(collisions[i]->X, 2) + pow(collisions[i]->Y, 2)) < sqrt(pow(collisions[closestY]->X, 2) + pow(collisions[closestY]->Y, 2))))
 					{
 						closestY = i;
@@ -280,6 +307,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				{
 					if (closestX != i)
 					{
+						// If any of the possible collisions is not on the same offset as the X collision no flat collision on X
 						if (collisionPosition[closestX] == LX)
 						{
 							if (!(((collisionType[closestX] == WORLD || collisionType[closestX] == BADWORLD || collisionType[closestX] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestX])->GetB()->X : ((Entity*)collisionItem[closestX])->GetBCoordinates()->X) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->X : ((Entity*)collisionItem[i])->GetBCoordinates()->X)))
@@ -298,6 +326,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 
 					if (closestY != i)
 					{
+						// If any of the possible collisions is not on the same offset as the Y collision no flat collision on Y
 						if (collisionPosition[closestY] == UY)
 						{
 							if (!(((collisionType[closestY] == WORLD || collisionType[closestY] == BADWORLD || collisionType[closestY] == JELLYWORLD) ? ((WorldBlock*)collisionItem[closestY])->GetB()->Y : ((Entity*)collisionItem[closestY])->GetBCoordinates()->Y) == ((collisionType[i] == WORLD || collisionType[i] == BADWORLD || collisionType[i] == JELLYWORLD) ? ((WorldBlock*)collisionItem[i])->GetB()->Y : ((Entity*)collisionItem[i])->GetBCoordinates()->Y)))
@@ -315,6 +344,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 					}
 				}
 
+				// Put in here during dev I think this cannot occur, but haven't proven it yet (no time) so it stay here to make sure no unexpected crashes occur
 				if (actualX && actualY)
 				{
 					if (ent->GetLastColPos() == LX || ent->GetLastColPos() == RX)
@@ -328,10 +358,12 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else if (actualX)
 				{
+					// Actual X collision thus no Y collision
 					closestY = -1;
 				}
 				else if (actualY)
 				{
+					// Actual Y collision thus no X collision
 					closestX = -1;
 				}
 			}
@@ -350,9 +382,11 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				XCollisionBehaviour(closestX, &*ent, &possitions, &collisionPosition, &collisionType, &collisionItem, audioEvents);
 			}
 
-			// TODO: Move all the entities that do not collide if this function is run again so that everything stays in sync
+			// Checks whenever a collision will occur within the current tick
+			// Possible of there are two objects close to each other and and entity is going fast enough to hit both in one tic
 			if (WillCollide(&*ent, world, entities, worldEntities))
 			{
+				// To make sure no overflow occurs due to an infinite loop
 				if (StackOverflowProtection < MAX_COLLISION_RECURSION)
 				{
 					++StackOverflowProtection;
@@ -360,6 +394,7 @@ void Physics::Collide(Entity* ent, list<WorldBlock>* world, list<Entity>* entiti
 				}
 				else
 				{
+					// If too many recursions have happend break out of the recursion by setting the offset to 0.0
 					ent->SetOffset(0.0, 0.0);
 				}
 			}
@@ -397,7 +432,6 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 			if (AreInRange(entOff, entACo, entBCo, worE->GetA(), worE->GetB()))
 			{
-
 				bool minXIsEnt = false, minYIsEnt = false;
 				double minX, minY, maxX, maxY;
 
@@ -405,7 +439,7 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 				if (colOff != NULL)
 				{
-					// TODO: use colOff so that it doesn't have to calculated again.
+					// If a collision occurs return true
 					delete colOff;
 					return true;
 				}
@@ -434,8 +468,7 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 					if (colOff != NULL)
 					{
-						// TODO: use colOff so that it doesn't have to calculated again.
-
+						// If a collision occurs return true
 						delete colOff;
 						return true;
 					}
@@ -454,7 +487,7 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 
 				if (colOff != NULL)
 				{
-					// TODO: use colOff so that it doesn't have to calculated again.
+					// If a collision occurs return true
 					delete colOff;
 					return true;
 				}
@@ -465,19 +498,23 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 	return false;
 }
 
-// TODO: Make this return hit Coordinates or null
+// Collision based on Seperate axis collision theorem 
+// Found the theory at http://gamedevelopment.tutsplus.com/tutorials/collision-detection-using-the-separating-axis-theorem--gamedev-169
+// Only used pictures as a quick refference, did all the thinking and testing myself
 Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, double xStep, double yStep, double* minX, double* minY, double* maxX, double* maxY, bool* minXIsEnt, bool* minYIsEnt)
 {
 	Coordinates* entACo = entity->GetACoordinates();
 	Coordinates* entBCo = entity->GetBCoordinates();
 	Coordinates* entOff = entity->GetOffset();
 
+	// Start at the position of the player and add the steps accordingly
 	for (double x = 0, y = 0; (xStep < 0.0 ? x >= entOff->X - PRECISION : x <= entOff->X + PRECISION) && (yStep < 0.0 ? y >= entOff->Y - PRECISION : y <= entOff->Y + PRECISION); x += xStep, y += yStep)
 	{
 		// X with Offset					
 		if (xA->X < entACo->X + x)
 		{
 			*minX = entACo->X + x;
+			// Variable used to see what kind of collision is made: UY, DY, LX or RX
 			*minXIsEnt = true;
 
 			*maxX = xB->X;
@@ -508,7 +545,7 @@ Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordi
 
 		if (*maxX > *minX && *maxY > *minY)
 		{
-			// TODO: Delete this
+			// Retrun the offset where the collision happens
 			return new Coordinates(x, y);
 		}
 	}
@@ -516,6 +553,7 @@ Coordinates* Physics::GetCollisionOffset(Entity* entity, Coordinates* xA, Coordi
 	return NULL;
 }
 
+// To see if two objects are already colliding
 bool Physics::AreColliding(Coordinates* aa, Coordinates* ab, Coordinates* ba, Coordinates* bb)
 {
 	double minY;
@@ -559,7 +597,7 @@ bool Physics::AreColliding(Coordinates* aa, Coordinates* ab, Coordinates* ba, Co
 	return false;
 }
 
-// TODO: Refine this function with conditionary statements
+// Fucntion to check of the entity is in range and thus might collide 
 bool Physics::AreInRange(Coordinates* entOff, Coordinates* entACo, Coordinates* entBCo, Coordinates* xA, Coordinates* xB)
 {
 	double minY;
@@ -603,6 +641,7 @@ bool Physics::AreInRange(Coordinates* entOff, Coordinates* entACo, Coordinates* 
 	return false;
 }
 
+// Calculates the angle based on the offset, returns in radians
 double Physics::OffsetToAngle(double x, double y)
 {
 	if (x == 0.0 && y > 0.0)
@@ -643,6 +682,7 @@ double Physics::OffsetToAngle(double x, double y)
 	}
 }
 
+// Self documenting function name?
 VelocityVector* Physics::OffsetToVector(double x, double y)
 {
 	VelocityVector* vec = new VelocityVector();
@@ -689,6 +729,7 @@ VelocityVector* Physics::OffsetToVector(double x, double y)
 	return vec;
 }
 
+// Self documenting function name?
 VelocityVector* Physics::OffsetToVector(Coordinates* coordinates)
 {
 	double x = coordinates->X;
@@ -738,6 +779,7 @@ VelocityVector* Physics::OffsetToVector(Coordinates* coordinates)
 	return vec;
 }
 
+// Self documenting function name?
 Coordinates* Physics::VectorToOffset(double velocity, double angle)
 {
 	Coordinates *offset = new Coordinates();
@@ -786,6 +828,7 @@ Coordinates* Physics::VectorToOffset(double velocity, double angle)
 	return offset;
 }
 
+// Self documenting function name?
 Coordinates* Physics::VectorToOffset(VelocityVector* vec)
 {
 	Coordinates *offset = new Coordinates();
@@ -837,6 +880,7 @@ Coordinates* Physics::VectorToOffset(VelocityVector* vec)
 	return offset;
 }
 
+// Behaviour for an X collision
 void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents)
 {
 	Coordinates* entOff = ent->GetOffset();
@@ -1009,6 +1053,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 	}
 }
 
+// Behaviour for an Y collision
 void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents)
 {
 	Coordinates* entOff = ent->GetOffset();
@@ -1216,6 +1261,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 	}
 }
 
+// Behaviour for an XY collision (corner)
 void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents)
 {
 	Coordinates* entOff = ent->GetOffset();
@@ -1245,168 +1291,10 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		else if ((*collisionType)[xIndex] == JELLYWORLD)
 		{
 			XCollisionBehaviour(xIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
-
-			//ent->SetOffset(0.0, 0.0);
-			//ent->SetHit(true);
-
-			//WorldBlock* wor = ((WorldBlock*)(*collisionItem)[xIndex]);
-
-			//if ((*collisionPosition)[yIndex] == RX)
-			//{
-			//	if (wor->GetHeight() < ent->GetHeight() * 4)
-			//	{
-			//		ent->SetHeight(wor->GetHeight());
-			//		ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-			//	}
-			//	else
-			//	{
-			//		ent->SetHeight(ent->GetHeight() * 4);
-			//		ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-			//		if (entACo->Y < wor->GetA()->Y)
-			//		{
-			//			ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-			//		}
-			//		else if (entBCo->Y > wor->GetB()->Y)
-			//		{
-			//			ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-			//		}
-			//	}
-
-			//	if (wor->GetWidth() < ent->GetWidth() / 2)
-			//	{
-			//		ent->SetWidth(wor->GetWidth());
-			//		ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-			//	}
-			//	else
-			//	{
-			//		ent->SetWidth(ent->GetWidth() / 2);
-			//		ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
-			//	}
-			//}
-			//else
-			//{
-			//	if (wor->GetHeight() < ent->GetHeight() * 4)
-			//	{
-			//		ent->SetHeight(wor->GetHeight());
-			//		ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-			//	}
-			//	else
-			//	{
-			//		ent->SetHeight(ent->GetHeight() * 4);
-			//		ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
-
-			//		if (entACo->Y < wor->GetA()->Y)
-			//		{
-			//			ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-			//		}
-			//		else if (entBCo->Y > wor->GetB()->Y)
-			//		{
-			//			ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
-			//		}
-			//	}
-
-			//	if (wor->GetWidth() < ent->GetWidth() / 2)
-			//	{
-			//		ent->SetWidth(wor->GetWidth());
-			//		ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-			//	}
-			//	else
-			//	{
-			//		ent->SetWidth(ent->GetWidth() / 2);
-			//		ent->MoveToOffset(ent->GetWidth() * -1, 0.0);
-			//	}
-			//}
-			//if (audioEvents)
-			//{
-			//	ALLEGRO_EVENT e;
-			//	e.type = 555;
-			//	e.user.data1 = JELLY_JELLYWORLD;
-			//	al_emit_user_event(&UserEventSource, &e, 0);
-			//}
 		}
 		else if ((*collisionType)[yIndex] == JELLYWORLD)
 		{
 			YCollisionBehaviour(yIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
-
-			//ent->SetOffset(0.0, 0.0);
-			//ent->SetHit(true);
-
-			//WorldBlock* wor = ((WorldBlock*)(*collisionItem)[yIndex]);
-
-	/*		if ((*collisionPosition)[yIndex] == DY)
-			{
-				if (wor->GetWidth() < ent->GetWidth() * 4)
-				{
-					ent->SetWidth(wor->GetWidth());
-					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-				}
-				else
-				{
-					ent->SetWidth(ent->GetWidth() * 4);
-					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-					if (entACo->X < wor->GetA()->X)
-					{
-						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-					}
-					else if (entBCo->X > wor->GetB()->X)
-					{
-						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-					}
-				}
-
-				if (wor->GetHeight() < ent->GetHeight() / 2)
-				{
-					ent->SetHeight(wor->GetHeight());
-					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-				}
-				else
-				{
-					ent->SetHeight(ent->GetHeight() / 2);
-					ent->MoveToOffset(0.0, ent->GetHeight() * 2);
-				}
-			}
-			else
-			{
-				if (wor->GetWidth() < ent->GetWidth() * 4)
-				{
-					ent->SetWidth(wor->GetWidth());
-					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-				}
-				else
-				{
-					ent->SetWidth(ent->GetWidth() * 4);
-					ent->MoveToOffset(ent->GetWidth() / 2 * -1, 0.0);
-
-					if (entACo->X < wor->GetA()->X)
-					{
-						ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
-					}
-					else if (entBCo->X > wor->GetB()->X)
-					{
-						ent->MoveToOffset(wor->GetB()->X - entBCo->X, 0.0);
-					}
-				}
-
-				if (wor->GetHeight() < ent->GetHeight() / 2)
-				{
-					ent->SetHeight(wor->GetHeight());
-					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
-				}
-				else
-				{
-					ent->SetHeight(ent->GetHeight() / 2);
-					ent->MoveToOffset(0.0, ent->GetHeight() * -1);
-				}
-			}*/
-			//if (audioEvents)
-			//{
-			//	ALLEGRO_EVENT e;
-			//	e.type = 555;
-			//	e.user.data1 = JELLY_JELLYWORLD;
-			//	al_emit_user_event(&UserEventSource, &e, 0);
-			//}
 		}
 		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
 		{
@@ -1423,7 +1311,6 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 	}
 	else if (ent->getType() == PLAYER)
 	{
-
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD)
 		{
 			ent->SetOffset(0.0, 0.0);
