@@ -13,7 +13,9 @@ extern double PLAYER_SPEED;
 extern double PLAYER_JUMP_SPEED;
 extern double PLAYER_BOUNCE_OFFSET;
 extern double PLAYER_AIR_CONTROL;
-extern double PLAYER_AIR_CONTROL_BREAK; 
+// Air break multiplier used to decrease the speed 
+extern double PLAYER_AIR_CONTROL_BREAK;
+// Precision to stop the player movement in air
 extern double PLAYER_AIR_CONTROL_STOP;
 extern double PLAYER_SIDE_UP_BOUNCE;
 extern double PLAYER_SIDE_SIDE_BOUNCE;
@@ -25,7 +27,9 @@ extern double MAX_ENTITIES;
 extern double MAX_ENTITY_AGE;
 extern double MAX_ENTITY_VELOCITY;
 extern int    MAX_COLLISION_PREDICTION;
+// World friction
 extern double FRICTION;
+// Varibale used to stop if the speed is within range
 extern double FRICTION_STOP;
 extern double FM_PI_2;
 extern double FM_3_PI_2;

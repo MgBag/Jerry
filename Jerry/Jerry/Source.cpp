@@ -195,7 +195,7 @@ int main()
 
 	audio_click001 = al_load_sample("audio/click001.wav");
 	audio_click002 = al_load_sample("audio/click002.wav");
-	audio_bounce = al_load_sample("audio/bounce.wav");
+	audio_bounce = al_load_sample("audio/music2.wav");
 	audio_coin = al_load_sample("audio/coin.wav");
 	audio_land = al_load_sample("audio/land.wav");
 	audio_shot_start = al_load_sample("audio/shot_start.wav");
