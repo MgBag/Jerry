@@ -44,9 +44,12 @@ using namespace std;
 void Draw(list<Entity>* ent, list<WorldBlock>* world, list<WorldEntity>* worldEntities, list<WorldScenery>* worldScenery);
 void Move(Entity* player);
 void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
+//Thread function for the physics
 void AsyncPhysics(void* struc);
+//Thread function for the console
 void DevConsole();
 
+// Global variables
 Physics Phys;
 ALLEGRO_FONT* Font = 0;
 ALLEGRO_FONT* FontBig = 0;
@@ -81,11 +84,16 @@ int main()
 	ALLEGRO_DISPLAY* display = 0;
 	ALLEGRO_DISPLAY_MODE disp_data;
 	ALLEGRO_TIMER* frame = 0;
+	// Will contain world items such as World BadWorld and JellyWorld
 	list<WorldBlock>* world = new list<WorldBlock>();
+	// Will contain the player and Jelly
 	list<Entity>* entities = new list<Entity>();
+	// For now only holds coins but is made to be rather dynamic 
 	list<WorldEntity>* worldEntities = new list<WorldEntity>();
+	// For now only holds text also made dynamic
 	list<WorldScenery>* worldScenery = new list<WorldScenery>();
 
+	// Audio samples
 	ALLEGRO_SAMPLE* audio_click001 = NULL;
 	ALLEGRO_SAMPLE* audio_click002 = NULL;
 	ALLEGRO_SAMPLE* audio_bounce = NULL;
@@ -95,6 +103,7 @@ int main()
 	ALLEGRO_SAMPLE* audio_shot_end = NULL;
 	ALLEGRO_SAMPLE* audio_drone = NULL;
 
+	// Initialze Allegro and her pluggins
 	if (!al_init())
 	{
 		cout << "Allegro failed to initiate\n";
@@ -200,6 +209,7 @@ int main()
 		return -1;
 	}
 
+	// Program wide set color variables
 	PlayerColor = al_map_rgb(20, 20, 220);
 	JellyColor = al_map_rgb(20, 220, 20);
 	WorldColor = al_map_rgb(20, 20, 20);
@@ -207,9 +217,11 @@ int main()
 	JellyWorldColor = al_map_rgb(20, 20, 220);
 	CoinColor = al_map_rgb(255, 140, 0);
 
+	// The first item in the list is always the player
 	entities->push_back(Entity(Spawn.X, Spawn.Y, 20, 20, 0.0, 0.0, PlayerColor, PLAYER));
 	Entity* player = &(*entities->begin());
 	
+	// The following will make up the map, it is made in OGMO.
 	world->push_back(WorldBlock(710, 590, 140, 10, BadWorldColor, BADWORLD));
 	world->push_back(WorldBlock(290, 590, 40, 10, BadWorldColor, BADWORLD));
 
@@ -416,9 +428,10 @@ int main()
 	worldEntities->push_back(WorldEntity(3860, 100, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(3860, 110, 5, 5, CoinColor, COIN));
 	worldEntities->push_back(WorldEntity(3860, 90, 5, 5, CoinColor, COIN));
-
 	TotalCoins = worldEntities->size();
-
+	
+	// Scenery may have multiple forms of data
+	// Here they take a void pointer to a struct which is later on dereferenced based on its ItemType
 	WorldText welcome;
 	welcome.font = Font;
 	welcome.text = "The fastest to collect all the coins will get the highscore and a highfive!";
@@ -452,7 +465,7 @@ int main()
 	credits.text = "All audio by Aljoscha Christenhusz";
 	worldScenery->push_back(WorldScenery(4175, 220, SCENETEXT, (void*)&credits));
 
-	// User input and drawing
+	// Registering events
 	al_init_user_event_source(&UserEventSource);
 	al_register_event_source(EventQueue, &UserEventSource);
 	al_register_event_source(EventQueue, al_get_timer_event_source(frame));
@@ -460,32 +473,43 @@ int main()
 	al_register_event_source(EventQueue, al_get_keyboard_event_source());
 	al_register_event_source(EventQueue, al_get_mouse_event_source());
 
+	// Struct to send to the Physics thread
 	PhysicsVariables physVar;
 	physVar.entities = entities;
 	physVar.world = world;
 	physVar.worldEntities = worldEntities;
 
+	// Starting the threads
 	thread physThread = thread(AsyncPhysics, (void*)&physVar);
 	thread consoleThread = thread(DevConsole);
 
+	// Grabbing the mouse, this is broken rather easy though
 	al_grab_mouse(display);
+
+	// Start timer for FPS
 	al_start_timer(frame);
+
+	// Start soundtrack
 	al_play_sample(audio_drone, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
 
 	while (!Quit)
 	{
 		ALLEGRO_EVENT e;
-
 		al_wait_for_event(EventQueue, &e);
 
 		if (e.type == ALLEGRO_EVENT_TIMER)
 		{
+			// Score is based on time spend collection the coins
+			// So the lower the score the better
+			// Every frame adds on point;
 			if (!Collected)
 				++TimeScore;
 			if (Score == TotalCoins)
 			{
+				// All coins have been collected
 				Collected = true;
 
+				// Get the previouse highscore
 				std::ifstream scoreI;
 				scoreI.open("score.txt");
 				getline(scoreI, HighScore);
@@ -493,6 +517,7 @@ int main()
 
 				if (HighScore == "")
 				{
+					// If there is no previous highscore the current score will be the highscore
 					ofstream scoreO;
 					scoreO.open("score.txt");
 					scoreO << to_string(TimeScore) << endl;
@@ -501,6 +526,7 @@ int main()
 				}
 				else if (TimeScore < stoi(HighScore))
 				{
+					// If the new score is better it will be the new highscore
 					ofstream scoreO;
 					scoreO.open("score.txt");
 					scoreO << to_string(TimeScore) << endl;
@@ -516,10 +542,16 @@ int main()
 			{
 			case 1:
 				Shoot(entities, e);
-				//mouseButtons[LMB] = true;
 				break;
 			case 2:
-				MouseButtons[RMB] = true;
+				// Mtx is used as a r/w lock so that only one thread can r or w at a time
+				Mtx.lock();
+				// Run until only the player is left
+				while (entities->size() > 1)
+				{
+					entities->pop_back();
+				}
+				Mtx.unlock();
 				Particles = 0;
 				break;
 			}
@@ -530,6 +562,7 @@ int main()
 			{
 			case ALLEGRO_KEY_D:
 			case ALLEGRO_KEY_RIGHT:
+				// Keys is used to keep a keys state
 				Keys[RIGHT] = true;
 				break;
 
@@ -562,6 +595,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_T:
+				// To clear the screen if CLEAR_DRAW == false
 				al_clear_to_color(al_map_rgb(220, 220, 220));
 				break;
 
@@ -601,7 +635,7 @@ int main()
 		{
 			Quit = true;
 		}
-		else if (e.type == 555)
+		else if (e.type == 555) // User made event for sounds in this case
 		{
 			switch (e.user.data1)
 			{
@@ -642,6 +676,7 @@ int main()
 		}
 	}
 
+	// Wait for other threads to finish 
 	al_rest(0.1);
 
 	physThread.detach();
@@ -660,13 +695,16 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	ALLEGRO_MOUSE_STATE mouse;
 	al_get_mouse_state(&mouse);
 	Coordinates posA = *player->GetACoordinates();
+	// Origin to shoot from
 	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
 	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	// Angle used to draw the prediction and to draw the arm/gun thing
 	double angle = Phys.OffsetToAngle((player->GetWidth() / 2 - PROJECTILE_SIZE / 2 - mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - mouse.y + PROJECTILE_SIZE / 2) * -1);
 	Coordinates* gunVec = Phys.VectorToOffset(15.0, angle);
 	Coordinates* blankGunVec = Phys.VectorToOffset(5.0, angle);
 	Coordinates* entOff = player->GetOffset();
 	Coordinates* shotVec = Phys.VectorToOffset(PROJECTILE_SPEED, angle);
+	// Viewport used to calculate whenever an object should be drawn
 	Coordinates viewPortA = Coordinates(posA.X - (SCREEN_W / 2 + player->GetWidth() / 2), 0.0);
 	Coordinates viewPortB = Coordinates(posA.X + (SCREEN_W / 2 + player->GetWidth() / 2), SCREEN_H);
 
@@ -676,7 +714,7 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		{
 			Coordinates wSceneBCo = Coordinates(wScene->GetCoordinates()->X + 600, wScene->GetCoordinates()->Y + 20);
 
-			if (Phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo))
+			if (Phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo)) // Only draw if the WorldScene object is within the viewport
 			{
 				WorldText* wData = (WorldText*)wScene->GetData();
 				// TODO : Fix dynamic fonts
@@ -688,11 +726,13 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Mtx.lock();
 	if (DRAW_PREDICTION && CLEAR_DRAW)
 	{
+		// Really bad hack because Physics::Collide takes and iterator
 		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE) };
 		list<Entity>::iterator ghostShot = hackhack.begin();
 
 		Coordinates last = Coordinates(-1, -1);
 
+		// Draw the prediction line
 		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 		{
 			Phys.ApplyGravity(&*ghostShot);
@@ -940,17 +980,6 @@ void AsyncPhysics(void* struc)
 		Move(player);
 		Phys.ApplyPhysics(entities, world, worldEntities);
 		Mtx.unlock();
-
-		if (MouseButtons[RMB])
-		{
-			Mtx.lock();
-			while (entities->size() > 1)
-			{
-				entities->pop_back();
-			}
-			Mtx.unlock();
-			MouseButtons[RMB] = false;
-		}
 	}
 }
 
