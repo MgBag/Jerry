@@ -21,12 +21,12 @@ private:
 	static bool WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>* entities, list<WorldEntity>* worldEntities);
 	static bool AreInRange(Coordinates* entOff, Coordinates* entACo, Coordinates* entBCo, Coordinates* xA, Coordinates* xB);
 	static Coordinates* GetCollisionOffset(Entity* entity, Coordinates* xA, Coordinates* xB, double xStep, double yStep, double* minX, double* minY, double* maxX, double* maxY, bool* minXIsEnt, bool* minYIsEnt);
-	static void XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem);
-	static void YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem);
-	static void XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem);
+	static void XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents);
+	static void YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents);
+	static void XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<Coordinates>* possitions, vector<CollPos>* collisionPosition, vector<ItemType>* collisionType, vector<void*>* collisionItem, bool audioEvents);
 public:
 	static bool AreColliding(Coordinates* a1, Coordinates* a2, Coordinates* b1, Coordinates* b2);
-	static void Collide(list<Entity>::iterator ent, list<WorldBlock> *world, list<Entity>* entities, list<WorldEntity>* worldEntities);
+	static void Collide(Entity* ent, list<WorldBlock> *world, list<Entity>* entities, list<WorldEntity>* worldEntities, bool audioEvents = true);
 	static void ApplyGravity(Entity* ent);
 	static VelocityVector* OffsetToVector(Coordinates* offset);
 	static VelocityVector* OffsetToVector(double x, double y);

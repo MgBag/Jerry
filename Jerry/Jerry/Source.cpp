@@ -3,8 +3,6 @@
 // TODO : Naming and names mang. Projectile particle etc....
 // TODO : Comment
 // TODO : Coins clipping
-// TODO : Weird jelly placement right bottom
-// TODO : Trail audio fix
 
 // TODO : Portfolio : Langton's ant, BiZZdesign werk, PVB?
 
@@ -26,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <mutex>
+#include <algorithm>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_ttf.h>
@@ -43,7 +42,7 @@ using namespace std;
 
 void Draw(list<Entity>* ent, list<WorldBlock>* world, list<WorldEntity>* worldEntities, list<WorldScenery>* worldScenery);
 void Move(Entity* player);
-void Shoot(list<Entity>* entities, ALLEGRO_EVENT e);
+void Shoot(list<Entity>* entities, ALLEGRO_EVENT* e);
 //Thread function for the physics
 void AsyncPhysics(void* struc);
 //Thread function for the console
@@ -86,7 +85,7 @@ int main()
 	ALLEGRO_TIMER* frame = 0;
 	// Will contain world items such as World BadWorld and JellyWorld
 	list<WorldBlock>* world = new list<WorldBlock>();
-	// Will contain the player and Jelly
+	// Will contain the player and Jelly, FILO
 	list<Entity>* entities = new list<Entity>();
 	// For now only holds coins but is made to be rather dynamic 
 	list<WorldEntity>* worldEntities = new list<WorldEntity>();
@@ -169,6 +168,7 @@ int main()
 		fprintf(stderr, "failed to initialize ttf addon!\n");
 		return -1;
 	}
+
 	Font = al_load_ttf_font("fonts/coolvetica.ttf", 17, 0);
 	FontBig = al_load_ttf_font("fonts/coolvetica.ttf", 24, 0);
 
@@ -439,28 +439,28 @@ int main()
 	worldScenery->push_back(WorldScenery(700, 250, SCENETEXT, (void*)&welcome));
 
 	WorldText controls1;
-	welcome.font = Font;
+	controls1.font = Font;
 	controls1.color = al_map_rgb(100, 100, 100);
 	controls1.text = "Movement with WASD and arrow keys";
 	worldScenery->push_back(WorldScenery(40, 375, SCENETEXT, (void*)&controls1));
 	WorldText controls2;
-	welcome.font = Font;
+	controls2.font = Font;
 	controls2.color = al_map_rgb(100, 100, 100);
 	controls2.text = "Jumping is also possible with space, to stop bouncing hold CTRL";
 	worldScenery->push_back(WorldScenery(40, 400, SCENETEXT, (void*)&controls2));
 	WorldText controls3;
-	welcome.font = Font;
+	controls3.font = Font;
 	controls3.color = al_map_rgb(100, 100, 100);
 	controls3.text = "Use Mouse1 to shoot and use Mouse2 to remove all Jelly";
 	worldScenery->push_back(WorldScenery(40, 425, SCENETEXT, (void*)&controls3));
 	WorldText controls4;
-	welcome.font = Font;
+	controls4.font = Font;
 	controls4.color = al_map_rgb(100, 100, 100);
 	controls4.text = "Press R to go back to spawn";
 	worldScenery->push_back(WorldScenery(40, 450, SCENETEXT, (void*)&controls4));
 
 	WorldText credits;
-	credits.font = FontBig;
+	credits.font = Font;
 	credits.color = al_map_rgb(100, 100, 100);
 	credits.text = "All audio by Aljoscha Christenhusz";
 	worldScenery->push_back(WorldScenery(4175, 220, SCENETEXT, (void*)&credits));
@@ -541,7 +541,7 @@ int main()
 			switch (e.mouse.button)
 			{
 			case 1:
-				Shoot(entities, e);
+				Shoot(entities, &e);
 				break;
 			case 2:
 				// Mtx is used as a r/w lock so that only one thread can r or w at a time
@@ -583,6 +583,7 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_LCTRL:
+			case ALLEGRO_KEY_RCTRL:
 				Keys[LCTRL] = true;
 				break;
 
@@ -597,6 +598,11 @@ int main()
 			case ALLEGRO_KEY_T:
 				// To clear the screen if CLEAR_DRAW == false
 				al_clear_to_color(al_map_rgb(220, 220, 220));
+				break;
+			
+			case ALLEGRO_KEY_LSHIFT:
+			case ALLEGRO_KEY_RSHIFT:
+				DRAW_PREDICTION = true;
 				break;
 
 			}
@@ -627,7 +633,13 @@ int main()
 				break;
 
 			case ALLEGRO_KEY_LCTRL:
+			case ALLEGRO_KEY_RCTRL:
 				Keys[LCTRL] = false;
+				break;
+
+			case ALLEGRO_KEY_LSHIFT:
+			case ALLEGRO_KEY_RSHIFT:
+				DRAW_PREDICTION = false;
 				break;
 			}
 		}
@@ -694,19 +706,21 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Entity* player = &*entities->begin();
 	ALLEGRO_MOUSE_STATE mouse;
 	al_get_mouse_state(&mouse);
-	Coordinates posA = *player->GetACoordinates();
+	Coordinates plyA = *player->GetACoordinates();
+	Coordinates plyB = *player->GetBCoordinates();
 	// Origin to shoot from
-	double originX = posA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-	double originY = posA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	double originX = plyA.X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	double originY = plyA.Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
 	// Angle used to draw the prediction and to draw the arm/gun thing
+	// Angle gets calculated with based on the offset between the player and the mouse using triginometry
 	double angle = Phys.OffsetToAngle((player->GetWidth() / 2 - PROJECTILE_SIZE / 2 - mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - mouse.y + PROJECTILE_SIZE / 2) * -1);
 	Coordinates* gunVec = Phys.VectorToOffset(15.0, angle);
 	Coordinates* blankGunVec = Phys.VectorToOffset(5.0, angle);
 	Coordinates* entOff = player->GetOffset();
 	Coordinates* shotVec = Phys.VectorToOffset(PROJECTILE_SPEED, angle);
 	// Viewport used to calculate whenever an object should be drawn
-	Coordinates viewPortA = Coordinates(posA.X - (SCREEN_W / 2 + player->GetWidth() / 2), 0.0);
-	Coordinates viewPortB = Coordinates(posA.X + (SCREEN_W / 2 + player->GetWidth() / 2), SCREEN_H);
+	Coordinates viewPortA = Coordinates(plyA.X - (SCREEN_W / 2 + player->GetWidth() / 2), 0.0);
+	Coordinates viewPortB = Coordinates(plyA.X + (SCREEN_W / 2 + player->GetWidth() / 2), SCREEN_H);
 
 	for (list<WorldScenery>::iterator wScene = worldScenery->begin(); wScene != worldScenery->end(); ++wScene)
 	{
@@ -716,9 +730,9 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 
 			if (Phys.AreColliding(&viewPortA, &viewPortB, wScene->GetCoordinates(), &wSceneBCo)) // Only draw if the WorldScene object is within the viewport
 			{
+				// Cast the void to WorldText 
 				WorldText* wData = (WorldText*)wScene->GetData();
-				// TODO : Fix dynamic fonts
-				al_draw_text(Font, wData->color, wScene->GetCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, wScene->GetCoordinates()->Y, 0, (wData->text).c_str());
+				al_draw_text(wData->font, wData->color, wScene->GetCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + plyA.X * -1, wScene->GetCoordinates()->Y, 0, (wData->text).c_str());
 			}
 		}
 	}
@@ -726,76 +740,92 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 	Mtx.lock();
 	if (DRAW_PREDICTION && CLEAR_DRAW)
 	{
-		// Really bad hack because Physics::Collide takes and iterator
-		list<Entity> hackhack = { Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE) };
-		list<Entity>::iterator ghostShot = hackhack.begin();
+		// Ghost entity for the projectile path simulation
+		Entity ghostShot = Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, shotVec->X + entOff->X, shotVec->Y + entOff->Y, al_map_rgb(180, 180, 180), PROJECTILE);
 
 		Coordinates last = Coordinates(-1, -1);
 
-		// Draw the prediction line
+		// Run no longer than MAX_COLLISIONS_PREDICTION this variable is in tics
 		for (int i = 0; i < MAX_COLLISION_PREDICTION; ++i)
 		{
-			Phys.ApplyGravity(&*ghostShot);
-			Phys.Collide(ghostShot, world, entities, worldEntities);
-			ghostShot->MoveToOffset();
+			Phys.ApplyGravity(&ghostShot);
+			Phys.Collide(&ghostShot, world, entities, worldEntities, false);
+			ghostShot.MoveToOffset();
 
-			if (last.X == ghostShot->GetACoordinates()->X && last.Y == ghostShot->GetACoordinates()->Y || ghostShot->GetRemove())
+			// If the ghostshot doesn't move it means it hit something or of it hit something that would remove it
+			if (last.X == ghostShot.GetACoordinates()->X && last.Y == ghostShot.GetACoordinates()->Y || ghostShot.GetRemove()) 
 			{
 				break;
 			}
 			else
 			{
-				if (Phys.AreColliding(&viewPortA, &viewPortB, ghostShot->GetACoordinates(), ghostShot->GetBCoordinates()))
+				// Only draw if it's in range of the viewport
+				if (Phys.AreColliding(&viewPortA, &viewPortB, ghostShot.GetACoordinates(), ghostShot.GetBCoordinates()))
 				{
+					// Included the offset used for the side scrolling
 					al_draw_filled_rectangle(
-						ghostShot->GetACoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
-						ghostShot->GetACoordinates()->Y,
-						ghostShot->GetBCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
-						ghostShot->GetBCoordinates()->Y,
-						ghostShot->GetColor());
+						// Offset everything by half of the screen minus half of the player then substract the player position
+						ghostShot.GetACoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
+						ghostShot.GetACoordinates()->Y,
+						ghostShot.GetBCoordinates()->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
+						ghostShot.GetBCoordinates()->Y,
+						ghostShot.GetColor());
 				}
-				last.X = ghostShot->GetACoordinates()->X;
-				last.Y = ghostShot->GetACoordinates()->Y;
+				last.X = ghostShot.GetACoordinates()->X;
+				last.Y = ghostShot.GetACoordinates()->Y;
 			}
 		}
 	}
 	Mtx.unlock();
 
+	// Draw worldblocks
 	for (list<WorldBlock>::iterator wBlock = world->begin(); wBlock != world->end(); ++wBlock)
 	{
 		if (Phys.AreColliding(&viewPortA, &viewPortB, wBlock->GetA(), wBlock->GetB()))
 		{
 			al_draw_filled_rectangle(
-				wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				wBlock->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
 				wBlock->GetA()->Y,
-				wBlock->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				wBlock->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
 				wBlock->GetB()->Y,
 				wBlock->GetColor());
 		}
 	}
 
+	// Draw all entities except the player
 	Mtx.lock();
 	for (list<Entity>::iterator ent = ++entities->begin(); ent != entities->end(); ++ent)
 	{
 		Coordinates* entA = ent->GetACoordinates();
-
-		if (Phys.AreColliding(&viewPortA, &viewPortB, entA, ent->GetBCoordinates()))
+		Coordinates* entB = ent->GetBCoordinates();
+		
+		if (Phys.AreColliding(&viewPortA, &viewPortB, entA, entB))
 		{
-			al_draw_filled_rectangle(entA->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y, entA->X + ent->GetWidth() + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1, entA->Y + ent->GetHeight(), ent->GetColor());
+			al_draw_filled_rectangle(
+				entA->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
+				entA->Y,
+				entB->X + (SCREEN_W / 2 - player->GetWidth() / 2) - plyA.X,
+				entB->Y,
+				ent->GetColor());
 
+			// Draw a trail behind the projectile as long as it's flying
 			if (!ent->GetHit())
 			{
 				double lastY = 0;
 
-				for (int i = 1; i < PROJECTILE_TRAIL_LENGTH; ++i)
+				// Length based on PROJECTILE_TRAIL_LENGTH
+				for (int i = 1; i < PROJECTILE_TRAIL_LENGTH + 1; ++i)
 				{
 					al_draw_filled_rectangle(
-						entA->X - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+						// Set X offset per step
+						entA->X - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + plyA.X * -1,
+						// Calculate the gravity step with the offset per step
 						entA->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
-						entA->X + ent->GetWidth() - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
-						entA->Y + ent->GetHeight() - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
+						entB->X - ent->GetOffset()->X * i + (SCREEN_W / 2 - player->GetWidth() / 2) + plyA.X * -1,
+						entB->Y - (lastY + (ent->GetOffset()->Y - (GRAVITY * i))),
 						ent->GetColor());
 
+					// Calculate the previous height
 					lastY += (ent->GetOffset()->Y - (GRAVITY * i));
 				}
 			}
@@ -807,50 +837,57 @@ void Draw(list<Entity>* entities, list<WorldBlock>* world, list<WorldEntity>* wo
 		if (Phys.AreColliding(&viewPortA, &viewPortB, wEntity->GetA(), wEntity->GetB()))
 		{
 			al_draw_filled_rectangle(
-				wEntity->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				wEntity->GetA()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + plyA.X * -1,
 				wEntity->GetA()->Y,
-				wEntity->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + posA.X * -1,
+				wEntity->GetB()->X + (SCREEN_W / 2 - player->GetWidth() / 2) + plyA.X * -1,
 				wEntity->GetB()->Y,
 				wEntity->GetColor());
 		}
 	}
 	Mtx.unlock();
 
-	// Player
-	al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2, posA.Y, SCREEN_W / 2 - player->GetWidth() / 2 + player->GetWidth(), posA.Y + player->GetHeight(), player->GetColor());
+	// Draw the player in the center of the screen
+	al_draw_filled_rectangle(
+		SCREEN_W / 2 - player->GetWidth() / 2,
+		plyA.Y,
+		SCREEN_W / 2 - player->GetWidth() / 2 + player->GetWidth(),
+		plyB.Y,
+		player->GetColor());
 
-	// Gun of player
+	// Draw the gun of the player, a line based on gunVec and blankGunVec
 	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, gunVec->X +      SCREEN_W / 2, gunVec->Y      + originY + PROJECTILE_SIZE / 2, BadWorldColor, 5.0);
 	al_draw_line((SCREEN_W / 2), originY + PROJECTILE_SIZE / 2, blankGunVec->X + SCREEN_W / 2, blankGunVec->Y + originY + PROJECTILE_SIZE / 2, al_map_rgb(100, 100, 255), 5.0);
 
+	// Visual represntation above the player to show the current amount of Jelly and their how much lifetime they got left.
 	Mtx.lock();
-	// Gun Charge
 	struct ts { int i; list<Entity>::iterator ent; };
-
 	for (ts t = { 0, ++entities->begin() }; t.ent != entities->end(); ++t.ent, ++t.i)
 	{
-		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + 5, posA.Y - 5, JellyColor);
-		al_draw_filled_rectangle(SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7, posA.Y - 7, SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5), posA.Y - 5, al_map_rgb(20, 20, 220));
+		al_draw_filled_rectangle(
+			SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7,
+			plyA.Y - 7,
+			SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + 5,
+			plyA.Y - 5, JellyColor);
+
+		al_draw_filled_rectangle(
+			SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7,
+			plyA.Y - 7,
+			SCREEN_W / 2 - player->GetWidth() / 2 + t.i * 7 + (t.ent->GetAge() / MAX_ENTITY_AGE * 5),
+			plyA.Y - 5, al_map_rgb(20, 20, 220));
 	}
 	Mtx.unlock();
 
-	string pressed = "";
-
-	for (int i = 0; i < sizeof(Keys) / sizeof(*Keys); ++i)
-	{
-		if (Keys[i])
-		{
-			pressed += KeyName[i] + ", ";
-		}
-	}
-
+	// Draw the score and time
 	al_draw_text(Font, WorldColor, 1000, 10, 0, ("Coins: " + to_string(Score) + "/" + to_string(TotalCoins)).c_str());
 	al_draw_text(Font, WorldColor, 1000, 25, 0, ("Time: " + to_string(TimeScore)).c_str());
 
+	// If the player has finnished the game
 	if (Collected && ScoreShow != 0)
 	{
+		// Every tick this gets reduced so that it has a lifetime on the screen until it's 0
 		--ScoreShow;
 
+		// Player has the highsore
 		if (TimeScore == stoi(HighScore))
 		{
 			al_draw_text(FontBig, WorldColor, 400, 200, 0, "New Highscore!");
@@ -874,24 +911,28 @@ void Move(Entity* ent)
 {
 	Coordinates* offset = ent->GetOffset();
 
+	// bool FLY can be set in console
 	if (!FLY)
 	{
 		if (Keys[RIGHT])
 		{
+			// If the player boucned of a side Jelly he may not control the player until it lands on anything else then jelly sideways
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
+				// If the player is moving in the oppisite direction
 				if (offset->X < 0.0 && ent->GetIsAirBorn())
 				{
+					// Apply break and stop of the motion gets within the range PLAYER_AIR_CONTROL_STOP
 					offset->X = offset->X > -PLAYER_AIR_CONTROL_STOP ? 0.0 : offset->X * PLAYER_AIR_CONTROL_BREAK;
 				}
 				else
 				{
-					offset->X += PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+					offset->X += ent->GetIsAirBorn() ? PLAYER_SPEED * PLAYER_AIR_CONTROL : PLAYER_SPEED;
 				}
 			}
 		}
 
-		if (Keys[LEFT])
+		if (Keys[LEFT]) 
 		{
 			if (!(ent->GetLastImpactType() == JELLY && (ent->GetLastColPos() == RX || ent->GetLastColPos() == LX)))
 			{
@@ -901,13 +942,14 @@ void Move(Entity* ent)
 				}
 				else
 				{
-					offset->X -= PLAYER_SPEED * ent->GetIsAirBorn() ? PLAYER_AIR_CONTROL : 1.0;
+					offset->X -= ent->GetIsAirBorn() ? PLAYER_SPEED * PLAYER_AIR_CONTROL : PLAYER_SPEED;
 				}
 			}
 		}
 
 		if (Keys[UP])
 		{
+			// Only jump if the player is standing 
 			if (!ent->GetIsAirBorn())
 			{
 				offset->Y -= PLAYER_JUMP_SPEED;
@@ -916,6 +958,7 @@ void Move(Entity* ent)
 	}
 	else
 	{
+		// Flying mode
 		if (Keys[UP])
 			--offset->Y;
 		if (Keys[DOWN])
@@ -928,6 +971,7 @@ void Move(Entity* ent)
 
 	if (Keys[LCTRL])
 	{
+		// Crouching stops the bouncing
 		ent->SetIsCrouching(true);
 	}
 	else
@@ -938,28 +982,32 @@ void Move(Entity* ent)
 
 // TODO : Check nececerity of convertions
 // TODO : Mang, dat copy of event
-void Shoot(list<Entity>* entities, ALLEGRO_EVENT e)
+void Shoot(list<Entity>* entities, ALLEGRO_EVENT* e)
 {
 	if (entities->size() - 1 == MAX_ENTITIES)
 	{
+		// If the total amount of jelly is at maximum then remove the first one that was shot
 		Mtx.lock();
 		entities->pop_back();
 		Mtx.unlock();
 	}
 
-	Entity* player = &*entities->begin();
-	Coordinates* entPos = player->GetACoordinates();
-	Coordinates* entOff = player->GetOffset();
-	double originX = entPos->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
-	double originY = entPos->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
-	Coordinates* shotOff = Phys.VectorToOffset(PROJECTILE_SPEED, Phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e.mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e.mouse.y + PROJECTILE_SIZE / 2) * -1));
 
-	entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, entOff->X + shotOff->X, entOff->Y + shotOff->Y, JellyColor, PROJECTILE));
+	// Same algorithm as in Draw()
+	Entity* player = &*entities->begin();
+	Coordinates* plyA = player->GetACoordinates();
+	Coordinates* plyOff = player->GetOffset();
+	double originX = plyA->X + player->GetWidth() / 2 - PROJECTILE_SIZE / 2;
+	double originY = plyA->Y + player->GetHeight() / 2 - PROJECTILE_SIZE / 2;
+	Coordinates* shotOff = Phys.VectorToOffset(PROJECTILE_SPEED, Phys.OffsetToAngle((player->GetHeight() / 2 - PROJECTILE_SIZE / 2 - e->mouse.x + (SCREEN_W / 2 - player->GetWidth() / 2)) * -1, (originY - e->mouse.y + PROJECTILE_SIZE / 2) * -1));
+
+	entities->insert(++entities->begin(), Entity(originX, originY, PROJECTILE_SIZE, PROJECTILE_SIZE, plyOff->X + shotOff->X, plyOff->Y + shotOff->Y, JellyColor, PROJECTILE));
 
 	++Particles;
 
 	delete shotOff;
 
+	// Event to trigger that the player fired
 	ALLEGRO_EVENT es;
 	es.type = 555;
 	es.user.data1 = PLAYER_SHOOT;
@@ -977,7 +1025,9 @@ void AsyncPhysics(void* struc)
 	{
 		al_rest(1.0 / PHYSICS_TICK);
 		Mtx.lock();
+		// Update the playermovement bases on user input
 		Move(player);
+		// Run the physics such as gravity and set the players location in the next tic colliding or not
 		Phys.ApplyPhysics(entities, world, worldEntities);
 		Mtx.unlock();
 	}
@@ -991,109 +1041,130 @@ void DevConsole()
 	{ 
 		cout << ">";
 		
+		// Get user command
 		getline(cin, input);
 
+		// See if the command 
 		int splitIndex = input.find(" ");
 		string command = "";
-		string value = "";
+		double value;
 
-		if (splitIndex != -1)
+		if (splitIndex != -1) // Set Value
 		{
+
 			command = input.substr(0, splitIndex);
-			value = input.substr(++splitIndex, input.length() - 1);
+
+			// Throw not found the string after the space cannot be converted to a double
+			if (splitIndex != input.size() - 1)
+			{
+				string valString = input.substr(++splitIndex, input.length() - 1);
+				valString.erase(remove_if(valString.begin(), valString.end(), isalpha), valString.end());
+				if (valString.size() > 0)
+					value = stod(valString);
+				else
+					command = "";
+			}
+			else
+			{
+				command = "";
+			}
 
 			if (command == "GRAVITY")
 			{
-				GRAVITY = stod(value) / FPS;
-				cout << "GRAVITY set to: " << GRAVITY << endl;
+				GRAVITY = value / FPS;
+				cout << "GRAVITY set to: " << GRAVITY * FPS << endl;
 			}
 			else if (command == "PHYSICS_TICK")
 			{
-				PHYSICS_TICK = stod(value);
+				PHYSICS_TICK = value;
 				cout << "PHYSICS_TICK set to: " << PHYSICS_TICK << endl;
 			}
 			else if (command == "PLAYER_SPEED")
 			{
-				PLAYER_JUMP_SPEED = stod(value);
-				cout << "PLAYER_SPEED set to: " << PLAYER_JUMP_SPEED << endl;
+				PLAYER_SPEED = value;
+				cout << "PLAYER_SPEED set to: " << PLAYER_SPEED << endl;
 			}
 			else if (command == "PLAYER_JUMP_SPEED")
 			{
-				PLAYER_JUMP_SPEED = stod(value);
+				PLAYER_JUMP_SPEED = value;
 				cout << "PLAYER_JUMP_SPEED set to: " << PLAYER_JUMP_SPEED << endl;
 			}
 			else if (command == "PLAYER_BOUNCE_OFFSET")
 			{
-				PLAYER_BOUNCE_OFFSET = stod(value);
+				PLAYER_BOUNCE_OFFSET = value;
 				cout << "PLAYER_BOUNCE_OFFSET set to: " << PLAYER_BOUNCE_OFFSET << endl;
 			}
 			else if (command == "PLAYER_AIR_CONTROL")
 			{
-				PLAYER_AIR_CONTROL = stod(value);
+				PLAYER_AIR_CONTROL = value;
 				cout << "PLAYER_AIR_CONTROL set to: " << PLAYER_AIR_CONTROL << endl;
 			}
 			else if (command == "PLAYER_AIR_CONTROL_BREAK")
 			{
-				PLAYER_AIR_CONTROL_BREAK = stod(value);
+				PLAYER_AIR_CONTROL_BREAK = value;
 				cout << "PLAYER_AIR_CONTROL_BREAK set to: " << PLAYER_AIR_CONTROL_BREAK << endl;
 			}
 			else if (command == "PLAYER_SIDE_UP_BOUNCE")
 			{
-				PLAYER_SIDE_UP_BOUNCE = stod(value);
+				PLAYER_SIDE_UP_BOUNCE = value;
 				cout << "PLAYER_SIDE_UP_BOUNCE set to: " << PLAYER_SIDE_UP_BOUNCE << endl;
 			}
 			else if (command == "PLAYER_SIDE_SIDE_BOUNCE")
 			{
-				PLAYER_SIDE_SIDE_BOUNCE = stod(value);
+				PLAYER_SIDE_SIDE_BOUNCE = value;
 				cout << "PLAYER_SIDE_SIDE_BOUNCE set to: " << PLAYER_SIDE_SIDE_BOUNCE << endl;
 			}
 			else if (command == "PROJECTILE_SPEED")
 			{
-				PROJECTILE_SPEED = stod(value);
+				PROJECTILE_SPEED = value;
 				cout << "PROJECTILE_SPEED set to: " << PROJECTILE_SPEED << endl;
 			}
 			else if (command == "PROJECTILE_SIZE")
 			{
-				PROJECTILE_SIZE = stod(value);
+				PROJECTILE_SIZE = value;
 				cout << "PROJECTILE_SIZE set to: " << PROJECTILE_SIZE << endl;
 			}
 			else if (command == "PROJECTILE_BOUNCINESS")
 			{
-				PROJECTILE_BOUNCINESS = stod(value);
+				PROJECTILE_BOUNCINESS = value;
 				cout << "PROJECTILE_BOUNCINESS set to: " << PROJECTILE_BOUNCINESS << endl;
 			}
 			else if (command == "MAX_ENTITIES")
 			{
-				MAX_ENTITIES = stod(value);
+				MAX_ENTITIES = value;
 				cout << "MAX_ENTITIES set to: " << MAX_ENTITIES << endl;
 			}
 			else if (command == "MAX_ENTITY_AGE")
 			{
-				MAX_ENTITY_AGE = stod(value) * PHYSICS_TICK;
+				MAX_ENTITY_AGE = value * PHYSICS_TICK;
 				cout << "MAX_ENTITY_AGE set to: " << MAX_ENTITY_AGE / PHYSICS_TICK<< endl;
 			}
 			else if (command == "MAX_ENTITY_VELOCITY")
 			{
-				MAX_ENTITY_VELOCITY = stod(value);
+				MAX_ENTITY_VELOCITY = value;
 				cout << "MAX_ENTITY_VELOCITY set to: " << MAX_ENTITY_VELOCITY << endl;
 			}
 			else if (command == "FRICTION")
 			{
-				FRICTION = stod(value);
+				FRICTION = value;
 				cout << "FRICTION set to: " << FRICTION << endl;
 			}
 			else if (command == "FRICTION_STOP")
 			{
-				FRICTION_STOP = stod(value);
+				FRICTION_STOP = value;
 				cout << "FRICTION_STOP set to: " << FRICTION_STOP << endl;
+			}
+			else if (command == "PROJECTILE_TRAIL_LENGTH")
+			{
+				PROJECTILE_TRAIL_LENGTH = value;
+				cout << "PROJECTILE_TRAIL_LENGTH set to: " << PROJECTILE_TRAIL_LENGTH << endl;
 			}
 			else
 			{
 				cout << "Command not found\n";
 			}
-
-		}
-		else
+		} 
+		else // Get value
 		{
 			command = input;
 			
@@ -1104,6 +1175,10 @@ void DevConsole()
 			else if (command == "GRAVITY")
 			{
 				cout << "GRAVITY is: " << GRAVITY * FPS << endl;
+			}
+			else if (command == "PROJECTILE_TRAIL_LENGTH")
+			{
+				cout << "PROJECTILE_TRAIL_LENGTH is: " << PROJECTILE_TRAIL_LENGTH << endl;
 			}
 			else if (command == "PHYSICS_TICK")
 			{
