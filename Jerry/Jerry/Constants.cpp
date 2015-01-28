@@ -14,7 +14,7 @@ double	PLAYER_AIR_CONTROL_BREAK = 0.75;
 double	PLAYER_AIR_CONTROL_STOP = 1.0;
 double	PROJECTILE_SPEED = 10.0;
 double	PROJECTILE_SIZE = 6.0;
-int		PROJECTILE_TRAIL_LENGTH = 2;
+int		PROJECTILE_TRAIL_LENGTH = 1;
 double	PROJECTILE_BOUNCINESS = 1.0;
 double	MAX_ENTITIES = 4;
 double	MAX_ENTITY_AGE = 10.0 * PHYSICS_TICK;
@@ -51,4 +51,4 @@ ALLEGRO_EVENT_QUEUE* EventQueue = 0;
 ALLEGRO_EVENT_SOURCE UserEventSource;
 
 
-Coordinates Spawn = Coordinates(40, 400);
+Coordinates Spawn = Coordinates(700, 400);
