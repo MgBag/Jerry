@@ -420,9 +420,12 @@ bool Physics::WillCollide(Entity* entity, list<WorldBlock>* world, list<Entity>*
 			if (entity->getType() == PROJECTILE && worE->GetType() == COIN)
 				continue;
 
+			// If the coin has been qued to be removed
 			if (worE->GetRemove())
 			{
+				// Remove the coin
 				worE = worldEntities->erase(worE);
+				// Increase the score
 				++Score;
 
 				if (worE == worldEntities->end())
@@ -898,41 +901,54 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 
 			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[xIndex]);
 
+			// Algorithm for intergrating with the world
+			// RX collision
 			if ((*collisionPosition)[xIndex] == RX)
 			{
+				// If the wor height is less then ent's height * 4
 				if (wor->GetHeight() < ent->GetHeight() * 4)
 				{
+					// Set ent height same as the wor height
 					ent->SetHeight(wor->GetHeight());
 					ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
 				}
 				else
 				{
+					// Multiply height by 4
 					ent->SetHeight(ent->GetHeight() * 4);
+					// Move to be centerd to point of impact
 					ent->MoveToOffset(0.0, ent->GetHeight() / 2 * -1);
 
 					if (entACo->Y < wor->GetA()->Y)
 					{
+						// If the ent sticking out over the upper edge move it so that it doesn't stick over anymore
 						ent->MoveToOffset(0.0, wor->GetA()->Y - entACo->Y);
 					}
 					else if (entBCo->Y > wor->GetB()->Y)
 					{
+						// If the ent sticking out over the lower edge move it so that it doesn't stick over anymore
 						ent->MoveToOffset(0.0, wor->GetB()->Y - entBCo->Y);
 					}
 				}
 
+				// If the wor width is less then ent's width / 2
 				if (wor->GetWidth() < ent->GetWidth() / 2)
 				{
+					// Set ent width same as the wor width
 					ent->SetWidth(wor->GetWidth());
+					// Move ent into world
 					ent->MoveToOffset(wor->GetA()->X - entACo->X, 0.0);
 				}
 				else
 				{
 					ent->SetWidth(ent->GetWidth() / 2);
+					// Move ent into world
 					ent->MoveToOffset(ent->GetWidth() * 2, 0.0);
 				}
 			}
 			else
 			{
+				// Same as RX collision but on the other side of the wor
 				if (wor->GetHeight() < ent->GetHeight() * 4)
 				{
 					ent->SetHeight(wor->GetHeight());
@@ -965,6 +981,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 				}
 			}
 
+			// Audio event trigger
 			if (audioEvents)
 			{
 				ALLEGRO_EVENT e;
@@ -976,7 +993,8 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		else if ((*collisionType)[xIndex] == JELLY)
 		{
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
-
+			
+			// Bounce of 
 			ent->SetOffset(entOff->X * -1 * PROJECTILE_BOUNCINESS, entOff->Y * PROJECTILE_BOUNCINESS);
 			if (audioEvents)
 			{
@@ -988,8 +1006,8 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD)
 		{
-			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
-
+			//ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
+			// Remove this because it hit world or badworld
 			ent->SetRemove(true);
 			if (audioEvents)
 			{
@@ -1002,10 +1020,11 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 	}
 	else // Type is player
 	{
-
 		if ((*collisionType)[xIndex] == BADWORLD)
 		{
+			// Stop the player
 			ent->SetOffset(0.0, 0.0);
+			// Go back to spawn
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
 			if (audioEvents)
 			{
@@ -1017,6 +1036,7 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		}
 		else if ((*collisionType)[xIndex] == COIN)
 		{
+			// Set the coin up for removal
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 			if (audioEvents)
 			{
@@ -1029,16 +1049,18 @@ void Physics::XCollisionBehaviour(int xIndex, Entity* ent, vector<Coordinates>* 
 		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD || ent->GetIsCrouching())
 		{
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
-
-			//ent->SetOffset(0.0, entOff->Y < FRICTION_STOP && entOff->Y > FRICTION_STOP * -1 ? 0.0 : entOff->Y * FRICTION);
+			// Slide against the wall
 			ent->SetOffset(0.0, entOff->Y);
+			// Set the last colpos (used for calculating the bounce of players agains jelly)
 			ent->SetLastColPos((*collisionPosition)[xIndex]);
+			// Set the last impact type (also used for calculating the bounce of players agains jelly)
 			ent->SetLastImpactType(WORLD);
 		}
 		else if ((*collisionType)[xIndex] == JELLY)
 		{
 			ent->SetCoordinates((*possitions)[xIndex].X, (*possitions)[xIndex].Y);
 
+			// Set the player on a set upwards curved path to the opposite direction of the hit
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetLastImpactType(JELLY);
@@ -1072,7 +1094,7 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 			ent->SetHit(true);
 
 			WorldBlock* wor = ((WorldBlock*)(*collisionItem)[yIndex]);
-
+			// Same as in XCollisionBehaviour but flipped width with height and visa versa
 			if ((*collisionPosition)[yIndex] == DY)
 			{
 				if (wor->GetWidth() < ent->GetWidth() * 4)
@@ -1176,7 +1198,6 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 	}
 	else // Type is player
 	{
-
 		if ((*collisionType)[yIndex] == BADWORLD)
 		{
 			// Calculate the offset at point of impact
@@ -1215,12 +1236,8 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 
 			if ((*collisionPosition)[yIndex] == DY)
 			{
-				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
+				// Player is no longer airborn
 				ent->SetIsAirBorn(false);
-			}
-			else
-			{
-				ent->SetIsAirBorn(true);
 			}
 
 			ent->SetLastColPos((*collisionPosition)[yIndex]);
@@ -1234,19 +1251,22 @@ void Physics::YCollisionBehaviour(int yIndex, Entity* ent, vector<Coordinates>* 
 
 			if ((*collisionPosition)[yIndex] == UY)
 			{
+				// Invert Y offset
 				ent->SetOffset(entOff->X, entOff->Y * -1);
 			}
 			else
 			{
+				// If the impact is slower that the jelly bounce offset
 				if (entOff->Y < PLAYER_BOUNCE_OFFSET)
 				{
+					// Set y offset to PLAYER_BOUNCE_OFFSET
 					ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
 				}
 				else
 				{
+					// Bounce at the same height 
 					ent->SetOffset(entOff->X, entOff->Y * -1);
 				}
-				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
 				ent->SetLastColPos((*collisionPosition)[yIndex]);
 				ent->SetLastImpactType(JELLY);
 			}
@@ -1275,6 +1295,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 	{
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD || (*collisionType)[xIndex] == WORLD || (*collisionType)[yIndex] == WORLD)
 		{
+			// If any of the collisions are BADWORLD or WORLD que removal
 			ent->SetRemove(true);
 			if (audioEvents)
 			{
@@ -1286,19 +1307,22 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((*collisionType)[yIndex] == JELLYWORLD && (*collisionType)[xIndex] == JELLYWORLD)
 		{
+			// If both impacts are JELLYWORLD behave like a regular YCollision
 			YCollisionBehaviour(yIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
 		}
 		else if ((*collisionType)[xIndex] == JELLYWORLD)
 		{
+			// If X impact is JELLYWORLD behave like a regular XCollision
 			XCollisionBehaviour(xIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
 		}
 		else if ((*collisionType)[yIndex] == JELLYWORLD)
 		{
+			// If Y impact is JELLYWORLD behave like a regular YCollision
 			YCollisionBehaviour(yIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
 		}
 		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
 		{
-			// TODO: Wat is deze g, was met jou
+			// If one impact type is Jelly go to complete negative direction
 			ent->SetOffset(entOff->X * PROJECTILE_BOUNCINESS * -1, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 			if (audioEvents)
 			{
@@ -1313,6 +1337,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 	{
 		if ((*collisionType)[xIndex] == BADWORLD || (*collisionType)[yIndex] == BADWORLD)
 		{
+			// If one of the colliding types is badworld go to spawn
 			ent->SetOffset(0.0, 0.0);
 			ent->SetCoordinates(Spawn.X, Spawn.Y);
 			if (audioEvents)
@@ -1325,6 +1350,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((*collisionType)[xIndex] == COIN && (*collisionType)[yIndex] == COIN)
 		{
+			// If both coltypes are coin remove them both
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
 			if (audioEvents)
@@ -1337,6 +1363,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((*collisionType)[xIndex] == COIN)
 		{
+			// if x is coin remove it and continue regular Y
 			((WorldEntity*)(*collisionItem)[xIndex])->SetRemove(true);
 			if (audioEvents)
 			{
@@ -1350,6 +1377,7 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((*collisionType)[yIndex] == COIN)
 		{
+			// if y is coin remove it and continue regular x
 			((WorldEntity*)(*collisionItem)[yIndex])->SetRemove(true);
 			if (audioEvents)
 			{
@@ -1362,49 +1390,28 @@ void Physics::XYCollisionBehaviour(int xIndex, int yIndex, Entity* ent, vector<C
 		}
 		else if ((((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD) && ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)) || ent->GetIsCrouching())
 		{
+			// If both are either World or Jellyworld or the player is crouching stop the player
 			ent->SetOffset(0.0, 0.0);
 			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetIsAirBorn(false);
 		}
 		else if ((*collisionType)[yIndex] == WORLD || (*collisionType)[yIndex] == JELLYWORLD)
 		{
+			// If one is world the other is Jelly thus bounce of accordingly
 			ent->SetOffset(PLAYER_BOUNCE_OFFSET / ((*collisionPosition)[xIndex] == RX ? -PLAYER_SIDE_SIDE_BOUNCE : PLAYER_SIDE_SIDE_BOUNCE), PLAYER_BOUNCE_OFFSET / -PLAYER_SIDE_UP_BOUNCE);
 			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetLastImpactType(JELLY);
 		}
 		else if ((*collisionType)[xIndex] == WORLD || (*collisionType)[xIndex] == JELLYWORLD)
 		{
+			// If one is world the other is Jelly thus bounce of accordingly
 			ent->SetLastColPos((*collisionPosition)[xIndex]);
 			ent->SetOffset(0.0, entOff->Y * PROJECTILE_BOUNCINESS * -1);
 		}
-		else if ((*collisionType)[yIndex] == JELLY || (*collisionType)[xIndex] == JELLY)
+		else if ((*collisionType)[yIndex] == JELLY && (*collisionType)[xIndex] == JELLY)
 		{
-			if ((*collisionPosition)[yIndex] == UY)
-			{
-				ent->SetOffset(entOff->X, entOff->Y * -1);
-			}
-			else
-			{
-				if (entOff->Y < PLAYER_BOUNCE_OFFSET)
-				{
-					ent->SetOffset(entOff->X, PLAYER_BOUNCE_OFFSET * -1);
-				}
-				else
-				{
-					ent->SetOffset(entOff->X, entOff->Y * -1);
-				}
-				ent->SetPreviousImpactHeight((*possitions)[yIndex].Y);
-				ent->SetLastImpactType(JELLY);
-			}
-
-			ent->SetLastColPos((*collisionPosition)[xIndex]);
-			if (audioEvents)
-			{
-				ALLEGRO_EVENT e;
-				e.type = 555;
-				e.user.data1 = PLAYER_JELLY;
-				al_emit_user_event(&UserEventSource, &e, 0);
-			}
+			// If both impacts are Jelly behave like X
+			XCollisionBehaviour(xIndex, ent, possitions, collisionPosition, collisionType, collisionItem, audioEvents);
 		}
 	}
 }
